@@ -11,6 +11,13 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+
+        foregroundHighlighted: "var(--foregroundHighlighted)",
+        foregroundGrey: "var(--foregroundGrey)",
+
+        backgroundBox: "var(--backgroundBox)",
+        backgroundBoxHover: "var(--backgroundBoxHover)",
+
         blackBoard: "var(--blackBoard)",
         whiteBoard: "var(--whiteBoard)",
       },

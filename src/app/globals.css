@@ -10,7 +10,13 @@
 
 :root {
   --background: #302E2B;
-  --foreground: #ededed;
+  --foreground: #dedede;
+
+  --foregroundHighlighted: #ffffff;
+  --foregroundGrey: #939291;
+
+  --backgroundBox: #262522;
+  --backgroundBoxHover: #21201e;
 
   --blackBoard: #779556;
   --whiteBoard: #ebecd0;

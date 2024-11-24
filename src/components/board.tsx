@@ -8,7 +8,7 @@ export default function Board(props: { boardSize: number, boardColors: string[] 
     const { boardSize, boardColors } = props
 
     return (
-        <div className={`m-10 grid grid-cols-2 w-fit h-fit rounded-[.25rem] overflow-hidden`} style={{gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))`}}>
+        <div className={`grid grid-cols-2 w-fit h-fit rounded-[.25rem] overflow-hidden`} style={{gridTemplateColumns: `repeat(${boardSize}, minmax(0, 1fr))`}}>
             {
                 (() => {
                     const squares: JSX.Element[] = []
