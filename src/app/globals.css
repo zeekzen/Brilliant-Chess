@@ -20,6 +20,9 @@
 
   --blackBoard: #779556;
   --whiteBoard: #ebecd0;
+
+
+  --borderRoundness: .25rem;
 }
 
 body {

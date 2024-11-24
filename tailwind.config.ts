@@ -21,6 +21,9 @@ export default {
         blackBoard: "var(--blackBoard)",
         whiteBoard: "var(--whiteBoard)",
       },
+      borderRadius: {
+        borderRoundness: "var(--borderRoundness)",
+      }
     },
   },
   plugins: [],
