@@ -1,7 +1,7 @@
 "use client"
 
 function isEven(num: number) {
-    return (num % 2) == 0
+    return (num % 2) === 0
 }
 
 function getRowNumber(num: number, boardSize: number) {
