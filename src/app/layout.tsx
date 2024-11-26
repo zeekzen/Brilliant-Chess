@@ -3,6 +3,13 @@ import "./globals.css"
 
 import Nav from "@/components/nav"
 
+import { Roboto } from 'next/font/google'
+
+const roboto = Roboto({
+    subsets: ['latin'],
+    weight: ['400', '700'],
+})
+
 export const metadata: Metadata = {
   title: "Brilliant Chess",
   description: "A chess.com-like chess analyzer for free",
@@ -11,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{children: React.ReactNode}>) {
   return (
     <html lang="en">
-      <body className="flex flex-row items-center justify-between h-screen">
+      <body className={`flex flex-row items-center justify-between h-screen ${roboto.className}`}>
         <header>
           <Nav />
         </header>
