@@ -7,7 +7,7 @@ const BOARD_SIZE = 750
 
 export default function Home() {
   return (
-      <main className="flex flex-row h-[95%] gap-8 items-center">
+      <main className="flex flex-row h-[95%] gap-8 items-center select-none">
         <Board boardProportions={BOARD_PROPORTIONS} boardColors={BOARD_COLORS} boardSize={BOARD_SIZE} />
         <Menu />
       </main>

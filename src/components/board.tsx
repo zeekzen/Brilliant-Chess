@@ -60,7 +60,7 @@ export default function Board(props: { boardProportions: number, boardColors: st
                             }
 
                             // bg-whiteBoard / bg-blackBoard
-                            squares.push(<div key={`${row}-${column}`} style={{height: squareSize, width: squareSize, fontSize: guideSize}} className={`bg-${bgColor} font-bold select-none relative`}>{squareNumGuide}{squareLetterGuide}</div>)
+                            squares.push(<div key={`${row}-${column}`} style={{height: squareSize, width: squareSize, fontSize: guideSize}} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}</div>)
                         }
                     }
                     return squares
