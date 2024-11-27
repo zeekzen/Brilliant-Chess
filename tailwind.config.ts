@@ -17,13 +17,24 @@ export default {
 
         backgroundBox: "var(--backgroundBox)",
         backgroundBoxHover: "var(--backgroundBoxHover)",
+        backgroundBoxBox: "var(--backgroundBoxBox)",
+        backgroundBoxBoxHover: "var(--backgroundBoxBoxHover)",
+        backgroundBoxBoxHighlighted: "var(--backgroundBoxBoxHighlighted)",
+        backgroundBoxBoxHighlightedHover: "var(--backgroundBoxBoxHighlightedHover)",
+
+        border: "var(--border)",
+        borderHighlighted: "var(--borderHighlighted)",
 
         blackBoard: "var(--blackBoard)",
         whiteBoard: "var(--whiteBoard)",
       },
       borderRadius: {
         borderRoundness: "var(--borderRoundness)",
-      }
+        borderExtraRoundness: "var(--borderExtraRoundness)",
+      },
+      boxShadow: {
+        shadowBoxBoxHighlighted: "var(--shadowBoxBoxHighlighted) var(--backgroundBoxBoxHighlightedHover)",
+      },
     },
   },
   plugins: [],

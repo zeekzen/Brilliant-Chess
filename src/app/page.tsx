@@ -1,5 +1,5 @@
 import Board from "@/components/board"
-import Menu from "@/components/menu"
+import Menu from "@/components/menu/menu"
 
 const BOARD_PROPORTIONS = 8
 const BOARD_COLORS = ["whiteBoard", "blackBoard"]

@@ -17,12 +17,21 @@
 
   --backgroundBox: #262522;
   --backgroundBoxHover: #21201e;
+  --backgroundBoxBox: #3c3b39;
+  --backgroundBoxBoxHover: #5d5d5d;
+  --backgroundBoxBoxHighlighted: #81b64c;
+  --backgroundBoxBoxHighlightedHover: #8bc550;
+
+  --border: #5d5d5d;
+  --borderHighlighted: #949494;
 
   --blackBoard: #779556;
   --whiteBoard: #ebecd0;
 
+  --shadowBoxBoxHighlighted: 0 0 8px;
 
   --borderRoundness: .25rem;
+  --borderExtraRoundness: .5rem;
 }
 
 body {
