@@ -45,7 +45,7 @@ export default function Form() {
                     })}
                 </ul>
             </div>
-            <input type="submit" className="w-[85%] h-16 rounded-borderExtraRoundness text-2xl bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-colors font-extrabold hover:shadow-shadowBoxBoxHighlighted" value="Analyze" />
+            <input type="submit" className="w-[85%] h-16 cursor-pointer rounded-borderExtraRoundness text-2xl bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-colors font-extrabold hover:shadow-shadowBoxBoxHighlighted" value="Analyze" />
         </form>
     )
 }
