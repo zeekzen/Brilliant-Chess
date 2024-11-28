@@ -16,7 +16,7 @@ export default function Game() {
         function updateBoardSize() {
             const component = componentRef.current
             const statusBar = component?.getElementsByTagName('div')[0]
-            
+
             const componentHeight = component?.offsetHeight ?? 0
             const statusBarHeight = statusBar?.offsetHeight ?? 0
             const gapHeight = 9
@@ -25,7 +25,7 @@ export default function Game() {
 
             setBoardSize(boardHeight)
         }
-        
+
         updateBoardSize()
 
         window.addEventListener('resize', updateBoardSize)
@@ -35,9 +35,9 @@ export default function Game() {
 
     return (
         <div ref={componentRef} className="h-full flex flex-col justify-between">
-                <div className="flex flex-row justify-between">-<Clock white={false} moving={false} time="10:00" /></div>
-                <Board boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
-                <div className="flex flex-row justify-between">-<Clock white={true} moving={false} time="10:00" /></div>
+            <div className="flex flex-row justify-between">-<Clock white={false} moving={false} time="10:00" /></div>
+            <Board boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+            <div className="flex flex-row justify-between">-<Clock white={true} moving={false} time="10:00" /></div>
         </div>
     )
 }
