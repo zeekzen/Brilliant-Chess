@@ -12,13 +12,17 @@ function getColumnLetter(num: number, boardProportions: number) {
     return letters[num]
 }
 
-export default function Board(props: { boardProportions: number, boardColors: string[], boardSize: number }) {
-    const { boardProportions, boardColors, boardSize } = props
-
+export default function Board(props: { boardProportions: number, boardSize: number }) {
+    const { boardProportions, boardSize } = props
+    
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
+
+    // text-whiteBoard / text-blackBoard
+    // bg-whiteBoard / bg-blackBoard
+    const BOARD_COLORS = ["whiteBoard", "blackBoard"]
 
     return (
         <div className="grid grid-cols-2 w-fit h-fit rounded-borderRoundness overflow-hidden" style={{gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))`}}>
@@ -32,23 +36,22 @@ export default function Board(props: { boardProportions: number, boardColors: st
                             let bgColor, guideColor
                             if (isEven(row)) {
                                 if (isEven(column)) {
-                                    bgColor = boardColors[0]
-                                    guideColor = boardColors[1]
+                                    bgColor = BOARD_COLORS[0]
+                                    guideColor = BOARD_COLORS[1]
                                 } else {
-                                    bgColor = boardColors[1]
-                                    guideColor = boardColors[0]
+                                    bgColor = BOARD_COLORS[1]
+                                    guideColor = BOARD_COLORS[0]
                                 }
                             } else {
                                 if (isEven(column)) {
-                                    bgColor = boardColors[1]
-                                    guideColor = boardColors[0]
+                                    bgColor = BOARD_COLORS[1]
+                                    guideColor = BOARD_COLORS[0]
                                 } else {
-                                    bgColor = boardColors[0]
-                                    guideColor = boardColors[1]
+                                    bgColor = BOARD_COLORS[0]
+                                    guideColor = BOARD_COLORS[1]
                                 }
                             }
 
-                            // text-whiteBoard / text-blackBoard
                             let squareNumGuide, squareLetterGuide
                             if (row === boardProportions - 1) {
                                 squareLetterGuide = <span style={{right: rightSize}} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
@@ -57,7 +60,6 @@ export default function Board(props: { boardProportions: number, boardColors: st
                                 squareNumGuide = <span style={{left: leftSize}} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
-                            // bg-whiteBoard / bg-blackBoard
                             squares.push(<div key={`${row}-${column}`} style={{height: squareSize, width: squareSize, fontSize: guideSize}} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}</div>)
                         }
                     }

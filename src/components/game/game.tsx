@@ -6,7 +6,6 @@ import Board from "./board"
 import Clock from "./clock"
 
 const BOARD_PROPORTIONS = 8
-const BOARD_COLORS = ["whiteBoard", "blackBoard"]
 
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
@@ -37,7 +36,7 @@ export default function Game() {
     return (
         <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">-<Clock white={false} moving={false} time="10:00" /></div>
-                <Board boardProportions={BOARD_PROPORTIONS} boardColors={BOARD_COLORS} boardSize={boardSize} />
+                <Board boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
                 <div className="flex flex-row justify-between">-<Clock white={true} moving={false} time="10:00" /></div>
         </div>
     )
