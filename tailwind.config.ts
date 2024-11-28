@@ -21,6 +21,8 @@ export default {
         backgroundBoxBoxHover: "var(--backgroundBoxBoxHover)",
         backgroundBoxBoxHighlighted: "var(--backgroundBoxBoxHighlighted)",
         backgroundBoxBoxHighlightedHover: "var(--backgroundBoxBoxHighlightedHover)",
+        backgroundWhiteClock: "var(--backgroundWhiteClock)",
+        backgroundBlackClock: "var(--backgroundBlackClock)",
 
         border: "var(--border)",
         borderHighlighted: "var(--borderHighlighted)",
