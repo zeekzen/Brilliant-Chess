@@ -27,7 +27,7 @@ export default function Form() {
         <form onSubmit={analize} className="flex flex-col items-center gap-4">
             <input type="text" className="w-[85%] h-14 p-2 transition-colors text-xl rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" />
             <div className="w-[85%] flex flex-col gap-4">
-                <button className="w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => {e.preventDefault(); setSelecting(isSelecting => !isSelecting)}}>
+                <button type="button" className="w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => {e.preventDefault(); setSelecting(isSelecting => !isSelecting)}}>
                     {FORMATS[selected]}
                     <div className={`absolute h-full right-6 top-0 flex flex-row items-center ${isSelecting ? "" : "rotate-180"}`}><Arrow class="fill-foregroundGrey" /></div>
                 </button>
