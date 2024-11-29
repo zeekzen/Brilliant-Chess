@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Arrow from "../svg/arrow"
+import { parsePGN } from "@/server/analize"
 
 const FORMATS = [
     ["Chess.com", "/images/chesscom.svg"],
@@ -12,6 +13,7 @@ const FORMATS = [
 
 function analize(e: React.FormEvent) {
     e.preventDefault()
+    parsePGN()
 }
 
 export default function Form() {
