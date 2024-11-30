@@ -32,11 +32,10 @@ function formatTime(seconds: number): string {
     if (hours) {
         const days = getDays(hours)
         if (days) {
-            return `${days} days`
+            return `${days} ${days > 1 ? 'days' : 'day'}`
         }
-        return `${hours} hours`
+        return `${hours} ${hours > 1 ? 'hours' : 'hour'}`
     }
-
     return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
 }
 
