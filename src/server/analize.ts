@@ -1,13 +1,8 @@
 "use server"
 
-import FENBoard from "fen-chess-board";
-import pgnParser from 'pgn-parser'
 import { readFileSync } from "fs";
 import path from "path";
-
-function getHeader(headers: Array<any>, name: string, noFoundStr: string | null): string {
-    return headers.filter(header => header.name === name)[0]?.value ?? noFoundStr
-}
+import { Chess } from "chess.js";
 
 function formatTime(seconds: number): string {
     const toTwoDigits = (num: number) => {
@@ -39,15 +34,15 @@ function formatTime(seconds: number): string {
     return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
 }
 
-function getNames(headers: Array<any>) {
+function getNames(headers: Record<string, string>) {
     const NO_NAME = 'Unknown'
     const NO_ELO = '?'
 
-    const whiteName = getHeader(headers, "White", NO_NAME)
-    const blackName = getHeader(headers, "Black", NO_NAME)
+    const whiteName = headers.White ?? NO_NAME
+    const blackName = headers.Black ?? NO_NAME
 
-    const whiteElo = getHeader(headers, "WhiteElo", NO_ELO)
-    const blackElo = getHeader(headers, "BlackElo", NO_ELO)
+    const whiteElo = headers.WhiteElo ?? NO_ELO
+    const blackElo = headers.BlackElo ?? NO_ELO
 
     const fullWhiteName = `${whiteName} (${whiteElo})`
     const fullBlackName = `${blackName} (${blackElo})`
@@ -55,10 +50,10 @@ function getNames(headers: Array<any>) {
     return [fullWhiteName, fullBlackName]
 }
 
-function getTime(headers: Array<any>) {
+function getTime(headers: Record<string, string>) {
     const NO_TIME = '--:--'
 
-    const seconds = getHeader(headers, "TimeControl", null)
+    const seconds = headers.TimeControl ?? null
 
     const formattedTime = formatTime(Number(seconds))
 
@@ -67,10 +62,14 @@ function getTime(headers: Array<any>) {
 
 export async function parsePGN() {
     const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
-    const [result] = pgnParser.parse(pgnFile)
 
-    const headers = result.headers
+    const chess = new Chess()
+    chess.loadPgn(pgnFile)
+
+    const headers = chess.header()
 
     const names = getNames(headers)
     const time = getTime(headers)
+
+    console.log(names, time)
 }
