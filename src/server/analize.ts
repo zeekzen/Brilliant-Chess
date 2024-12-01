@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { Chess } from "chess.js";
 
-function formatTime(seconds: number): string {
+function formatTime(seconds: number, noTime: string): string {
     const toTwoDigits = (num: number) => {
         return String(num).padStart(2, '0')
     }
@@ -14,24 +14,28 @@ function formatTime(seconds: number): string {
     }
 
     const getHours = (minutes: number) => {
-        return Math.floor(minutes / 60)
+        return Math.ceil(minutes / 60)
     }
 
     const getDays = (hours: number) => {
-        return Math.floor(hours / 24)
+        return Math.ceil(hours / 24)
     }
 
     const [minutes, restSeconds] = getMinutes(seconds)
 
-    const hours = getHours(minutes)
-    if (hours) {
-        const days = getDays(hours)
-        if (days) {
-            return `${days} ${days > 1 ? 'days' : 'day'}`
+    if (minutes) {
+        const hours = getHours(minutes)
+        if (hours) {
+            const days = getDays(hours)
+            if (days > 2) {
+                return `${days} days`
+            }
+            return `${hours} ${hours > 1 ? 'hours' : 'hour'}`
         }
-        return `${hours} ${hours > 1 ? 'hours' : 'hour'}`
+        return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
     }
-    return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
+    if (restSeconds) return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
+    return noTime
 }
 
 function getNames(headers: Record<string, string>) {
@@ -53,9 +57,9 @@ function getNames(headers: Record<string, string>) {
 function getTime(headers: Record<string, string>) {
     const NO_TIME = '--:--'
 
-    const seconds = headers.TimeControl ?? null
+    const seconds = headers.TimeControl ?? '0'
 
-    const formattedTime = formatTime(Number(seconds))
+    const formattedTime = formatTime(Number(seconds), NO_TIME)
 
     return formattedTime
 }
