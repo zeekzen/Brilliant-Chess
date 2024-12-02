@@ -35,12 +35,13 @@ export default function Game() {
     }, [])
 
     const time = "10:00"
+    const names = ["White (843)", "Black (859)"]
 
     return (
         <div ref={componentRef} className="h-full flex flex-col justify-between">
-            <div className="flex flex-row justify-between"><Name white={false}>Black (859)</Name><Clock white={false} moving={false}>{time}</Clock></div>
+            <div className="flex flex-row justify-between"><Name white={false}>{names[1]}</Name><Clock white={false} moving={false}>{time}</Clock></div>
             <Board boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
-            <div className="flex flex-row justify-between"><Name white={true}>White (843)</Name><Clock white={true} moving={false}>{time}</Clock></div>
+            <div className="flex flex-row justify-between"><Name white={true}>{names[0]}</Name><Clock white={true} moving={false}>{time}</Clock></div>
         </div>
     )
 }
