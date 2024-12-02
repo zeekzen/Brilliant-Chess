@@ -15,6 +15,8 @@ export default {
         foregroundHighlighted: "var(--foregroundHighlighted)",
         foregroundGrey: "var(--foregroundGrey)",
 
+        placeholder: "var(--placeholder)",
+
         backgroundBox: "var(--backgroundBox)",
         backgroundBoxHover: "var(--backgroundBoxHover)",
         backgroundBoxBox: "var(--backgroundBoxBox)",

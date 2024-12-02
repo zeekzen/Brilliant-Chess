@@ -25,9 +25,13 @@ export default function Form() {
         setSelecting(false)
     }
 
+    const inputPlaceholder = FORMATS[selected][0] === "Chess.com" || FORMATS[selected][0] === "Lichess.org" ?
+        `Enter your ${FORMATS[selected][0]} user here` :
+        `Paste your ${FORMATS[selected][0]} here`
+
     return (
         <form onSubmit={analize} className="flex flex-col items-center gap-4">
-            <input type="text" className="w-[85%] h-14 p-2 transition-colors text-xl rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" />
+            <input type="text" placeholder={inputPlaceholder} className="w-[85%] h-14 p-2 transition-colors text-xl font-bold rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none placeholder:text-placeholder placeholder:font-normal" />
             <div className="w-[85%] flex flex-col gap-4">
                 <button type="button" className="flex flex-row gap-1 items-center justify-center w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => { e.preventDefault(); setSelecting(isSelecting => !isSelecting) }}>
                     <img src={FORMATS[selected][1]} className="h-7" />
