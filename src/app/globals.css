@@ -26,6 +26,11 @@
   --backgroundWhiteClock: #f6f6f6;
   --backgroundBlackClock: #1e1d1c;
 
+  --foregroundProfileWhite: #ffffff;
+  --foregroundProfileBlack: #1d1c1a;
+  --backgroundProfileWhite: #dbd9d6;
+  --backgroundProfileBlack: #474542;
+
   --border: #5d5d5d;
   --borderHighlighted: #949494;
 

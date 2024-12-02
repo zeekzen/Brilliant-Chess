@@ -26,6 +26,11 @@ export default {
         backgroundWhiteClock: "var(--backgroundWhiteClock)",
         backgroundBlackClock: "var(--backgroundBlackClock)",
 
+        foregroundProfileWhite: "var(--foregroundProfileWhite)",
+        foregroundProfileBlack: "var(--foregroundProfileBlack)",
+        backgroundProfileWhite: "var(--backgroundProfileWhite)",
+        backgroundProfileBlack: "var(--backgroundProfileBlack)",
+
         border: "var(--border)",
         borderHighlighted: "var(--borderHighlighted)",
 
