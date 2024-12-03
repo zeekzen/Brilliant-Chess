@@ -31,6 +31,9 @@ export default {
         backgroundProfileWhite: "var(--backgroundProfileWhite)",
         backgroundProfileBlack: "var(--backgroundProfileBlack)",
 
+        evaluationBarWhite: "var(--evaluationBarWhite)",
+        evaluationBarBlack: "var(--evaluationBarBlack)",
+
         border: "var(--border)",
         borderHighlighted: "var(--borderHighlighted)",
 
