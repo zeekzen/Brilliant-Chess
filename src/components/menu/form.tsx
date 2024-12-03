@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Arrow from "../svg/arrow"
-import { parsePGN } from "@/server/analize"
+import { parsePGN } from "@/server/analyze"
 
 const FORMATS = [
     ["Chess.com", "/images/chesscom.svg"],
