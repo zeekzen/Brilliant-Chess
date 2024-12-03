@@ -25,7 +25,7 @@ function formatTime(seconds: number, noTime: string): string {
 
     if (minutes) {
         const hours = getHours(minutes)
-        if (hours) {
+        if (hours > 2) {
             const days = getDays(hours)
             if (days > 2) {
                 return `${days} days`
