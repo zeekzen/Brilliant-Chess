@@ -8,7 +8,7 @@ const FORMATS = [
     ["Chess.com", "/images/chesscom.svg"],
     ["Lichess.org", "/images/lichess.svg"],
     ["PGN", "/images/pgn.svg"],
-    ["JSON", "/images/json.svg"]
+    ["FEN", "/images/json.svg"]
 ]
 
 export default function Form() {
@@ -33,7 +33,7 @@ export default function Form() {
 
     const inputPlaceholder = FORMATS[selected][0] === "Chess.com" || FORMATS[selected][0] === "Lichess.org" ?
         `Enter your ${FORMATS[selected][0]} user here` :
-        `Paste your ${FORMATS[selected][0]} here`
+        `Paste your ${FORMATS[selected][0]} code here`
 
     return (
         <form onSubmit={analize} className="flex flex-col items-center gap-4">
