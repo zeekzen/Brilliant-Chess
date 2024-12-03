@@ -1,11 +1,13 @@
 "use client"
 
-import React, { useEffect, useState, useRef } from "react"
+import React, { useEffect, useState, useRef, useContext } from "react"
 
 import Board from "./board"
 import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
+import { AnalyzeContext } from "@/context/analyze"
+import { parsePGN } from "@/server/analyze"
 
 const BOARD_PROPORTIONS = 8
 const GAP = 10
@@ -13,7 +15,13 @@ const GAP = 10
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
+    const [data, setData] = useContext(AnalyzeContext)
+
     const componentRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        parsePGN()
+    }, [data])
 
     useEffect(() => {
         function updateBoardSize() {
