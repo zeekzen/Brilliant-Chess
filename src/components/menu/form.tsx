@@ -5,10 +5,10 @@ import Arrow from "../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 
 export const FORMATS = [
-    ["Chess.com", "/images/chesscom.svg"],
-    ["Lichess.org", "/images/lichess.svg"],
-    ["PGN", "/images/pgn.svg"],
-    ["FEN", "/images/json.svg"]
+    ["Chess.com", "/images/chesscom.svg", "platform"],
+    ["Lichess.org", "/images/lichess.svg", "platform"],
+    ["PGN", "/images/pgn.svg", "format"],
+    ["FEN", "/images/json.svg", "format"]
 ] as const
 
 export default function Form() {
@@ -31,9 +31,17 @@ export default function Form() {
         setSelecting(false)
     }
 
-    const inputPlaceholder = FORMATS[selected][0] === "Chess.com" || FORMATS[selected][0] === "Lichess.org" ?
+    function isAPlatform(i: number) {
+        return FORMATS[i][2] === "platform"
+    }
+
+    const inputPlaceholder = isAPlatform(selected) ?
         `Enter your ${FORMATS[selected][0]} user here` :
         `Paste your ${FORMATS[selected][0]} code here`
+
+    const analyzeValue = isAPlatform(selected) ?
+        "List games" :
+        "Analyze"
 
     return (
         <form onSubmit={analyze} className="flex flex-col items-center gap-4">
@@ -57,7 +65,7 @@ export default function Form() {
                     })}
                 </ul>
             </div>
-            <input type="submit" className="w-[85%] h-16 cursor-pointer rounded-borderExtraRoundness text-2xl bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-all font-extrabold hover:shadow-shadowBoxBoxHighlighted" value="Analyze" />
+            <input type="submit" className="w-[85%] h-16 cursor-pointer rounded-borderExtraRoundness text-2xl bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-all font-extrabold hover:shadow-shadowBoxBoxHighlighted" value={analyzeValue} />
         </form>
     )
 }
