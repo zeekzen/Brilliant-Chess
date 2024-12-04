@@ -8,6 +8,7 @@ import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN } from "@/server/analyze"
+import { FORMATS } from "../menu/form"
 
 const BOARD_PROPORTIONS = 8
 const GAP = 10
@@ -20,7 +21,22 @@ export default function Game() {
     const componentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        parsePGN()
+        const dataType = FORMATS[data[0]][0]
+
+        switch (dataType) {
+            case "Chess.com":
+                // listChessComGames()
+                break
+            case "Lichess.org":
+                // listLichessOrgGames()
+                break
+            case "PGN":
+                parsePGN()
+                break
+            case "FEN":
+                // parseFEN()
+                break
+        }
     }, [data])
 
     useEffect(() => {

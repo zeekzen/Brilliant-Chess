@@ -4,12 +4,12 @@ import { useContext, useRef, useState } from "react"
 import Arrow from "../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 
-const FORMATS = [
+export const FORMATS = [
     ["Chess.com", "/images/chesscom.svg"],
     ["Lichess.org", "/images/lichess.svg"],
     ["PGN", "/images/pgn.svg"],
     ["FEN", "/images/json.svg"]
-]
+] as const
 
 export default function Form() {
     const [isSelecting, setSelecting] = useState(false)
@@ -19,11 +19,11 @@ export default function Form() {
     
     const inputRef = useRef<HTMLInputElement>(null)
 
-    function analize(e: React.FormEvent) {
+    function analyze(e: React.FormEvent) {
         e.preventDefault()
 
         const value = inputRef.current?.value ?? ""
-        setData(value)
+        setData([selected, value])
     }
 
     function changeSelected(i: number) {
@@ -36,7 +36,7 @@ export default function Form() {
         `Paste your ${FORMATS[selected][0]} code here`
 
     return (
-        <form onSubmit={analize} className="flex flex-col items-center gap-4">
+        <form onSubmit={analyze} className="flex flex-col items-center gap-4">
             <input type="text" ref={inputRef} placeholder={inputPlaceholder} className="w-[85%] h-14 p-2 transition-colors text-xl font-bold rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none placeholder:text-placeholder placeholder:font-normal" />
             <div className="w-[85%] flex flex-col gap-4">
                 <button type="button" className="flex flex-row gap-1 items-center justify-center w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => { e.preventDefault(); setSelecting(isSelecting => !isSelecting) }}>
@@ -48,7 +48,7 @@ export default function Form() {
                     {FORMATS.map((format, i) => {
                         return (
                             <li key={i}>
-                                <button onClick={() => changeSelected(i)} className="flex flex-row gap-1 items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
+                                <button type="button" onClick={() => changeSelected(i)} className="flex flex-row gap-1 items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
                                     <img src={format[1]} className="h-6" />
                                     {format[0]}
                                 </button>
