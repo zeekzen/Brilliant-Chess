@@ -1,0 +1,25 @@
+import License from "@/components/svg/license";
+import Image from "next/image";
+
+export default function Licenses() {
+    return (
+        <div className="flex-grow h-full">
+            <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><License size={35} class="fill-foreground" />Licenses</h1>
+            <div className="grid grid-cols-3 p-14">
+                <div className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
+                    <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
+                        <div className="flex flex-row">
+                            <Image className="rotate-[-20deg] relative top-1" alt="king" src="/images/pieces/white/queen.svg" width={50} height={0} />
+                            <Image className="rotate-12 relative bottom-2 right-2" alt="king" src="/images/pieces/white/king.svg" width={50} height={0} />
+                        </div>
+                        Chess Pieces Images
+                    </h1>
+                    <ul className="text-lg">
+                        <li>Created by: <a className="text-blue-600 hover:underline font-bold" href="https://en.wikipedia.org/wiki/User:Cburnett">Cburnett</a></li>
+                        <li>License: <a className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    )
+}
