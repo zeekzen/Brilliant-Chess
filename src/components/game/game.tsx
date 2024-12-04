@@ -16,27 +16,35 @@ const GAP = 10
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
+    const [time, setTime] = useState('--:--')
+    const [names, setNames] = useState(['White (?)', 'Black (?)'])
+
     const [data, setData] = useContext(AnalyzeContext)
 
     const componentRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        const dataType = FORMATS[data[0]][0]
+        (async () => {
+            const dataType = FORMATS[data[0]][0]
 
-        switch (dataType) {
-            case "Chess.com":
-                // listChessComGames()
-                break
-            case "Lichess.org":
-                // listLichessOrgGames()
-                break
-            case "PGN":
-                parsePGN()
-                break
-            case "FEN":
-                // parseFEN()
-                break
-        }
+            switch (dataType) {
+                case "Chess.com":
+                    // listChessComGames()
+                    break
+                case "Lichess.org":
+                    // listLichessOrgGames()
+                    break
+                case "PGN":
+                    const {metadata} = await parsePGN()
+
+                    setTime(metadata.time)
+                    setNames(metadata.names)
+                    break
+                case "FEN":
+                    // parseFEN()
+                    break
+            }
+        })()
     }, [data])
 
     useEffect(() => {
@@ -59,9 +67,6 @@ export default function Game() {
 
         return () => window.removeEventListener('resize', updateBoardSize)
     }, [])
-
-    const time = "10:00"
-    const names = ["White (843)", "Black (859)"]
 
     return (
         <div style={{gap: GAP}} className="h-full flex flex-row items-center">

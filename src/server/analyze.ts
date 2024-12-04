@@ -75,5 +75,7 @@ export async function parsePGN() {
     const names = getNames(headers)
     const time = getTime(headers)
 
-    console.log(names, time)
+    const metadata = {names, time}
+
+    return {metadata}
 }
