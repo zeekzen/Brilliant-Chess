@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN } from "@/server/analyze"
+import { parsePGN, move } from "@/server/analyze"
 import { FORMATS } from "../menu/form"
 
 const BOARD_PROPORTIONS = 8
@@ -18,33 +18,56 @@ export default function Game() {
 
     const [time, setTime] = useState('--:--')
     const [names, setNames] = useState(['White (?)', 'Black (?)'])
+    const [game, setGame] = useState<move[]>([])
+    const [moveNumber, setMoveNumber] = useState(0)
 
     const [data, setData] = useContext(AnalyzeContext)
 
     const componentRef = useRef<HTMLDivElement>(null)
 
+    async function handlePGN() {
+        const {metadata, moves} = await parsePGN()
+
+        setTime(metadata.time)
+        setNames(metadata.names)
+        setGame(moves)
+    }
+
+    function handleKeyDown(e: React.KeyboardEvent) {
+        switch (e.key) {
+            case 'ArrowLeft':
+                setMoveNumber(prev => Math.max(prev - 1, 0))
+                break
+            case 'ArrowRight':
+                setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
+                break
+            case 'ArrowUp':
+                setMoveNumber(0)
+                break
+            case 'ArrowDown':
+                setMoveNumber(game.length - 1)
+                break
+        }
+    }
+
     useEffect(() => {
-        (async () => {
-            const dataType = FORMATS[data[0]][0]
+        const dataType = FORMATS[data[0]][0]
+        const dataCode = data[1]
 
-            switch (dataType) {
-                case "Chess.com":
-                    // listChessComGames()
-                    break
-                case "Lichess.org":
-                    // listLichessOrgGames()
-                    break
-                case "PGN":
-                    const {metadata} = await parsePGN()
-
-                    setTime(metadata.time)
-                    setNames(metadata.names)
-                    break
-                case "FEN":
-                    // parseFEN()
-                    break
-            }
-        })()
+        switch (dataType) {
+            case "Chess.com":
+                // listChessComGames()
+                break
+            case "Lichess.org":
+                // listLichessOrgGames()
+                break
+            case "PGN":
+                handlePGN()
+                break
+            case "FEN":
+                // parseFEN()
+                break
+        }
     }, [data])
 
     useEffect(() => {
@@ -69,14 +92,14 @@ export default function Game() {
     }, [])
 
     return (
-        <div style={{gap: GAP}} className="h-full flex flex-row items-center">
+        <div tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center">
             <Evaluation height={boardSize} white={true} advantage={1.49} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
                     <Name white={false}>{names[1]}</Name>
                     <Clock white={false} moving={false}>{time}</Clock>
                 </div>
-                <Board boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+                <Board position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
                 <div className="flex flex-row justify-between">
                     <Name white={true}>{names[0]}</Name>
                     <Clock white={true} moving={false}>{time}</Clock>

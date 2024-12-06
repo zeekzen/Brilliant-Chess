@@ -1,10 +1,5 @@
+import { position } from "@/server/analyze";
 import Image from "next/image";
-
-type position = ({
-    square: string;
-    type: string;
-    color: string;
-}[] | null[])[]
 
 const DEFAULT_POSITION = [
     [

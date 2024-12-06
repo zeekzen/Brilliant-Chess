@@ -2,7 +2,17 @@
 
 import { readFileSync } from "fs";
 import path from "path";
-import { Chess } from "chess.js";
+import { Chess, Color, PieceSymbol, Square } from "chess.js";
+
+export type position = ({
+    square: Square,
+    type: PieceSymbol,
+    color: Color,
+} | null)[][]
+
+export interface move {
+    position: position,
+}
 
 function formatTime(seconds: number, noTime: string): string {
     const toTwoDigits = (num: number) => {
@@ -77,12 +87,20 @@ export async function parsePGN() {
 
     const metadata = {names, time}
 
-    let cont = 0
-    chess.history({verbose: true}).forEach(i => {
-        const asd = new Chess(i.before)
-        console.log(cont === 0 ? asd.board() : '')
-        cont++
+    const moves: move[] = []
+
+    chess.history({verbose: true}).forEach((move, moveNumber) => {
+        if (moveNumber === 0) {
+            chess.load(move.before)
+            moves.push({
+                position: chess.board()
+            })
+        }
+        chess.load(move.after)
+        moves.push({
+            position: chess.board()
+        })
     })
 
-    return {metadata}
+    return {metadata, moves}
 }
