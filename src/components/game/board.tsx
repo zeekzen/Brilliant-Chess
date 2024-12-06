@@ -1,3 +1,77 @@
+import Image from "next/image";
+
+type position = ({
+    square: string;
+    type: string;
+    color: string;
+}[] | null[])[]
+
+const DEFAULT_POSITION = [
+    [
+        { square: 'a8', type: 'r', color: 'b' },
+        { square: 'b8', type: 'n', color: 'b' },
+        { square: 'c8', type: 'b', color: 'b' },
+        { square: 'd8', type: 'q', color: 'b' },
+        { square: 'e8', type: 'k', color: 'b' },
+        { square: 'f8', type: 'b', color: 'b' },
+        { square: 'g8', type: 'n', color: 'b' },
+        { square: 'h8', type: 'r', color: 'b' }
+    ],
+    [
+        { square: 'a7', type: 'p', color: 'b' },
+        { square: 'b7', type: 'p', color: 'b' },
+        { square: 'c7', type: 'p', color: 'b' },
+        { square: 'd7', type: 'p', color: 'b' },
+        { square: 'e7', type: 'p', color: 'b' },
+        { square: 'f7', type: 'p', color: 'b' },
+        { square: 'g7', type: 'p', color: 'b' },
+        { square: 'h7', type: 'p', color: 'b' }
+    ],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [
+      { square: 'a2', type: 'p', color: 'w' },
+      { square: 'b2', type: 'p', color: 'w' },
+      { square: 'c2', type: 'p', color: 'w' },
+      { square: 'd2', type: 'p', color: 'w' },
+      { square: 'e2', type: 'p', color: 'w' },
+      { square: 'f2', type: 'p', color: 'w' },
+      { square: 'g2', type: 'p', color: 'w' },
+      { square: 'h2', type: 'p', color: 'w' }
+    ],
+    [
+      { square: 'a1', type: 'r', color: 'w' },
+      { square: 'b1', type: 'n', color: 'w' },
+      { square: 'c1', type: 'b', color: 'w' },
+      { square: 'd1', type: 'q', color: 'w' },
+      { square: 'e1', type: 'k', color: 'w' },
+      { square: 'f1', type: 'b', color: 'w' },
+      { square: 'g1', type: 'n', color: 'w' },
+      { square: 'h1', type: 'r', color: 'w' }
+    ]
+]
+
+const PIECES_IMAGES = {
+    w: {
+        p: 'white/pawn.svg',
+        r: 'white/rook.svg',
+        n: 'white/knight.svg',
+        b: 'white/bishop.svg',
+        q: 'white/queen.svg',
+        k: 'white/king.svg'
+    },
+    b: {
+        p: 'black/pawn.svg',
+        r: 'black/rook.svg',
+        n: 'black/knight.svg',
+        b: 'black/bishop.svg',
+        q: 'black/queen.svg',
+        k: 'black/king.svg',
+    }
+} 
+
 function isEven(num: number) {
     return (num % 2) === 0
 }
@@ -12,13 +86,15 @@ function getColumnLetter(num: number, boardProportions: number) {
     return letters[num]
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number }) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position }) {
     const { boardProportions, boardSize } = props
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
+
+    const position = props.position ?? DEFAULT_POSITION
 
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
@@ -60,7 +136,13 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
-                            squares.push(<div key={`${row}-${column}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}</div>)
+                            const pieceColor = position[row][column]?.color
+                            const pieceType = position[row][column]?.type
+                            const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
+                            const pieceImages = imageColor[pieceType as keyof object]
+                            const piece = pieceImages ? <div className="w-full h-full z-10 relative cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
+
+                            squares.push(<div key={`${row}-${column}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}</div>)
                         }
                     }
                     return squares

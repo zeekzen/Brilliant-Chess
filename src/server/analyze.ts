@@ -77,5 +77,12 @@ export async function parsePGN() {
 
     const metadata = {names, time}
 
+    let cont = 0
+    chess.history({verbose: true}).forEach(i => {
+        const asd = new Chess(i.before)
+        console.log(cont === 0 ? asd.board() : '')
+        cont++
+    })
+
     return {metadata}
 }
