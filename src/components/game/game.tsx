@@ -93,7 +93,7 @@ export default function Game() {
 
     return (
         <div tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center">
-            <Evaluation height={boardSize} white={true} advantage={1.49} />
+            <Evaluation height={boardSize} white={true} advantage={game[moveNumber]?.evaluation ?? 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
                     <Name white={false}>{names[1]}</Name>

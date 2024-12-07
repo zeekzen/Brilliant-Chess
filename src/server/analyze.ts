@@ -1,8 +1,9 @@
 "use server"
 
 import { readFileSync } from "fs";
-import path from "path";
+import path, { resolve } from "path";
 import { Chess, Color, PieceSymbol, Square } from "chess.js";
+import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 export type position = ({
     square: Square,
@@ -18,6 +19,7 @@ export type square = {
 export interface move {
     position: position,
     movement: square[],
+    evaluation: number,
 }
 
 function formatTime(seconds: number, noTime: string): string {
@@ -80,6 +82,45 @@ function getTime(headers: Record<string, string>) {
     return formattedTime
 }
 
+function cleanProgramListeners(program: ChildProcessWithoutNullStreams) {
+    program.stdout.removeAllListeners('data')
+}
+
+async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<number> {
+    function formatEvaluation(evaluation: string) {
+        const line = evaluation.split('\n').filter(line => line.startsWith('Final evaluation'))[0]
+        const number = line ? Number(line.split(/\s+/)[2]) : undefined
+        return number
+    }
+
+    program.stdin.write(`eval\n`)
+
+    return new Promise((resolve, reject) => {
+        program.stdout.on('data', data => {
+            const response = formatEvaluation(data.toString())
+            
+            if (typeof response !== 'undefined') {
+                console.log('response', response)
+                resolve(response)
+                cleanProgramListeners(program)
+            }
+
+            console.log(response)
+            console.log(data.toString())
+        })
+
+    })
+}
+
+async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
+    program.stdin.write(`position fen ${fen}\n`)
+
+    console.log(fen)
+    const evaluation = await getEvaluation(program)
+
+    return { evaluation }
+}
+
 export async function parsePGN() {
     const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
 
@@ -95,15 +136,22 @@ export async function parsePGN() {
 
     const moves: move[] = []
 
-    chess.history({verbose: true}).forEach((move, moveNumber) => {
+    const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
+    const stockfish = spawn(stockfishFile)
+
+    let moveNumber = 0
+    for (const move of chess.history({verbose: true})) {
         if (moveNumber === 0) {
             chess.load(move.before)
+            analyze(stockfish, move.before)
             moves.push({
                 position: chess.board(),
                 movement: [],
+                evaluation: 0,
             })
         }
         chess.load(move.after)
+
         const movement = [move.from, move.to].map(square => {
             const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
@@ -112,11 +160,18 @@ export async function parsePGN() {
 
             return {col, row}
         })
+
+        console.log(moveNumber)
+        const { evaluation } = await analyze(stockfish, move.after)
+
         moves.push({
             position: chess.board(),
             movement: movement,
+            evaluation: evaluation,
         })
-    })
+
+        moveNumber++
+    }
 
     return {metadata, moves}
 }
