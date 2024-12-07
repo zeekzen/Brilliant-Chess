@@ -100,13 +100,9 @@ async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<n
             const response = formatEvaluation(data.toString())
             
             if (typeof response !== 'undefined') {
-                console.log('response', response)
                 resolve(response)
                 cleanProgramListeners(program)
             }
-
-            console.log(response)
-            console.log(data.toString())
         })
 
     })
@@ -115,7 +111,6 @@ async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<n
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
     program.stdin.write(`position fen ${fen}\n`)
 
-    console.log(fen)
     const evaluation = await getEvaluation(program)
 
     return { evaluation }
@@ -161,7 +156,6 @@ export async function parsePGN() {
             return {col, row}
         })
 
-        console.log(moveNumber)
         const { evaluation } = await analyze(stockfish, move.after)
 
         moves.push({
