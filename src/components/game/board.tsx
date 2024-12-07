@@ -1,4 +1,4 @@
-import { position } from "@/server/analyze";
+import { position, square } from "@/server/analyze";
 import Image from "next/image";
 
 const DEFAULT_POSITION = [
@@ -75,21 +75,21 @@ function getRowNumber(num: number, boardProportions: number) {
     return (boardProportions + 1) - (num + 1)
 }
 
-function getColumnLetter(num: number, boardProportions: number) {
-    const letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
+function getColumnLetter(num: number) {
+    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
 
     return letters[num]
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position }) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[] }) {
     const { boardProportions, boardSize } = props
+    const position = props.position ?? DEFAULT_POSITION
+    const highlight = props.highlight ?? []
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
-
-    const position = props.position ?? DEFAULT_POSITION
 
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
@@ -102,7 +102,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                     const squares: JSX.Element[] = []
                     for (let row = 0; row < boardProportions; row++) {
                         for (let column = 0; column < boardProportions; column++) {
-                            const squareId = [getColumnLetter(column, boardProportions), getRowNumber(row, boardProportions)]
+                            const squareId = [getColumnLetter(column), getRowNumber(row, boardProportions)]
 
                             let bgColor, guideColor
                             if (isEven(row)) {
@@ -123,6 +123,14 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 }
                             }
 
+                            let highlighted
+                            highlight.forEach(square => {
+                                if (square.col === column && (boardProportions - 1) - square.row === row) {
+                                    highlighted = <div className="relative w-full h-full opacity-50 bg-highlightBoard" />
+                                    return
+                                }    
+                            })
+
                             let squareNumGuide, squareLetterGuide
                             if (row === boardProportions - 1) {
                                 squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
@@ -135,9 +143,9 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div className="w-full h-full z-10 relative cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
+                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
 
-                            squares.push(<div key={`${row}-${column}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}</div>)
+                            squares.push(<div key={`${row}-${column}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}</div>)
                         }
                     }
                     return squares

@@ -39,6 +39,7 @@ export default {
 
         blackBoard: "var(--blackBoard)",
         whiteBoard: "var(--whiteBoard)",
+        highlightBoard: "var(--highlightBoard)",
       },
       borderRadius: {
         borderRoundness: "var(--borderRoundness)",

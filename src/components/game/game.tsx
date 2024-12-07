@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN, move } from "@/server/analyze"
+import { parsePGN, move, square } from "@/server/analyze"
 import { FORMATS } from "../menu/form"
 
 const BOARD_PROPORTIONS = 8
@@ -99,7 +99,7 @@ export default function Game() {
                     <Name white={false}>{names[1]}</Name>
                     <Clock white={false} moving={false}>{time}</Clock>
                 </div>
-                <Board position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+                <Board highlight={game[moveNumber]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
                 <div className="flex flex-row justify-between">
                     <Name white={true}>{names[0]}</Name>
                     <Clock white={true} moving={false}>{time}</Clock>

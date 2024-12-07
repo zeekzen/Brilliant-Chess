@@ -10,8 +10,14 @@ export type position = ({
     color: Color,
 } | null)[][]
 
+export type square = {
+    row: number,
+    col: number,
+}
+
 export interface move {
     position: position,
+    movement: square[],
 }
 
 function formatTime(seconds: number, noTime: string): string {
@@ -93,12 +99,22 @@ export async function parsePGN() {
         if (moveNumber === 0) {
             chess.load(move.before)
             moves.push({
-                position: chess.board()
+                position: chess.board(),
+                movement: [],
             })
         }
         chess.load(move.after)
+        const movement = [move.from, move.to].map(square => {
+            const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
+
+            const col = letters.indexOf(square[0])
+            const row = Number(square[1]) - 1
+
+            return {col, row}
+        })
         moves.push({
-            position: chess.board()
+            position: chess.board(),
+            movement: movement,
         })
     })
 
