@@ -1,4 +1,4 @@
-export default function Evaluation(props: { height: number, white: boolean, advantage: number /*con 4 ya está en el máximo, se queda a un poco porque todo blanco (o negro es mate en n jugadas). ventaja blancas positivo, negras negativo*/ }) {
+export default function Evaluation(props: { height: number, white: boolean, advantage: number}) {
     const { height, white, advantage } = props
 
     const OLD_PERCENTS = [-4, 4]
