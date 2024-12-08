@@ -1,5 +1,6 @@
 import { position, square } from "@/server/analyze";
 import Image from "next/image";
+import { useState } from "react";
 
 const DEFAULT_POSITION = [
     [
@@ -81,10 +82,58 @@ function getColumnLetter(num: number) {
     return letters[num]
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[] }) {
+function adaptSquare(square: square, boardProportions: number): square {
+    return {col: square.col, row: (boardProportions - 1) - square.row}
+}
+
+function Arrow(props: { move: square[], squareSize: number, class: string }) {
+    const { move, squareSize } = props
+    const [from, to] = move
+
+    const fromElementPosition = {
+        top: squareSize * from.row,
+        left: squareSize * from.col,
+    }
+
+    const toElementPosition = {
+        top: squareSize * to.row,
+        left: squareSize * to.col,
+    }
+
+    const distance = {
+        x: fromElementPosition.left - toElementPosition.left,
+        y: fromElementPosition.top - toElementPosition.top,
+    }
+
+    const realDistance = Math.sqrt((distance.x ** 2) + (distance.y ** 2))
+    
+    const angle = Math.atan2(distance.x, distance.y)
+    const degs = angle * (180 / Math.PI)
+
+    const width = squareSize / 2
+    const lineCenter = width / 2
+    const lineWidth = width * (3/7)
+    const arrowHeadHeight = lineWidth * 1.6
+    const height = realDistance - arrowHeadHeight
+
+    const top = `${toElementPosition.top + (squareSize / 2)}px`
+    const left = `${toElementPosition.left + (squareSize / 2) - (width / 2)}px`
+
+    return (
+        <svg style={{top, left, transformOrigin: '50% 0', rotate: (-degs)+'deg'}} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+            <line x1={lineCenter} y1={height} x2={lineCenter} y2={`${arrowHeadHeight - 1}`} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
+            <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
+        </svg>
+    )
+}
+
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[], bestMove?: square[] }) {
+    const [arrows, setArrows] = useState<square[][]>([])
+
     const { boardProportions, boardSize } = props
     const position = props.position ?? DEFAULT_POSITION
     const highlight = props.highlight ?? []
+    const bestMove = props.bestMove
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
@@ -96,7 +145,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     const BOARD_COLORS = ["whiteBoard", "blackBoard"]
 
     return (
-        <div className="grid grid-cols-2 w-fit h-fit rounded-borderRoundness overflow-hidden" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
+        <div className="grid w-fit h-fit rounded-borderRoundness overflow-hidden relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -125,10 +174,11 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
                             let highlighted
                             highlight.forEach(square => {
-                                if (square.col === column && (boardProportions - 1) - square.row === row) {
+                                const highlightedSquare = adaptSquare(square, boardProportions)
+                                if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className="relative w-full h-full opacity-50 bg-highlightBoard" />
                                     return
-                                }    
+                                }
                             })
 
                             let squareNumGuide, squareLetterGuide
@@ -145,10 +195,23 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceImages = imageColor[pieceType as keyof object]
                             const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
 
-                            squares.push(<div key={`${row}-${column}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}</div>)
+                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}</div>)
                         }
                     }
                     return squares
+                })()
+            }
+            {
+                arrows.map(move => {
+                    return <Arrow move={move} squareSize={squareSize} class="" />
+                })
+            }
+            {
+                (() => {
+                    const adaptedBestMove = bestMove?.map(square => {
+                        return adaptSquare(square, boardProportions)
+                    })
+                    return adaptedBestMove ? <Arrow move={adaptedBestMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" /> : ''
                 })()
             }
         </div>

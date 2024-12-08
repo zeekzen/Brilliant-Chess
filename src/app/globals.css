@@ -41,6 +41,9 @@
   --whiteBoard: #ebecd0;
   --highlightBoard: #ffff33;
 
+  --normalArrow: #ffaa00;
+  --bestArrow: #9fcf3f;
+
   --shadowBoxBoxHighlighted: 0 0 8px;
 
   --borderRoundness: .25rem;

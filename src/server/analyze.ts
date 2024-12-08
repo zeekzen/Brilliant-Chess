@@ -20,6 +20,7 @@ export interface move {
     position: position,
     movement: square[],
     evaluation: number,
+    bestMove: square[],
 }
 
 function formatTime(seconds: number, noTime: string): string {
@@ -82,6 +83,15 @@ function getTime(headers: Record<string, string>) {
     return formattedTime
 }
 
+function formatSquare(square: string): square {
+    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
+
+    const col = letters.indexOf(square[0])
+    const row = Number(square[1]) - 1
+
+    return {col, row}
+}
+
 function cleanProgramListeners(program: ChildProcessWithoutNullStreams) {
     program.stdout.removeAllListeners('data')
 }
@@ -108,12 +118,42 @@ async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<n
     })
 }
 
+async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<square[]> {
+    function formatMove(evaluation: string) {
+        const line = evaluation.split('\n').filter(line => line.startsWith('bestmove'))[0]
+        const move = line?.split(/\s+/)[1]
+        if (move === '(none)') return []
+
+        const movement = move ? [move.slice(0, 2), move.slice(2, 4)].map(square => {
+            const {col, row} = formatSquare(square)
+
+            return {col, row}
+        }) : undefined
+        return movement
+    }
+
+    program.stdin.write(`go depth 10\n`)
+
+    return new Promise((resolve, reject) => {
+        program.stdout.on('data', data => {
+            const response = formatMove(data.toString())
+
+            if (typeof response !== 'undefined') {
+                resolve(response)
+                cleanProgramListeners(program)
+            }
+        })
+
+    })
+}
+
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
     program.stdin.write(`position fen ${fen}\n`)
 
     const evaluation = await getEvaluation(program)
+    const bestMove = await getBestMove(program)
 
-    return { evaluation }
+    return { evaluation, bestMove }
 }
 
 export async function parsePGN() {
@@ -138,30 +178,29 @@ export async function parsePGN() {
     for (const move of chess.history({verbose: true})) {
         if (moveNumber === 0) {
             chess.load(move.before)
-            analyze(stockfish, move.before)
+            const { bestMove } = await analyze(stockfish, move.before)
             moves.push({
                 position: chess.board(),
                 movement: [],
                 evaluation: 0,
+                bestMove: bestMove,
             })
         }
         chess.load(move.after)
 
         const movement = [move.from, move.to].map(square => {
-            const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
-
-            const col = letters.indexOf(square[0])
-            const row = Number(square[1]) - 1
+            const {col, row} = formatSquare(square)
 
             return {col, row}
         })
 
-        const { evaluation } = await analyze(stockfish, move.after)
+        const { evaluation, bestMove } = await analyze(stockfish, move.after)
 
         moves.push({
             position: chess.board(),
             movement: movement,
             evaluation: evaluation,
+            bestMove: bestMove,
         })
 
         moveNumber++

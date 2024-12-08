@@ -99,7 +99,7 @@ export default function Game() {
                     <Name white={false}>{names[1]}</Name>
                     <Clock white={false} moving={false}>{time}</Clock>
                 </div>
-                <Board highlight={game[moveNumber]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+                <Board bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} highlight={game[moveNumber]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
                 <div className="flex flex-row justify-between">
                     <Name white={true}>{names[0]}</Name>
                     <Clock white={true} moving={false}>{time}</Clock>
