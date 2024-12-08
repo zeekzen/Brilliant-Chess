@@ -36,15 +36,19 @@ export default function Game() {
     function handleKeyDown(e: React.KeyboardEvent) {
         switch (e.key) {
             case 'ArrowLeft':
+                e.preventDefault()
                 setMoveNumber(prev => Math.max(prev - 1, 0))
                 break
             case 'ArrowRight':
+                e.preventDefault()
                 setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
                 break
             case 'ArrowUp':
+                e.preventDefault()
                 setMoveNumber(0)
                 break
             case 'ArrowDown':
+                e.preventDefault()
                 setMoveNumber(game.length - 1)
                 break
         }
