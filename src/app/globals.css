@@ -17,10 +17,10 @@
 
   --placeholder: #9e9d9c;
 
-  --backgroundBox: #262522;
-  --backgroundBoxHover: #21201e;
-  --backgroundBoxBox: #3c3b39;
-  --backgroundBoxBoxHover: #5d5d5d;
+  --backgroundBox: #00000033;
+  --backgroundBoxHover: #00000024;
+  --backgroundBoxBox: #ffffff1a;
+  --backgroundBoxBoxHover: #ffffff29;
   --backgroundBoxBoxHighlighted: #81b64c;
   --backgroundBoxBoxHighlightedHover: #8bc550;
   --backgroundWhiteClock: #f6f6f6;
