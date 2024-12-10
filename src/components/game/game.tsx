@@ -21,16 +21,28 @@ export default function Game() {
     const [game, setGame] = useState<move[]>([])
     const [moveNumber, setMoveNumber] = useState(0)
 
-    const [data, setData] = useContext(AnalyzeContext)
+    const [data, setData] = useContext(AnalyzeContext).data
+    const [pageState, setPageState] = useContext(AnalyzeContext).pageState
 
     const componentRef = useRef<HTMLDivElement>(null)
 
+    function focusBoard() {
+        const element = componentRef.current?.parentElement
+
+        element?.focus()
+    }
+
     async function handlePGN() {
+        setPageState('loading')
+
         const {metadata, moves} = await parsePGN()
 
         setTime(metadata.time)
         setNames(metadata.names)
         setGame(moves)
+
+        focusBoard()
+        setPageState('analyze')
     }
 
     function handleKeyDown(e: React.KeyboardEvent) {
@@ -55,22 +67,24 @@ export default function Game() {
     }
 
     useEffect(() => {
-        const dataType = FORMATS[data[0]][0]
-        const dataCode = data[1]
+        if (data[1]) {
+            const dataType = FORMATS[data[0]][0]
+            const dataCode = data[1]
 
-        switch (dataType) {
-            case "Chess.com":
-                // listChessComGames()
-                break
-            case "Lichess.org":
-                // listLichessOrgGames()
-                break
-            case "PGN":
-                handlePGN()
-                break
-            case "FEN":
-                // parseFEN()
-                break
+            switch (dataType) {
+                case "Chess.com":
+                    // listChessComGames()
+                    break
+                case "Lichess.org":
+                    // listLichessOrgGames()
+                    break
+                case "PGN":
+                    handlePGN()
+                    break
+                case "FEN":
+                    // parseFEN()
+                    break
+            }
         }
     }, [data])
 
