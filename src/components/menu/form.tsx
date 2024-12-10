@@ -26,6 +26,9 @@ export default function Form(props: {setData: (data: [number, string]) => void, 
     function changeSelected(i: number) {
         select(i)
         setSelecting(false)
+
+        const input = inputRef.current
+        input?.focus()
     }
 
     function isAPlatform(i: number) {
