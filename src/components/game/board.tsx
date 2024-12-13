@@ -1,4 +1,4 @@
-import { position, square } from "@/server/analyze";
+import { moveRating, position, square } from "@/server/analyze";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -127,13 +127,14 @@ function Arrow(props: { move: square[], squareSize: number, class: string }) {
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[], bestMove?: square[] }) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[], bestMove?: square[], moveRating?: moveRating }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const { boardProportions, boardSize } = props
     const position = props.position ?? DEFAULT_POSITION
     const highlight = props.highlight ?? []
     const bestMove = props.bestMove
+    const moveRating = props.moveRating
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
@@ -143,6 +144,34 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
     const BOARD_COLORS = ["whiteBoard", "blackBoard"]
+
+    let highlightColor: string
+    switch (moveRating) {
+        case "best":
+            highlightColor = "bg-highlightBest"
+            break
+        case "excellent":
+            highlightColor = "bg-highlightExcellent"
+            break
+        case "good":
+            highlightColor = "bg-highlightGood"
+            break
+        case "inaccuracy":
+            highlightColor = "bg-highlightInaccuracy"
+            break
+        case "mistake":
+            highlightColor = "bg-highlightMistake"
+            break
+        case "miss":
+            highlightColor = "bg-highlightMiss"
+            break
+        case "blunder":
+            highlightColor = "bg-highlightBlunder"
+            break
+        default:
+            highlightColor = "bg-highlightBoard"
+            break
+    }
 
     return (
         <div className="grid w-fit h-fit rounded-borderRoundness overflow-hidden relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
@@ -176,7 +205,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             highlight.forEach(square => {
                                 const highlightedSquare = adaptSquare(square, boardProportions)
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
-                                    highlighted = <div className="relative w-full h-full opacity-50 bg-highlightBoard" />
+                                    highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     return
                                 }
                             })

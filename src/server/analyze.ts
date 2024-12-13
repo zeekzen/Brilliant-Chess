@@ -16,11 +16,14 @@ export type square = {
     col: number,
 }
 
+export type moveRating = "brilliant"|"great"|"best"|"excellent"|"good"|"book"|"inaccuracy"|"mistake"|"miss"|"blunder"
+
 export interface move {
     position: position,
-    movement: square[],
+    movement?: square[],
     evaluation: number,
     bestMove: square[],
+    moveRating?: moveRating,
 }
 
 function formatTime(seconds: number, noTime: string): string {
@@ -118,19 +121,20 @@ async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<n
     })
 }
 
+function formatMove(evaluation: string) {
+    const line = evaluation.split('\n').filter(line => line.startsWith('bestmove'))[0]
+    const move = line?.split(/\s+/)[1]
+    if (move === '(none)') return []
+
+    const movement = move ? [move.slice(0, 2), move.slice(2, 4)].map(square => {
+        const {col, row} = formatSquare(square)
+
+        return {col, row}
+    }) : undefined
+    return movement
+}
+
 async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<square[]> {
-    function formatMove(evaluation: string) {
-        const line = evaluation.split('\n').filter(line => line.startsWith('bestmove'))[0]
-        const move = line?.split(/\s+/)[1]
-        if (move === '(none)') return []
-
-        const movement = move ? [move.slice(0, 2), move.slice(2, 4)].map(square => {
-            const {col, row} = formatSquare(square)
-
-            return {col, row}
-        }) : undefined
-        return movement
-    }
 
     program.stdin.write(`go depth 10\n`)
 
@@ -145,6 +149,48 @@ async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<squ
         })
 
     })
+}
+
+function getMoveRating(evaluation: number, previousEvaluation: number, bestMove: square[], movement: square[], color: Color): moveRating {
+    function getStandardRating(guide: [moveRating, boolean][]) {
+        const valid = guide.filter(rating => rating[1])[0]
+        return valid ? valid[0] : "blunder"
+    }
+
+    function isStandardRating(guide: [moveRating, boolean][], moveRating: moveRating) {
+        return guide.filter(rating => rating[0] === moveRating)[0][1]
+    }
+
+    function losingGeatAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
+        const GREAT_ADVANTAGE = 2
+
+        if (color === "w") {
+            return previousEvaluation >= GREAT_ADVANTAGE && evaluation < GREAT_ADVANTAGE
+        } else {
+            return previousEvaluation <= -GREAT_ADVANTAGE && evaluation > -GREAT_ADVANTAGE
+        }
+    }
+
+    // best
+    const isBest = movement.every((move, i) => {
+        return JSON.stringify(move) === JSON.stringify(bestMove[i])
+    })
+    if (isBest) return 'best'
+
+    // standard
+    const evaluationDiff = color === "w" ? previousEvaluation - evaluation : evaluation - previousEvaluation
+    const guide: [moveRating, boolean][] = [
+        ["excellent", evaluationDiff < 0.4],
+        ["good", evaluationDiff < 0.8],
+        ["inaccuracy", evaluationDiff < 4],
+    ]
+
+    // mistake
+    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(evaluation, previousEvaluation, color)) {
+        return 'mistake'
+    }
+
+    return getStandardRating(guide)
 }
 
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
@@ -174,21 +220,24 @@ export async function parsePGN() {
     const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
     const stockfish = spawn(stockfishFile)
 
-    let moveNumber = 0
+    let moveNumber = 0, previousEvaluation = 0, previousBestMove
     for (const move of chess.history({verbose: true})) {
         if (moveNumber === 0) {
             chess.load(move.before)
+            const position = chess.board()
             const { bestMove } = await analyze(stockfish, move.before)
             moves.push({
-                position: chess.board(),
-                movement: [],
+                position,
                 evaluation: 0,
-                bestMove: bestMove,
+                bestMove,
             })
+            previousBestMove = bestMove
         }
         chess.load(move.after)
 
-        const movement = [move.from, move.to].map(square => {
+        const position = chess.board()
+
+        const movement: square[] = [move.from, move.to].map(square => {
             const {col, row} = formatSquare(square)
 
             return {col, row}
@@ -196,13 +245,18 @@ export async function parsePGN() {
 
         const { evaluation, bestMove } = await analyze(stockfish, move.after)
 
+        const moveRating = getMoveRating(evaluation, previousEvaluation, previousBestMove ?? [], movement, move.color)
+
         moves.push({
-            position: chess.board(),
-            movement: movement,
-            evaluation: evaluation,
-            bestMove: bestMove,
+            position,
+            movement,
+            evaluation,
+            bestMove,
+            moveRating,
         })
 
+        previousBestMove = bestMove
+        previousEvaluation = evaluation
         moveNumber++
     }
 

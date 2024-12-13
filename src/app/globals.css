@@ -39,7 +39,15 @@
 
   --blackBoard: #779556;
   --whiteBoard: #ebecd0;
+
   --highlightBoard: #ffff33;
+  --highlightBest: #81b64c;
+  --highlightExcellent: #81b64c;
+  --highlightGood: #95b776;
+  --highlightInaccuracy: #f7c631;
+  --highlightMistake: #ffa459;
+  --highlightMiss: #ff7769;
+  --highlightBlunder: #fa412d;
 
   --normalArrow: #ffaa00;
   --bestArrow: #9fcf3f;

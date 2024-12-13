@@ -39,7 +39,15 @@ export default {
 
         blackBoard: "var(--blackBoard)",
         whiteBoard: "var(--whiteBoard)",
+
         highlightBoard: "var(--highlightBoard)",
+        highlightBest: "var(--highlightBest)",
+        highlightExcellent: "var(--highlightExcellent)",
+        highlightGood: "var(--highlightGood)",
+        highlightInaccuracy: "var(--highlightInaccuracy)",
+        highlightMistake: "var(--highlightMistake)",
+        highlightMiss: "var(--highlightMiss)",
+        highlightBlunder: "var(--highlightBlunder)",
 
         normalArrow: "var(--normalArrow)",
         bestArrow: "var(--bestArrow)",
