@@ -14,8 +14,6 @@ export default function Menu() {
 
     const format = FORMATS[data[0]][0]
 
-    console.log(pageState, format)
-
     return (
         <div className="h-full bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4">
             <menu className="flex flex-row">
