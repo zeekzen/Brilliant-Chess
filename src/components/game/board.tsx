@@ -96,6 +96,19 @@ function adaptSquare(square: square, boardProportions: number): square {
     return {col: square.col, row: (boardProportions - 1) - square.row}
 }
 
+function PreloadRatingImages() {
+    const preloaders = []
+    for (const rating in HIGHLIGHT_STYLE) {
+        const url = '/images/rating/' + HIGHLIGHT_STYLE[rating as keyof typeof HIGHLIGHT_STYLE].icon
+
+        preloaders.push(
+            <Image key={rating} alt={"preload " + rating} src={url} priority hidden width={1} height={0} />
+        )
+    }
+
+    return preloaders
+}
+
 function Arrow(props: { move: square[], squareSize: number, class: string }) {
     const { move, squareSize } = props
     const [from, to] = move
@@ -160,6 +173,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
     return (
         <div className="grid w-fit h-fit rounded-borderRoundness overflow-hidden relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
+            <PreloadRatingImages />
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -192,7 +206,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     if (i === 1) {
-                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{transform: 'translateX(50%) translateY(-50%)', width: squareSize/2.2}} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} width={120} height={0} /> : ''
+                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{transform: 'translateX(50%) translateY(-50%)', width: squareSize/2.2}} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
                                     }
                                     return
                                 }
@@ -210,7 +224,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
+                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
 
                             squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }

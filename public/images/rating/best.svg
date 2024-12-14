@@ -28,8 +28,8 @@
      inkscape:document-units="px"
      showgrid="false"
      inkscape:zoom="4.8648923"
-     inkscape:cx="51.799708"
-     inkscape:cy="58.377448"
+     inkscape:cx="52.005262"
+     inkscape:cy="58.583003"
      inkscape:window-width="1900"
      inkscape:window-height="1015"
      inkscape:window-x="0"
@@ -178,7 +178,7 @@
        inkscape:randomized="2.7755576e-17"
        d="M 66.776277,45.238689 75.263044,67.935161 99.471227,68.992963 80.508155,84.077954 86.982866,107.42818 66.776276,94.054749 46.569684,107.42818 53.044396,84.077954 34.081325,68.992961 58.289507,67.935161 Z"
        inkscape:transform-center-y="-3.6931226"
-       transform="matrix(1.1250069,0,0,1.1250069,-15.123769,-22.437045)"
+       transform="matrix(1.1250069,0,0,1.1250069,-15.123769,-26.437045)"
        inkscape:transform-center-x="-3.9845621e-06" />
     <path
        sodipodi:type="star"
@@ -196,7 +196,7 @@
        inkscape:randomized="2.7755576e-17"
        d="M 66.776277,45.238689 75.263044,67.935161 99.471227,68.992963 80.508155,84.077954 86.982866,107.42818 66.776276,94.054749 46.569684,107.42818 53.044396,84.077954 34.081325,68.992961 58.289507,67.935161 Z"
        inkscape:transform-center-y="-3.6931226"
-       transform="matrix(1.1250069,0,0,1.1250069,-15.123769,-25.875923)"
+       transform="matrix(1.1250069,0,0,1.1250069,-15.123769,-29.875923)"
        inkscape:transform-center-x="-3.9845621e-06" />
   </g>
 </svg>
