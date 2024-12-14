@@ -1,4 +1,5 @@
 import { moveRating, position, square } from "@/server/analyze";
+import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -67,6 +68,16 @@ const PIECES_IMAGES = {
         k: 'black/king.svg',
     }
 } 
+
+const HIGHLIGHT_STYLE = {
+    best: {color: "bg-highlightBest", icon: "best.svg"},
+    excellent: {color: "bg-highlightExcellent", icon: "excellent.svg"},
+    good: {color: "bg-highlightGood", icon: "good.svg"},
+    inaccuracy: {color: "bg-highlightInaccuracy", icon: "inaccuracy.svg"},
+    mistake: {color: "bg-highlightMistake", icon: "mistake.svg"},
+    miss: {color: "bg-highlightMiss", icon: "miss.svg"},
+    blunder: {color: "bg-highlightBlunder", icon: "blunder.svg"},
+}
 
 function isEven(num: number) {
     return (num % 2) === 0
@@ -145,33 +156,8 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     // bg-whiteBoard / bg-blackBoard
     const BOARD_COLORS = ["whiteBoard", "blackBoard"]
 
-    let highlightColor: string
-    switch (moveRating) {
-        case "best":
-            highlightColor = "bg-highlightBest"
-            break
-        case "excellent":
-            highlightColor = "bg-highlightExcellent"
-            break
-        case "good":
-            highlightColor = "bg-highlightGood"
-            break
-        case "inaccuracy":
-            highlightColor = "bg-highlightInaccuracy"
-            break
-        case "mistake":
-            highlightColor = "bg-highlightMistake"
-            break
-        case "miss":
-            highlightColor = "bg-highlightMiss"
-            break
-        case "blunder":
-            highlightColor = "bg-highlightBlunder"
-            break
-        default:
-            highlightColor = "bg-highlightBoard"
-            break
-    }
+    const highlightColor = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.color ?? "bg-highlightBoard"
+    const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
 
     return (
         <div className="grid w-fit h-fit rounded-borderRoundness overflow-hidden relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
@@ -201,11 +187,14 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 }
                             }
 
-                            let highlighted
-                            highlight.forEach(square => {
+                            let highlighted, highlightedIcon
+                            highlight.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square, boardProportions)
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
+                                    if (i === 1) {
+                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{transform: 'translateX(50%) translateY(-50%)', width: squareSize/2.2}} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} width={120} height={0} /> : ''
+                                    }
                                     return
                                 }
                             })
@@ -222,9 +211,9 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority={true} /></div> : ''
+                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} /></div> : ''
 
-                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}</div>)
+                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }
                     }
                     return squares
