@@ -1,5 +1,6 @@
 import { useRef, useState } from "react"
 import Arrow from "../svg/arrow"
+import Image from "next/image"
 
 export const FORMATS = [
     ["Chess.com", "/images/chesscom.svg", "platform"],
@@ -57,7 +58,7 @@ export default function Form(props: {setData: (data: [number, string]) => void, 
                         return (
                             <li key={i}>
                                 <button type="button" onClick={() => changeSelected(i)} className="flex flex-row gap-1 items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
-                                    <img src={format[1]} className="h-6" />
+                                    <Image alt="format" src={format[1]} width={150} height={0} className="h-6 w-fit" priority />
                                     {format[0]}
                                 </button>
                             </li>
