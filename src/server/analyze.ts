@@ -1,7 +1,7 @@
 "use server"
 
 import { readFileSync } from "fs";
-import path, { resolve } from "path";
+import path from "path";
 import { Chess, Color, PieceSymbol, Square } from "chess.js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
