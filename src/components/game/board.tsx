@@ -1,5 +1,4 @@
 import { moveRating, position, square } from "@/server/analyze";
-import Head from "next/head";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -67,7 +66,7 @@ const PIECES_IMAGES = {
         q: 'black/queen.svg',
         k: 'black/king.svg',
     }
-} 
+}
 
 const HIGHLIGHT_STYLE = {
     best: {color: "bg-highlightBest", icon: "best.svg"},
