@@ -6,11 +6,28 @@ export default function Evaluation(props: { height: number, white: boolean, adva
 
     const advantageAmount = Number(advantage[1]) * (whiteMoving ? 1 : -1)
 
-    const winning = advantageAmount >= 0
     const rawPercent = ((advantageAmount - OLD_PERCENTS[0]) * (NEW_PERCENTS[1] - NEW_PERCENTS[0])) / (OLD_PERCENTS[1] - OLD_PERCENTS[0]) + NEW_PERCENTS[0]
-    const percent = Math.min(Math.max(rawPercent, NEW_PERCENTS[0]), NEW_PERCENTS[1])
+    let percent
+    if (advantage[0] === 'mate') {
+        if (advantage[1]) {
+            percent = advantageAmount >= 0 ? 100 : 0
+        } else {
+            percent = whiteMoving ? 0 : 100
+        }
+    } else {
+        percent = Math.min(Math.max(rawPercent, NEW_PERCENTS[0]), NEW_PERCENTS[1])
+    }
 
-    const displayAdvantage = advantage[0] === 'mate' ? 'M' + Math.abs(advantageAmount) : (Math.abs(advantageAmount) / 100).toFixed(1)
+    const winning = percent >= 50
+
+    let displayAdvantage
+    if (advantage[0] === 'mate') {
+        displayAdvantage = advantage[1] ?
+            'M' + Math.abs(advantageAmount) :
+            whiteMoving ? '0-1' : '1-0'
+    } else {
+        displayAdvantage = (Math.abs(advantageAmount) / 100).toFixed(1)
+    }
 
     return (
         <div style={{ height: height }} className={`w-9 bg-evaluationBarBlack overflow-hidden flex flex-col relative ${white ? "justify-end" : "justify-start"}`}>

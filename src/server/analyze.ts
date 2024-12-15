@@ -156,7 +156,6 @@ async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<{ b
             staticEval = formatStaticEval(line) ?? staticEval
 
             if (typeof bestMove !== 'undefined') {
-                console.log(staticEval)
                 resolve({ bestMove, staticEval })
                 cleanProgramListeners(program)
             }
@@ -262,7 +261,12 @@ export async function parsePGN() {
             return {col, row}
         })
 
-        const { staticEval, bestMove } = await analyze(stockfish, move.after)
+        if (chess.isCheckmate()) {
+            var staticEval = ["mate"]
+            var bestMove: square[] = []
+        } else {
+            var { staticEval, bestMove } = await analyze(stockfish, move.after)
+        }
 
         const moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
 
