@@ -21,7 +21,7 @@ export type moveRating = "brilliant"|"great"|"best"|"excellent"|"good"|"book"|"i
 export interface move {
     position: position,
     movement?: square[],
-    evaluation: number,
+    staticEval: string[],
     bestMove: square[],
     moveRating?: moveRating,
 }
@@ -134,16 +134,29 @@ function formatMove(evaluation: string) {
     return movement
 }
 
-async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<square[]> {
+function formatStaticEval(evaluation: string) {
+    const line = evaluation.split('\n').filter(line => line.startsWith('info')).pop()
+    const fields = line?.split(/\s+/)
+
+    const staticEval = fields?.slice(fields?.indexOf('score')+1, fields.indexOf('nodes'))
+
+    return staticEval
+}
+
+async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<{ bestMove: square[], staticEval: string[] }> {
 
     program.stdin.write(`go depth 10\n`)
 
+    let staticEval
     return new Promise((resolve, reject) => {
         program.stdout.on('data', data => {
-            const response = formatMove(data.toString())
+            const line = data.toString()
 
-            if (typeof response !== 'undefined') {
-                resolve(response)
+            const bestMove = formatMove(line)
+            staticEval = formatStaticEval(line) ?? []
+
+            if (typeof bestMove !== 'undefined') {
+                resolve({ bestMove, staticEval })
                 cleanProgramListeners(program)
             }
         })
@@ -151,7 +164,7 @@ async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<squ
     })
 }
 
-function getMoveRating(evaluation: number, previousEvaluation: number, bestMove: square[], movement: square[], color: Color): moveRating {
+function getMoveRating(staticEval: string[], previousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
     function getStandardRating(guide: [moveRating, boolean][]) {
         const valid = guide.filter(rating => rating[1])[0]
         return valid ? valid[0] : "blunder"
@@ -171,6 +184,11 @@ function getMoveRating(evaluation: number, previousEvaluation: number, bestMove:
         }
     }
 
+    if (staticEval[0] === 'mate') return 'brilliant'
+
+    const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
+    const staticPreviousEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
+
     // best
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
@@ -178,7 +196,7 @@ function getMoveRating(evaluation: number, previousEvaluation: number, bestMove:
     if (isBest) return 'best'
 
     // standard
-    const evaluationDiff = color === "w" ? previousEvaluation - evaluation : evaluation - previousEvaluation
+    const evaluationDiff = color === "w" ? staticPreviousEvalAmount - staticEvalAmount : staticEvalAmount - staticPreviousEvalAmount
     const guide: [moveRating, boolean][] = [
         ["excellent", evaluationDiff < 0.4],
         ["good", evaluationDiff < 0.8],
@@ -186,7 +204,7 @@ function getMoveRating(evaluation: number, previousEvaluation: number, bestMove:
     ]
 
     // mistake
-    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(evaluation, previousEvaluation, color)) {
+    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) {
         return 'mistake'
     }
 
@@ -196,10 +214,10 @@ function getMoveRating(evaluation: number, previousEvaluation: number, bestMove:
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
     program.stdin.write(`position fen ${fen}\n`)
 
-    const evaluation = await getEvaluation(program)
-    const bestMove = await getBestMove(program)
+    // const evaluation = await getEvaluation(program)
+    const { bestMove, staticEval } = await getBestMove(program)
 
-    return { evaluation, bestMove }
+    return { bestMove, staticEval }
 }
 
 export async function parsePGN() {
@@ -220,7 +238,7 @@ export async function parsePGN() {
     const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
     const stockfish = spawn(stockfishFile)
 
-    let moveNumber = 0, previousEvaluation = 0, previousBestMove
+    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousBestMove
     for (const move of chess.history({verbose: true})) {
         if (moveNumber === 0) {
             chess.load(move.before)
@@ -228,7 +246,7 @@ export async function parsePGN() {
             const { bestMove } = await analyze(stockfish, move.before)
             moves.push({
                 position,
-                evaluation: 0,
+                staticEval: ['cp', '0'],
                 bestMove,
             })
             previousBestMove = bestMove
@@ -243,20 +261,20 @@ export async function parsePGN() {
             return {col, row}
         })
 
-        const { evaluation, bestMove } = await analyze(stockfish, move.after)
+        const { staticEval, bestMove } = await analyze(stockfish, move.after)
 
-        const moveRating = getMoveRating(evaluation, previousEvaluation, previousBestMove ?? [], movement, move.color)
+        const moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
 
         moves.push({
             position,
             movement,
-            evaluation,
+            staticEval,
             bestMove,
             moveRating,
         })
 
         previousBestMove = bestMove
-        previousEvaluation = evaluation
+        previousStaticEval = staticEval
         moveNumber++
     }
 
