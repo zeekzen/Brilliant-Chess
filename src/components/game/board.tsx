@@ -172,7 +172,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
 
     return (
-        <div className="grid w-fit h-fit rounded-borderRoundness overflow-hidden relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
+        <div className="grid w-fit h-fit rounded-borderRoundness relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
             {
                 (() => {
