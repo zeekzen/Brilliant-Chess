@@ -147,15 +147,16 @@ async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<{ b
 
     program.stdin.write(`go depth 10\n`)
 
-    let staticEval
+    let staticEval: string[]
     return new Promise((resolve, reject) => {
         program.stdout.on('data', data => {
             const line = data.toString()
 
             const bestMove = formatMove(line)
-            staticEval = formatStaticEval(line) ?? []
+            staticEval = formatStaticEval(line) ?? staticEval
 
             if (typeof bestMove !== 'undefined') {
+                console.log(staticEval)
                 resolve({ bestMove, staticEval })
                 cleanProgramListeners(program)
             }
