@@ -31,7 +31,7 @@ export default function Evaluation(props: { height: number, white: boolean, adva
 
     return (
         <div style={{ height: height }} className={`w-9 bg-evaluationBarBlack overflow-hidden flex flex-col relative ${white ? "justify-end" : "justify-start"}`}>
-            <div style={{height: `${percent}%`}} className="w-full bg-evaluationBarWhite" />
+            <div style={{height: `${percent}%`, transition: 'height 1.5s', willChange: 'height'}} className="w-full bg-evaluationBarWhite" />
             <div className="absolute h-full flex flex-col justify-between w-full py-2 text-xs font-bold">
                 <div style={{opacity: !winning ? 100 : 0}} className={`text-center ${white ? "text-foreground" : "text-background"}`}>{displayAdvantage}</div>
                 <div style={{opacity: winning ? 100 : 0}} className={`text-center ${!white ? "text-foreground" : "text-background"}`}>{displayAdvantage}</div>
