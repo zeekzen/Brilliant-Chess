@@ -184,8 +184,6 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         }
     }
 
-    if (staticEval[0] === 'mate') return 'brilliant'
-
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
     const staticPreviousEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
 
@@ -203,10 +201,11 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         ["inaccuracy", evaluationDiff < 4],
     ]
 
-    // mistake
-    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) {
-        return 'mistake'
-    }
+    // mistake - lose advantage
+    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) return 'mistake'
+
+    // mistake - mate
+    if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate') return 'mistake'
 
     return getStandardRating(guide)
 }
