@@ -99,28 +99,6 @@ function cleanProgramListeners(program: ChildProcessWithoutNullStreams) {
     program.stdout.removeAllListeners('data')
 }
 
-async function getEvaluation(program: ChildProcessWithoutNullStreams): Promise<number> {
-    function formatEvaluation(evaluation: string) {
-        const line = evaluation.split('\n').filter(line => line.startsWith('Final evaluation'))[0]
-        const number = line ? Number(line.split(/\s+/)[2]) : undefined
-        return number
-    }
-
-    program.stdin.write(`eval\n`)
-
-    return new Promise((resolve, reject) => {
-        program.stdout.on('data', data => {
-            const response = formatEvaluation(data.toString())
-            
-            if (typeof response !== 'undefined') {
-                resolve(response)
-                cleanProgramListeners(program)
-            }
-        })
-
-    })
-}
-
 function formatMove(evaluation: string) {
     const line = evaluation.split('\n').filter(line => line.startsWith('bestmove'))[0]
     const move = line?.split(/\s+/)[1]
@@ -213,7 +191,6 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
     program.stdin.write(`position fen ${fen}\n`)
 
-    // const evaluation = await getEvaluation(program)
     const { bestMove, staticEval } = await getBestMove(program)
 
     return { bestMove, staticEval }
