@@ -264,11 +264,12 @@ export async function parsePGN() {
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]
             var bestMove: square[] = []
+            var moveRating: moveRating = "best"
         } else {
             var { staticEval, bestMove } = await analyze(stockfish, move.after)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
         }
 
-        const moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
 
         moves.push({
             position,
