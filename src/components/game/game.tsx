@@ -32,10 +32,16 @@ export default function Game() {
         element?.focus()
     }
 
-    async function handlePGN() {
+    async function handlePGN(pgn: string, depth: number) {
         setPageState('loading')
 
-        const {metadata, moves} = await parsePGN()
+        const {metadata, moves} = await parsePGN(pgn, depth) ?? {}
+
+        if (!metadata || !moves) {
+            console.log('ERROR PARSING PGN')
+            setPageState('default')
+            return
+        }
 
         setTime(metadata.time)
         setNames(metadata.names)
@@ -69,7 +75,7 @@ export default function Game() {
     useEffect(() => {
         if (data[1]) {
             const dataType = FORMATS[data[0]][0]
-            const dataCode = data[1]
+            const [ code, depth ] = data[1]
 
             switch (dataType) {
                 case "Chess.com":
@@ -79,7 +85,7 @@ export default function Game() {
                     // listLichessOrgGames()
                     break
                 case "PGN":
-                    handlePGN()
+                    handlePGN(code, depth)
                     break
                 case "FEN":
                     // parseFEN()

@@ -121,9 +121,9 @@ function formatStaticEval(evaluation: string) {
     return staticEval
 }
 
-async function getBestMove(program: ChildProcessWithoutNullStreams): Promise<{ bestMove: square[], staticEval: string[] }> {
+async function getBestMove(program: ChildProcessWithoutNullStreams, depth: number): Promise<{ bestMove: square[], staticEval: string[] }> {
 
-    program.stdin.write(`go depth 10\n`)
+    program.stdin.write(`go depth ${depth}\n`)
 
     let staticEval: string[]
     return new Promise((resolve, reject) => {
@@ -188,15 +188,21 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     return getStandardRating(guide)
 }
 
-async function analyze(program: ChildProcessWithoutNullStreams, fen: string) {
+function checkDepth(depth: number) {
+    return depth <= 20
+}
+
+async function analyze(program: ChildProcessWithoutNullStreams, fen: string, depth: number) {
     program.stdin.write(`position fen ${fen}\n`)
 
-    const { bestMove, staticEval } = await getBestMove(program)
+    const { bestMove, staticEval } = await getBestMove(program, depth)
 
     return { bestMove, staticEval }
 }
 
-export async function parsePGN() {
+export async function parsePGN(pgn: string, depth: number) {
+    if (!checkDepth(depth)) return
+
     const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
 
     const chess = new Chess()
@@ -219,13 +225,11 @@ export async function parsePGN() {
         if (moveNumber === 0) {
             chess.load(move.before)
             const position = chess.board()
-            const { bestMove } = await analyze(stockfish, move.before)
             moves.push({
                 position,
                 staticEval: ['cp', '0'],
-                bestMove,
+                bestMove: [],
             })
-            previousBestMove = bestMove
         }
         chess.load(move.after)
 
@@ -242,10 +246,9 @@ export async function parsePGN() {
             var bestMove: square[] = []
             var moveRating: moveRating = "best"
         } else {
-            var { staticEval, bestMove } = await analyze(stockfish, move.after)
+            var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
         }
-
 
         moves.push({
             position,
