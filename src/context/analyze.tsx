@@ -8,7 +8,7 @@ type pageState = 'default' | 'loading' | 'analyze'
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
     const [data, setData] = useState<[number, [string, number]]>([0, ['', NaN]])
-    const [pageState, setPageState] = useState<pageState>('default')
+    const [pageState, setPageState] = useState<pageState>('analyze')
 
     return (
         <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState]}}>

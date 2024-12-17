@@ -7,6 +7,7 @@ import { FORMATS } from "./form"
 import Lens from "../svg/lens"
 import Form from "./form"
 import Loading from "./loading"
+import AnalyzeMenu from "./analyzeMenu"
 
 export default function Menu() {
     const [data, setData] = useContext(AnalyzeContext).data
@@ -21,6 +22,7 @@ export default function Menu() {
             </menu>
             <Form display={pageState === 'default'} setData={setData} />
             {pageState === 'loading' ? <Loading format={format} /> : ''}
+            {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
         </div>
     )
 }
