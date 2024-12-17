@@ -225,10 +225,11 @@ export async function parsePGN(pgn: string, depth: number) {
         if (moveNumber === 0) {
             chess.load(move.before)
             const position = chess.board()
+            const { bestMove } = await analyze(stockfish, move.before, depth)
             moves.push({
                 position,
                 staticEval: ['cp', '0'],
-                bestMove: [],
+                bestMove,
             })
         }
         chess.load(move.after)
