@@ -18,9 +18,9 @@ export default function Game() {
 
     const [time, setTime] = useState('--:--')
     const [names, setNames] = useState(['White (?)', 'Black (?)'])
-    const [game, setGame] = useState<move[]>([])
     const [moveNumber, setMoveNumber] = useState(0)
-
+    
+    const [game, setGame] = useContext(AnalyzeContext).game
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
 
@@ -38,7 +38,7 @@ export default function Game() {
         const {metadata, moves} = await parsePGN(pgn, depth) ?? {}
 
         if (!metadata || !moves) {
-            console.log('ERROR PARSING PGN')
+            console.error('ERROR PARSING PGN')
             setPageState('default')
             return
         }
