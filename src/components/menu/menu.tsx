@@ -20,9 +20,11 @@ export default function Menu() {
             <menu className="flex flex-row">
                 <li className="flex flex-col items-center justify-center gap-1 py-3 text-sm w-full font-bold"><Lens class="fill-foreground" />Analize Game</li>
             </menu>
-            <Form display={pageState === 'default'} setData={setData} />
-            {pageState === 'loading' ? <Loading format={format} /> : ''}
-            {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
+            <div className="overflow-y-auto h-full flex flex-col">
+                <Form display={pageState === 'default'} setData={setData} />
+                {pageState === 'loading' ? <Loading format={format} /> : ''}
+                {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
+            </div>
         </div>
     )
 }

@@ -7,7 +7,7 @@ export default function Name(props: { white: boolean, children: React.ReactNode 
     return (
         <div className="flex flex-row items-start text-sm font-bold text-foregroundHighlighted gap-2">
             <div className={`h-10 w-10 flex flex-row justify-center items-end ${white ? "bg-backgroundProfileWhite" : "bg-backgroundProfileBlack"}`}>
-                <Profile class={`${white ? "fill-foregroundProfileWhite" : "fill-foregroundProfileBlack"}`} />
+                <Profile width={35} height={35} class={`${white ? "fill-foregroundProfileWhite" : "fill-foregroundProfileBlack"}`} />
             </div>
             <span className="h-full pt-[2px]">{props.children}</span>
         </div>

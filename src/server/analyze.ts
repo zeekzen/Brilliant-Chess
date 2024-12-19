@@ -169,6 +169,9 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
+    console.log(movement)
+    console.log(bestMove)
+    console.log(isBest)
     if (isBest) return 'best'
 
     // standard
@@ -222,25 +225,26 @@ export async function parsePGN(pgn: string, depth: number) {
 
     let moveNumber = 0, previousStaticEval = ['cp', '0'], previousBestMove
     for (const move of chess.history({verbose: true})) {
-        if (moveNumber === 0) {
-            chess.load(move.before)
-            const position = chess.board()
-            const { bestMove } = await analyze(stockfish, move.before, depth)
-            moves.push({
-                position,
-                staticEval: ['cp', '0'],
-                bestMove,
-            })
-        }
-        chess.load(move.after)
-
-        const position = chess.board()
-
         const movement: square[] = [move.from, move.to].map(square => {
             const {col, row} = formatSquare(square)
 
             return {col, row}
         })
+
+        if (moveNumber === 0) {
+            chess.load(move.before)
+            const position = chess.board()
+            const { bestMove, staticEval } = await analyze(stockfish, move.before, depth)
+            moves.push({
+                position,
+                staticEval,
+                bestMove,
+            })
+            previousBestMove = bestMove
+        }
+        chess.load(move.after)
+
+        const position = chess.board()
 
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]

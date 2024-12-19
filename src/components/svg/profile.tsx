@@ -1,6 +1,6 @@
-export default function Profile(props: {class: string}) {
+export default function Profile(props: {class: string, height: number, width: number}) {
 return (
-		<svg className="scale-x-[1.15]" height="35px" width="35px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" >
+		<svg className="scale-x-[1.15]" height={props.height} width={props.width} version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" >
 			<g>
 				<path className={props.class} d="M359.51,367.614c-19.106-7.148-40.877-18.276-40.877-32.676c0-9.533,0-21.444,0-37.782
 					c6.996-19.393,17.51-20.781,22.768-50.546c12.254-4.379,19.258-11.384,28.009-42.026c6.574-23.064-3.112-29.254-9.382-30.905

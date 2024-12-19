@@ -23,6 +23,7 @@ export default function Game() {
     const [game, setGame] = useContext(AnalyzeContext).game
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
+    const [metadata, setMetadata] = useContext(AnalyzeContext).metadata
 
     const componentRef = useRef<HTMLDivElement>(null)
 
@@ -43,6 +44,7 @@ export default function Game() {
             return
         }
 
+        setMetadata(metadata)
         setTime(metadata.time)
         setNames(metadata.names)
         setGame(moves)
