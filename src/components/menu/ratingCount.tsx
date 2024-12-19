@@ -19,13 +19,13 @@ function title(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export default function RatingCount(props: {game: move[]}) {
+export default function RatingCount(props: {moves: move[]}) {
     const [counter, setCounter] = useState<{w: {[key: string]: number}, b: {[key: string]: number}}>({w: {}, b: {}})
-    const { game } = props
+    const { moves } = props
 
     useEffect(() => {
         const newCounter: {w: {[key: string]: number}, b: {[key: string]: number}} = {w: {}, b: {}}
-        game.forEach((move, i) => {
+        moves.forEach((move, i) => {
             const rating = move.moveRating as string
             const color = i%2===0 ? 'b' : 'w'
 
@@ -35,7 +35,7 @@ export default function RatingCount(props: {game: move[]}) {
     }, [])
 
     return (
-        <div className="w-[85%] flex flex-col gap-3 justify-center">
+        <div className="w-[85%] flex flex-col gap-3 justify-center pr-[35px]">
             {ratings.map(rating => {
                 const titleRating = title(rating)
 
