@@ -58,7 +58,7 @@ export default function GameChart(props: {moves: move[]}) {
                     }).join(" ")
                 } L ${svgSize.width} ${svgSize.height} L 0 ${svgSize.height}`}
             />
-            <line x1={0} y1={svgSize.height / 2} x2={svgSize.width} y2={svgSize.height / 2} className="stroke-neutral-600 opacity-50 stroke-2" />
+            <line x1={0} y1={svgSize.height / 2} x2={svgSize.width} y2={svgSize.height / 2} className="stroke-neutral-500 opacity-75 stroke-2" />
         </svg>
     )
 }
