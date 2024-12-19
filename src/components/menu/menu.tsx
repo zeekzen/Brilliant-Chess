@@ -16,7 +16,7 @@ export default function Menu() {
     const format = FORMATS[data[0]][0]
 
     return (
-        <div className="h-full bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4">
+        <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4">
             <menu className="flex flex-row">
                 <li className="flex flex-col items-center justify-center gap-1 py-3 text-sm w-full font-bold"><Lens class="fill-foreground" />Analize Game</li>
             </menu>
