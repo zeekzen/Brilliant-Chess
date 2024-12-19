@@ -169,9 +169,6 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
-    console.log(movement)
-    console.log(bestMove)
-    console.log(isBest)
     if (isBest) return 'best'
 
     // standard
