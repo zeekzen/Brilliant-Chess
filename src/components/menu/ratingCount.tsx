@@ -1,6 +1,6 @@
-import { AnalyzeContext } from "@/context/analyze";
+import { move } from "@/server/analyze";
 import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 const ratings = [
     "brilliant", // text-highlightBrilliant
@@ -19,9 +19,9 @@ function title(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export default function RatingCount() {
-    const [game, setGame] = useContext(AnalyzeContext).game
+export default function RatingCount(props: {game: move[]}) {
     const [counter, setCounter] = useState<{w: {[key: string]: number}, b: {[key: string]: number}}>({w: {}, b: {}})
+    const { game } = props
 
     useEffect(() => {
         const newCounter: {w: {[key: string]: number}, b: {[key: string]: number}} = {w: {}, b: {}}
@@ -44,7 +44,7 @@ export default function RatingCount() {
                         <span className="font-bold text-foregroundGrey text-lg">{titleRating}</span>
                         <div className="flex flex-row text-xl font-extrabold w-48">
                             <span className={`flex-grow text-left text-highlight${titleRating}`}>{counter.w[rating] ?? 0}</span>
-                            <Image alt={rating} src={`/images/rating/${rating}.svg`} width={30} height={0} />
+                            <Image className="select-none" alt={rating} src={`/images/rating/${rating}.svg`} width={30} height={0} />
                             <span className={`flex-grow text-right text-highlight${titleRating}`}>{counter.b[rating] ?? 0}</span>
                         </div>
                     </div>
