@@ -15,7 +15,7 @@ export default function GameChart(props: {moves: move[]}) {
 
     function getMoveY(move: move, moveNumber: number) {
         const OLD_PERCENTS = [-400, 400]
-        const NEW_PERCENTS = [0.1, 0.9]
+        const NEW_PERCENTS = [0.075, 0.925]
 
         const advantage = move.staticEval ?? ['cp', 0]
         const whiteMoving = moveNumber%2 === 0
