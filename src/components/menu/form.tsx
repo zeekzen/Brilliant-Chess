@@ -10,9 +10,9 @@ export const FORMATS = [
 ] as const
 
 export const TYPES = [
-    ["Quick", "/images/quick.svg", 15],
-    ["Standard", "/images/standard.svg", 18],
-    ["Deep", "/images/deep.svg", 21],
+    ["Quick", "/images/quick.svg", 15, "Depth: 15"],
+    ["Standard", "/images/standard.svg", 18, "Depth: 18"],
+    ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
 export default function Form(props: {setData: (data: [number, [string, number]]) => void, display: boolean}) {
@@ -80,7 +80,7 @@ export default function Form(props: {setData: (data: [number, [string, number]])
                         {TYPES.map((depth, i) => {
                             return (
                                 <li key={i}>
-                                    <button type="button" onClick={() => setType(i)} style={{gap: i !== 0 ? '.4rem' : '0'}} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
+                                    <button title={depth[3]} type="button" onClick={() => setType(i)} style={{gap: i !== 0 ? '.4rem' : '0'}} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
                                         <Image alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
                                         {depth[0]}
                                     </button>
