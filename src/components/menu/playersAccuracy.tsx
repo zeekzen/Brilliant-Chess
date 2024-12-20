@@ -9,11 +9,69 @@ export default function PlayersAccuracy(props: {metadata: metadata, moves: move[
 
     useEffect(() => {
         const accuracies: {w: number[], b: number[]} = {w: [], b: []}
-        let prevWinPerc: number
-        moves.forEach((move, i) => {
-            if (move.staticEval[0] === 'mate') return
 
+        function pushAccuracies(white: boolean, value: number) {
+            if (white) {
+                accuracies.w.push(value)
+            } else {
+                accuracies.b.push(value)
+            }
+        }
+
+        let prevWinPerc: number
+        let prevMateIn = NaN
+        moves.forEach((move, i) => {
             const white = i%2===1
+
+            if (move.staticEval[0] === 'mate') {
+                if (!move.staticEval[1]) {
+                    pushAccuracies(white, 100)
+                } else {
+                    const mateIn = Number(move.staticEval[1])
+                    if (isNaN(prevMateIn)) {
+                        if (mateIn > 0) {
+                            pushAccuracies(white, 0)
+                        } else {
+                            pushAccuracies(white, 100)
+                        }
+                    } else if (Math.abs(mateIn) < Math.abs(prevMateIn)) {
+                        if (mateIn > 0) {
+                            // you advanced your opponents checkmate
+                            pushAccuracies(white, 0)
+                        } else {
+                            // you did the right move to checkmate
+                            pushAccuracies(white, 100)
+                        }
+                    } else if (Math.abs(mateIn) > Math.abs(prevMateIn)) {
+                        if (mateIn > 0) {
+                            // you retarded your opponents checkmate (probably a bug)
+                        } else {
+                            // you retarded your checkmate
+                            pushAccuracies(white, 50)
+                        }
+                    } else if (Math.abs(mateIn) === Math.abs(prevMateIn)) {
+                        if (mateIn > 0) {
+                            // you did not advance your opponents checkmate
+                        } else {
+                            // you retarded your checkmate a little
+                            pushAccuracies(white, 50)
+                        }
+                    }
+
+                    prevMateIn = mateIn
+                }
+
+                return
+            } else if (!isNaN(prevMateIn)) {
+                if (prevMateIn > 0) {
+                    pushAccuracies(white, 0)
+                } else {
+                    pushAccuracies(white, 100)
+                }
+
+                prevMateIn = NaN
+                return
+            }
 
             const staticEval = -Number(move.staticEval[1])
 
@@ -27,12 +85,9 @@ export default function PlayersAccuracy(props: {metadata: metadata, moves: move[
 
             const moveAccuracy = winPerc >= prevWinPerc ? 100 : 103.1668 * Math.exp(-0.04354 * (prevWinPerc - winPerc)) - 3.1669
 
+            prevMateIn = NaN
             prevWinPerc = 100 - winPerc
-            if (white) {
-                accuracies.w.push(moveAccuracy)
-            } else {
-                accuracies.b.push(moveAccuracy)
-            }
+            pushAccuracies(white, moveAccuracy)
         })
 
         const sumWhite = accuracies.w.reduce((acc, cur) => acc + cur, 0)
