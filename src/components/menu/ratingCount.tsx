@@ -43,9 +43,9 @@ export default function RatingCount(props: {moves: move[]}) {
                     <div key={rating} className="flex flex-row items-center justify-between">
                         <span className="font-bold text-foregroundGrey text-lg">{titleRating}</span>
                         <div className="flex flex-row text-xl font-extrabold w-48">
-                            <span className={`flex-grow text-left text-highlight${titleRating}`}>{counter.w[rating] ?? 0}</span>
+                            <span className={`w-[81px] text-left text-highlight${titleRating}`}>{counter.w[rating] ?? 0}</span>
                             <Image className="select-none" alt={rating} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
-                            <span className={`flex-grow text-right text-highlight${titleRating}`}>{counter.b[rating] ?? 0}</span>
+                            <span className={`w-[81px] text-right text-highlight${titleRating}`}>{counter.b[rating] ?? 0}</span>
                         </div>
                     </div>
                 )
