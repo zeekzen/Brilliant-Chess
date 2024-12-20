@@ -10,9 +10,9 @@ export const FORMATS = [
 ] as const
 
 export const TYPES = [
-    ["Quick", "/images/quick.svg", 14],
-    ["Standard", "/images/standard.svg", 17],
-    ["Deep", "/images/deep.svg", 20],
+    ["Quick", "/images/quick.svg", 15],
+    ["Standard", "/images/standard.svg", 18],
+    ["Deep", "/images/deep.svg", 21],
 ] as const
 
 export default function Form(props: {setData: (data: [number, [string, number]]) => void, display: boolean}) {

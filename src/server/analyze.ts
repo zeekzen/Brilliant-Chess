@@ -205,7 +205,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
 }
 
 function checkDepth(depth: number) {
-    return depth <= 20
+    return depth <= 21
 }
 
 async function analyze(program: ChildProcessWithoutNullStreams, fen: string, depth: number) {

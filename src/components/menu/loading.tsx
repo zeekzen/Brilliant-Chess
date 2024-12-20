@@ -47,10 +47,10 @@ export default function Loading(props: { format: string }) {
                 var intervalTime = 100
                 break
             case "Standard":
-                var intervalTime = 250
+                var intervalTime = 300
                 break
             case "Deep":
-                var intervalTime = 1200
+                var intervalTime = 1000
                 break
         }
 
