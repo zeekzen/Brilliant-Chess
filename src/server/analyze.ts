@@ -143,6 +143,8 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
 }
 
 function getMoveRating(staticEval: string[], previousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
+    const winning = Number(staticEval[1]) < 0
+
     function getStandardRating(guide: [moveRating, boolean][]) {
         const valid = guide.filter(rating => rating[1])[0]
         return valid ? valid[0] : "blunder"
@@ -159,6 +161,16 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
             return previousEvaluation >= GREAT_ADVANTAGE && evaluation < GREAT_ADVANTAGE
         } else {
             return previousEvaluation <= -GREAT_ADVANTAGE && evaluation > -GREAT_ADVANTAGE
+        }
+    }
+
+    function losingAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
+        const ADVANTAGE = 0
+
+        if (color === "w") {
+            return previousEvaluation >= ADVANTAGE && evaluation < ADVANTAGE
+        } else {
+            return previousEvaluation <= -ADVANTAGE && evaluation > -ADVANTAGE
         }
     }
 
@@ -179,11 +191,15 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         ["inaccuracy", evaluationDiff < 4],
     ]
 
+    // excellent - mate
+    if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
+
     // mistake - lose advantage
     if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) return 'mistake'
+    if (isStandardRating(guide, "inaccuracy") && losingAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) return 'mistake'
 
     // mistake - mate
-    if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate') return 'mistake'
+    if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
 
     return getStandardRating(guide)
 }
@@ -203,7 +219,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game2.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
