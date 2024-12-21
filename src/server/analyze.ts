@@ -197,7 +197,18 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const previousStandardRating = getStandardRating(previousEvaluationDiff)
 
     // great - gaining advantage
-    if (standardRating === 'excellent' && (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))) return 'great'
+    if (
+        standardRating === 'excellent'
+        &&
+        (
+            (
+                previousStandardRating === 'inaccuracy'
+                &&
+                (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))
+            )
+            ||
+            previousStandardRating === 'blunder'
+        )) return 'great'
 
     // best
     const isBest = movement.every((move, i) => {
