@@ -41,6 +41,8 @@ export default {
         whiteBoard: "var(--whiteBoard)",
 
         highlightBoard: "var(--highlightBoard)",
+        highlightBrilliant: "var(--highlightBrilliant)",
+        highlightGreat: "var(--highlightGreat)",
         highlightBest: "var(--highlightBest)",
         highlightExcellent: "var(--highlightExcellent)",
         highlightGood: "var(--highlightGood)",

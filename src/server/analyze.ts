@@ -142,17 +142,15 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
+function getMoveRating(staticEval: string[], previousStaticEval: string[], previousPreviousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
     const winning = Number(staticEval[1]) < 0
     const previousWinig = Number(previousStaticEval[1]) > 0
+
+    const previousColor = color === 'w' ? 'b' : 'w'
 
     function getStandardRating(guide: [moveRating, boolean][]) {
         const valid = guide.filter(rating => rating[1])[0]
         return valid ? valid[0] : "blunder"
-    }
-
-    function isStandardRating(guide: [moveRating, boolean][], moveRating: moveRating) {
-        return guide.filter(rating => rating[0] === moveRating)[0][1]
     }
 
     function losingGeatAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
@@ -165,13 +163,13 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         }
     }
 
-    function losingAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
-        const ADVANTAGE = 0
+    function givingGeatAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
+        const GREAT_ADVANTAGE = -2
 
         if (color === "w") {
-            return previousEvaluation >= ADVANTAGE + 0.5 && evaluation < ADVANTAGE - 0.5
+            return previousEvaluation >= GREAT_ADVANTAGE && evaluation < GREAT_ADVANTAGE
         } else {
-            return previousEvaluation <= -ADVANTAGE - 0.5 && evaluation > -ADVANTAGE + 0.5
+            return previousEvaluation <= -GREAT_ADVANTAGE && evaluation > -GREAT_ADVANTAGE
         }
     }
 
@@ -184,21 +182,26 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     }
 
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
-    const staticPreviousEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
+    const previousStaticEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
+    const previousPreviousStaticEvalAmount = Number(previousPreviousStaticEval[1]) / 100 * (color === 'w' ? -1 : 1)
+
+    // standard
+    const evaluationDiff = color === "w" ? previousStaticEvalAmount - staticEvalAmount : staticEvalAmount - previousStaticEvalAmount
+    const guide: [moveRating, boolean][] = [
+        ["excellent", evaluationDiff < 0.4],
+        ["good", evaluationDiff < 0.8],
+        ["inaccuracy", evaluationDiff < 4],
+    ]
+    const standardRating = getStandardRating(guide)
+
+    // great - gaining advantage
+    if (standardRating === 'excellent' && (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))) return 'great'
 
     // best
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
     if (isBest) return 'best'
-
-    // standard
-    const evaluationDiff = color === "w" ? staticPreviousEvalAmount - staticEvalAmount : staticEvalAmount - staticPreviousEvalAmount
-    const guide: [moveRating, boolean][] = [
-        ["excellent", evaluationDiff < 0.4],
-        ["good", evaluationDiff < 0.8],
-        ["inaccuracy", evaluationDiff < 4],
-    ]
 
     // excellent - mate
     if (staticEval[0] === 'mate' && !staticEval[1]) return 'excellent'
@@ -207,10 +210,10 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
     
     // excellent - right move to mate
-    if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, staticPreviousEvalAmount, color) && winning) return 'excellent'
+    if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, previousStaticEvalAmount, color) && winning) return 'excellent'
     
     // mistake - lose advantage
-    if (isStandardRating(guide, "inaccuracy") && (losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color) || losingAdvantage(staticEvalAmount, staticPreviousEvalAmount, color))) return 'mistake'
+    if (standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color) || givingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color))) return 'mistake'
     
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
@@ -218,7 +221,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     // miss - mate
     if (previousStaticEval[0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
 
-    return getStandardRating(guide)
+    return standardRating
 }
 
 function checkDepth(depth: number) {
@@ -236,7 +239,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game4.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -253,7 +256,7 @@ export async function parsePGN(pgn: string, depth: number) {
     const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
     const stockfish = spawn(stockfishFile)
 
-    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousBestMove
+    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousPreviousStaticEval: string[] = [] , previousBestMove
     for (const move of chess.history({verbose: true})) {
         const movement: square[] = [move.from, move.to].map(square => {
             const {col, row} = formatSquare(square)
@@ -279,10 +282,10 @@ export async function parsePGN(pgn: string, depth: number) {
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.color)
         } else {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.color)
         }
 
         moves.push({
@@ -294,6 +297,7 @@ export async function parsePGN(pgn: string, depth: number) {
         })
 
         previousBestMove = bestMove
+        previousPreviousStaticEval = previousStaticEval
         previousStaticEval = staticEval
         moveNumber++
     }

@@ -69,6 +69,7 @@ const PIECES_IMAGES = {
 }
 
 const HIGHLIGHT_STYLE = {
+    great: {color: "bg-highlightGreat", icon: "great.svg"},
     best: {color: "bg-highlightBest", icon: "best.svg"},
     excellent: {color: "bg-highlightExcellent", icon: "excellent.svg"},
     good: {color: "bg-highlightGood", icon: "good.svg"},
