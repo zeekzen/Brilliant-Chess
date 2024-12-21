@@ -169,9 +169,9 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         const ADVANTAGE = 0
 
         if (color === "w") {
-            return previousEvaluation >= ADVANTAGE && evaluation < ADVANTAGE
+            return previousEvaluation >= ADVANTAGE + 0.5 && evaluation < ADVANTAGE - 0.5
         } else {
-            return previousEvaluation <= -ADVANTAGE && evaluation > -ADVANTAGE
+            return previousEvaluation <= -ADVANTAGE - 0.5 && evaluation > -ADVANTAGE + 0.5
         }
     }
 
@@ -196,8 +196,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
 
     // mistake - lose advantage
-    if (isStandardRating(guide, "inaccuracy") && losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) return 'mistake'
-    if (isStandardRating(guide, "inaccuracy") && losingAdvantage(staticEvalAmount, staticPreviousEvalAmount, color)) return 'mistake'
+    if (isStandardRating(guide, "inaccuracy") && (losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color) || losingAdvantage(staticEvalAmount, staticPreviousEvalAmount, color))) return 'mistake'
 
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
