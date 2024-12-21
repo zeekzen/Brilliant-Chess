@@ -175,6 +175,14 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         }
     }
 
+    function keepMating(mateIn: number, previousMateIn: number, color: Color) {
+        if (color === "w") {
+            return mateIn < previousMateIn
+        } else {
+            return mateIn > previousMateIn
+        }
+    }
+
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
     const staticPreviousEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
 
@@ -183,7 +191,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
     if (isBest) return 'best'
-
+    
     // standard
     const evaluationDiff = color === "w" ? staticPreviousEvalAmount - staticEvalAmount : staticEvalAmount - staticPreviousEvalAmount
     const guide: [moveRating, boolean][] = [
@@ -191,13 +199,16 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         ["good", evaluationDiff < 0.8],
         ["inaccuracy", evaluationDiff < 4],
     ]
-
+    
     // excellent - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
-
+    
+    // excellent - right move to mate
+    if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, staticPreviousEvalAmount, color) && winning) return 'excellent'
+    
     // mistake - lose advantage
     if (isStandardRating(guide, "inaccuracy") && (losingGeatAdvantage(staticEvalAmount, staticPreviousEvalAmount, color) || losingAdvantage(staticEvalAmount, staticPreviousEvalAmount, color))) return 'mistake'
-
+    
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
 
