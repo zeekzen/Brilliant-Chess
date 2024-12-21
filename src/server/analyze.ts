@@ -191,7 +191,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
     if (isBest) return 'best'
-    
+
     // standard
     const evaluationDiff = color === "w" ? staticPreviousEvalAmount - staticEvalAmount : staticEvalAmount - staticPreviousEvalAmount
     const guide: [moveRating, boolean][] = [
@@ -199,8 +199,11 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
         ["good", evaluationDiff < 0.8],
         ["inaccuracy", evaluationDiff < 4],
     ]
-    
+
     // excellent - mate
+    if (staticEval[0] === 'mate' && !staticEval[1]) return 'excellent'
+
+    // excellent - start mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
     
     // excellent - right move to mate
@@ -276,7 +279,7 @@ export async function parsePGN(pgn: string, depth: number) {
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating: moveRating = "best"
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
         } else {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var moveRating = getMoveRating(staticEval, previousStaticEval, previousBestMove ?? [], movement, move.color)
