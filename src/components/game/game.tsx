@@ -18,8 +18,8 @@ export default function Game() {
 
     const [time, setTime] = useState('--:--')
     const [names, setNames] = useState(['White (?)', 'Black (?)'])
-    const [moveNumber, setMoveNumber] = useState(0)
     
+    const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
