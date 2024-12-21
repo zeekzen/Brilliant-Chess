@@ -148,9 +148,13 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     const previousColor = color === 'w' ? 'b' : 'w'
 
-    function getStandardRating(guide: [moveRating, boolean][]) {
-        const valid = guide.filter(rating => rating[1])[0]
-        return valid ? valid[0] : "blunder"
+    function getStandardRating(diff: number) {
+        let rating: moveRating = 'excellent'
+        if (diff >= 0.4) rating = 'good'
+        if (diff >= 0.8) rating = 'inaccuracy'
+        if (diff >= 4) rating = 'blunder'
+
+        return rating
     }
 
     function losingGeatAdvantage(evaluation: number, previousEvaluation: number, color: Color) {
@@ -187,12 +191,10 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     // standard
     const evaluationDiff = color === "w" ? previousStaticEvalAmount - staticEvalAmount : staticEvalAmount - previousStaticEvalAmount
-    const guide: [moveRating, boolean][] = [
-        ["excellent", evaluationDiff < 0.4],
-        ["good", evaluationDiff < 0.8],
-        ["inaccuracy", evaluationDiff < 4],
-    ]
-    const standardRating = getStandardRating(guide)
+    const standardRating = getStandardRating(evaluationDiff)
+
+    const previousEvaluationDiff = color === "b" ? previousPreviousStaticEvalAmount - previousStaticEvalAmount : previousStaticEvalAmount - previousPreviousStaticEvalAmount
+    const previousStandardRating = getStandardRating(previousEvaluationDiff)
 
     // great - gaining advantage
     if (standardRating === 'excellent' && (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))) return 'great'
@@ -221,6 +223,17 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     // miss - mate
     if (previousStaticEval[0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
 
+    // miss - gain advantage
+    if (
+        (
+            (previousStandardRating === "inaccuracy" && (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor)))
+            ||
+            previousStandardRating === "blunder"
+        )
+        &&
+        (standardRating === "blunder" || standardRating === "inaccuracy")
+    ) return 'miss'
+
     return standardRating
 }
 
@@ -239,7 +252,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game4.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
