@@ -144,6 +144,7 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
 
 function getMoveRating(staticEval: string[], previousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
     const winning = Number(staticEval[1]) < 0
+    const previousWinig = Number(previousStaticEval[1]) > 0
 
     function getStandardRating(guide: [moveRating, boolean][]) {
         const valid = guide.filter(rating => rating[1])[0]
@@ -201,6 +202,9 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], bestM
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
 
+    // miss - mate
+    if (previousStaticEval[0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
+
     return getStandardRating(guide)
 }
 
@@ -219,7 +223,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game2.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
