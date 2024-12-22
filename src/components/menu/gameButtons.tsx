@@ -1,4 +1,4 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import NextMove from "../svg/nextMove";
 import Play from "../svg/play";
 import SkipGame from "../svg/skipGame";
@@ -13,33 +13,43 @@ export default function GameButtons() {
     const [game, setGame] = useContext(AnalyzeContext).game
     const [forward, setForward] = useContext(AnalyzeContext).forward
 
+    const moveNumberRef = useRef(moveNumber)
+
     const intervalRef = useRef<NodeJS.Timeout>()
+
+    useEffect(() => {
+        moveNumberRef.current = moveNumber
+    }, [moveNumber])
 
     function togglePlaying() {
         if (playing) {
             clearInterval(intervalRef.current)
         } else {
             nextMove()
-            intervalRef.current = setInterval(() => nextMove(), 1000)
+            intervalRef.current = setInterval(nextMove, 1000)
         }
         setPlaying(playing => !playing)
     }
 
     function previousMove() {
+        if (moveNumberRef.current === 0) return
         setForward(false)
-        setMoveNumber(prev => Math.max(prev - 1, 0))
+        setMoveNumber(prev => prev - 1)
     }
 
     function nextMove() {
+        if (moveNumberRef.current === game.length - 1) return
         setForward(true)
-        setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
+        setMoveNumber(prev => prev + 1)
     }
 
     function firstMove() {
+        setForward(true)
         setMoveNumber(0)
     }
 
     function lastMove() {
+        setForward(false)
         setMoveNumber(game.length - 1)
     }
 

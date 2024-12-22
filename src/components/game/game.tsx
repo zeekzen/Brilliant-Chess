@@ -58,20 +58,24 @@ export default function Game() {
         switch (e.key) {
             case 'ArrowLeft':
                 e.preventDefault()
+                if (moveNumber === 0) return
                 setForward(false)
-                setMoveNumber(prev => Math.max(prev - 1, 0))
+                setMoveNumber(prev => prev - 1)
                 break
             case 'ArrowRight':
                 e.preventDefault()
+                if (moveNumber === game.length - 1) return
                 setForward(true)
-                setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
+                setMoveNumber(prev => prev + 1)
                 break
             case 'ArrowUp':
                 e.preventDefault()
+                setForward(true)
                 setMoveNumber(0)
                 break
             case 'ArrowDown':
                 e.preventDefault()
+                setForward(false)
                 setMoveNumber(game.length - 1)
                 break
         }
