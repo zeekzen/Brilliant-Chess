@@ -185,6 +185,14 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
         }
     }
 
+    function advanceMate(mateIn: number, previousMateIn: number, color: Color) {
+        if (color === "w") {
+            return mateIn > previousMateIn
+        } else {
+            return mateIn < previousMateIn
+        }
+    }
+
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
     const previousStaticEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
     const previousPreviousStaticEvalAmount = Number(previousPreviousStaticEval[1]) / 100 * (color === 'w' ? -1 : 1)
@@ -201,14 +209,11 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
         standardRating === 'excellent'
         &&
         (
-            (
-                previousStandardRating === 'inaccuracy'
-                &&
-                (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))
-            )
-            ||
-            previousStandardRating === 'blunder'
-        )) return 'great'
+            (previousStandardRating === 'inaccuracy' || previousStandardRating === 'blunder')
+            &&
+            (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))
+        )
+        ) return 'great'
 
     // best
     const isBest = movement.every((move, i) => {
@@ -224,7 +229,13 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     
     // excellent - right move to mate
     if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, previousStaticEvalAmount, color) && winning) return 'excellent'
-    
+
+    // good - delay mate
+    if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, previousStaticEvalAmount, color) && winning) return 'good'
+
+    // good - advance mate
+    if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, previousStaticEvalAmount, color) && !winning) return 'good'
+
     // mistake - lose advantage
     if (standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color) || givingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color))) return 'mistake'
     
