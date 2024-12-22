@@ -73,6 +73,7 @@ const HIGHLIGHT_STYLE = {
     best: {color: "bg-highlightBest", icon: "best.svg"},
     excellent: {color: "bg-highlightExcellent", icon: "excellent.svg"},
     good: {color: "bg-highlightGood", icon: "good.svg"},
+    book: {color: "bg-highlightBook", icon: "book.svg"},
     inaccuracy: {color: "bg-highlightInaccuracy", icon: "inaccuracy.svg"},
     mistake: {color: "bg-highlightMistake", icon: "mistake.svg"},
     miss: {color: "bg-highlightMiss", icon: "miss.svg"},

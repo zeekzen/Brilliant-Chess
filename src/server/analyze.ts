@@ -142,7 +142,7 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEval: string[], previousPreviousStaticEval: string[], bestMove: square[], movement: square[], color: Color): moveRating {
+function getMoveRating(staticEval: string[], previousStaticEval: string[], previousPreviousStaticEval: string[], bestMove: square[], movement: square[], fen: string, color: Color): moveRating {
     const winning = Number(staticEval[1]) < 0
     const previousWinig = Number(previousStaticEval[1]) > 0
 
@@ -196,6 +196,13 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
     const previousStaticEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
     const previousPreviousStaticEvalAmount = Number(previousPreviousStaticEval[1]) / 100 * (color === 'w' ? -1 : 1)
+
+    // book
+    const openingsFile = readFileSync(path.join(process.cwd(), 'openings/openings.json'), 'utf-8')
+    const openings = JSON.parse(openingsFile)
+
+    const openingName = openings[fen]
+    if (openingName) return 'book'
 
     // standard
     const evaluationDiff = color === "w" ? previousStaticEvalAmount - staticEvalAmount : staticEvalAmount - previousStaticEvalAmount
@@ -274,7 +281,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game2.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -317,10 +324,10 @@ export async function parsePGN(pgn: string, depth: number) {
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color)
         } else {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color)
         }
 
         moves.push({
