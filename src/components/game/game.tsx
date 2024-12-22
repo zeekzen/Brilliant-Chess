@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN, move, square } from "@/server/analyze"
+import { parsePGN } from "@/server/analyze"
 import { FORMATS } from "../menu/form"
 
 const BOARD_PROPORTIONS = 8
@@ -24,6 +24,7 @@ export default function Game() {
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [metadata, setMetadata] = useContext(AnalyzeContext).metadata
+    const [forward, setForward] = useContext(AnalyzeContext).forward
 
     const componentRef = useRef<HTMLDivElement>(null)
 
@@ -57,10 +58,12 @@ export default function Game() {
         switch (e.key) {
             case 'ArrowLeft':
                 e.preventDefault()
+                setForward(false)
                 setMoveNumber(prev => Math.max(prev - 1, 0))
                 break
             case 'ArrowRight':
                 e.preventDefault()
+                setForward(true)
                 setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
                 break
             case 'ArrowUp':
@@ -125,7 +128,7 @@ export default function Game() {
                     <Name white={false}>{names[1]}</Name>
                     <Clock white={false} moving={false}>{time}</Clock>
                 </div>
-                <Board moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} highlight={game[moveNumber]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
                 <div className="flex flex-row justify-between">
                     <Name white={true}>{names[0]}</Name>
                     <Clock white={true} moving={false}>{time}</Clock>

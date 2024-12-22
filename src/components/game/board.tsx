@@ -1,6 +1,6 @@
 import { moveRating, position, square } from "@/server/analyze";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_POSITION = [
     [
@@ -151,14 +151,59 @@ function Arrow(props: { move: square[], squareSize: number, class: string }) {
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, highlight?: square[], bestMove?: square[], moveRating?: moveRating }) {
+function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean }) {
+    const { move, squareSize, forward } = props
+    if (move.length === 0) return
+    const [from, to] = move
+
+    const fromElementPosition = {
+        bottom: squareSize * from.row,
+        left: squareSize * from.col,
+    }
+
+    const toElementPosition = {
+        bottom: squareSize * to.row,
+        left: squareSize * to.col,
+    }
+
+    const distance = {
+        x: toElementPosition.left - fromElementPosition.left,
+        y: toElementPosition.bottom - fromElementPosition.bottom,
+    }
+
+    return (
+        <style>
+            {`
+                @keyframes move {
+                    0% {
+                        transform: translate(${forward ? -distance.x : 0}px, ${forward ? distance.y : 0}px);
+                    }
+                    100% {
+                        transform: translate(${!forward ? distance.x : 0}px, ${!forward ? -distance.y : 0}px);
+                    }
+                }
+                .moveAnimation {
+                    animation: move 50ms linear ${forward ? 'forwards' : 'reverse'};
+                    will-change: transform;
+                    z-index: 30;
+                }
+            `}
+        </style>
+    )
+}
+
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean }) {
     const [arrows, setArrows] = useState<square[][]>([])
+
+    const pieceRef = useRef<HTMLDivElement>(null)
 
     const { boardProportions, boardSize } = props
     const position = props.position ?? DEFAULT_POSITION
-    const highlight = props.highlight ?? []
+    const move = props.move ?? []
+    const nextMove = props.nextMove ?? []
     const bestMove = props.bestMove
     const moveRating = props.moveRating
+    const forward = props.forward
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
@@ -172,9 +217,20 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     const highlightColor = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.color ?? "bg-highlightBoard"
     const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
 
+    useEffect(() => {
+        if (pieceRef.current) {
+            for (const piece of document.getElementsByClassName('moveAnimation')) {
+                piece.classList.remove('moveAnimation')
+            }
+            void pieceRef.current.offsetWidth
+            pieceRef.current.classList.add('moveAnimation')
+        }
+    }, [move])
+
     return (
         <div className="grid w-fit h-fit rounded-borderRoundness relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
+            <MoveAnimation move={forward ? move : nextMove} squareSize={squareSize} forward={forward} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -202,7 +258,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             }
 
                             let highlighted, highlightedIcon
-                            highlight.forEach((square, i) => {
+                            move.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square, boardProportions)
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
@@ -221,11 +277,15 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
+                            const toAnimateSquare = forward ? move[1] : nextMove[0]
+                            const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : {col: NaN, row: NaN}
+                            const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
+
                             const pieceColor = position[row][column]?.color
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div className="w-full h-full z-10 absolute top-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
+                            const piece = pieceImages ? <div ref={moved ? pieceRef : null} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grabs"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
 
                             squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }

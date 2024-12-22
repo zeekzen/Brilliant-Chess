@@ -11,12 +11,14 @@ export const AnalyzeContext = createContext<{
     game: [move[], Dispatch<SetStateAction<move[]>>],
     metadata: [metadata, Dispatch<SetStateAction<metadata>>],
     moveNumber: [number, Dispatch<SetStateAction<number>>],
+    forward: [boolean, Dispatch<SetStateAction<boolean>>],
 }>({
     data: [[0, ['', NaN]], () => {}],
     pageState: ['', () => {}],
     game: [[], () => {}],
     metadata: [undefined, () => {}],
     moveNumber: [0, () => {}],
+    forward: [true, () => {}],
 })
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -27,9 +29,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [game, setGame] = useState<move[]>([])
     const [metadata, setMetadata] = useState<metadata>(undefined)
     const [moveNumber, setMoveNumber] = useState(0)
+    const [forward, setForward] = useState(true)
 
     return (
-        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], metadata: [metadata, setMetadata], moveNumber: [moveNumber, setMoveNumber]}}>
+        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], metadata: [metadata, setMetadata], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward]}}>
             {props.children}
         </AnalyzeContext.Provider>
     )

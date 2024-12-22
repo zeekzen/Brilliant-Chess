@@ -11,6 +11,7 @@ export default function GameButtons() {
 
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
+    const [forward, setForward] = useContext(AnalyzeContext).forward
 
     const intervalRef = useRef<NodeJS.Timeout>()
 
@@ -25,10 +26,12 @@ export default function GameButtons() {
     }
 
     function previousMove() {
+        setForward(false)
         setMoveNumber(prev => Math.max(prev - 1, 0))
     }
 
     function nextMove() {
+        setForward(true)
         setMoveNumber(prev => Math.min(prev + 1, game.length - 1))
     }
 
