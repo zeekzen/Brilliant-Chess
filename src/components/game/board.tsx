@@ -229,7 +229,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     }, [move])
 
     return (
-        <div className="grid w-fit h-fit rounded-borderRoundness relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
+        <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
             <MoveAnimation move={forward ? move : nextMove} squareSize={squareSize} forward={forward} />
             {
