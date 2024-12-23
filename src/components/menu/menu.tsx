@@ -8,6 +8,7 @@ import Lens from "../svg/lens"
 import Form from "./form"
 import Loading from "./loading"
 import AnalyzeMenu from "./analyzeMenu"
+import GameButtons from "./gameButtons"
 
 export default function Menu() {
     const [data, setData] = useContext(AnalyzeContext).data
@@ -25,6 +26,12 @@ export default function Menu() {
                 {pageState === 'loading' ? <Loading format={format} /> : ''}
                 {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
             </div>
+            {pageState === 'analyze' ? (
+                <div className="flex flex-col gap-1 pb-1 items-center">
+                    <hr className="border-neutral-600 w-[85%]" />
+                    <GameButtons />
+                </div>
+            ) : ''}
         </div>
     )
 }

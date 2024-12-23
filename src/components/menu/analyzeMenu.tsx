@@ -1,5 +1,4 @@
 import { useContext } from "react";
-import GameButtons from "./gameButtons";
 import GameChart from "./gameChart";
 import { AnalyzeContext } from "@/context/analyze";
 import RatingCount from "./ratingCount";
@@ -16,8 +15,6 @@ export default function AnalyzeMenu() {
             <PlayersAccuracy metadata={metadata} moves={game} />
             <hr className="border-neutral-600 w-[85%]" />
             <RatingCount moves={game} />
-            <hr className="border-neutral-600 w-[85%]" />
-            <GameButtons />
         </div>
     )
 }
