@@ -30,18 +30,20 @@ export default function Game() {
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        function focusGame(e: MouseEvent) {
+    function focusGame(e?: MouseEvent) {
+        if (e) {
             const element = e.target as HTMLElement
-
             const focusableInputTypes = [
                 'text', 'password', 'email', 'number', 'search', 'tel', 'url', 'date', 'datetime-local', 'month', 'time', 'week'
             ]
 
             if (element.tagName === 'INPUT' && focusableInputTypes.includes((element as HTMLInputElement).type)) return
-
-            gameRef.current?.focus()
         }
+
+        gameRef.current?.focus()
+    }
+
+    useEffect(() => {
 
         document.addEventListener('mouseup', focusGame)
         return () => document.removeEventListener('mousedown', focusGame)
@@ -62,6 +64,8 @@ export default function Game() {
         setTime(metadata.time)
         setNames(metadata.names)
         setGame(moves)
+
+        focusGame()
 
         setPageState('analyze')
     }
