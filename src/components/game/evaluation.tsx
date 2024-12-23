@@ -18,7 +18,7 @@ export default function Evaluation(props: { height: number, white: boolean, adva
         percent = Math.min(Math.max(rawPercent, NEW_PERCENTS[0]), NEW_PERCENTS[1])
     }
 
-    const winning = percent >= 50
+    const winning = white ? percent >= 50 : percent <= 50
 
     let displayAdvantage
     if (advantage[0] === 'mate') {

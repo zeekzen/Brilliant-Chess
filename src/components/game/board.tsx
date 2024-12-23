@@ -111,23 +111,23 @@ function PreloadRatingImages() {
     return preloaders
 }
 
-function Arrow(props: { move: square[], squareSize: number, class: string }) {
-    const { move, squareSize } = props
+function Arrow(props: { move: square[], squareSize: number, class: string, white: boolean }) {
+    const { move, squareSize, white } = props
     const [from, to] = move
 
     const fromElementPosition = {
-        top: squareSize * from.row,
-        left: squareSize * from.col,
+        x: squareSize * from.col,
+        y: squareSize * from.row,
     }
 
     const toElementPosition = {
-        top: squareSize * to.row,
-        left: squareSize * to.col,
+        x: squareSize * to.col,
+        y: squareSize * to.row,
     }
 
     const distance = {
-        x: fromElementPosition.left - toElementPosition.left,
-        y: fromElementPosition.top - toElementPosition.top,
+        x: (fromElementPosition.x - toElementPosition.x) * (white ? 1 : -1),
+        y: (fromElementPosition.y - toElementPosition.y) * (white ? 1 : -1),
     }
 
     const realDistance = Math.sqrt((distance.x ** 2) + (distance.y ** 2))
@@ -141,19 +141,19 @@ function Arrow(props: { move: square[], squareSize: number, class: string }) {
     const arrowHeadHeight = lineWidth * 1.6
     const height = realDistance - arrowHeadHeight
 
-    const top = `${toElementPosition.top + (squareSize / 2)}px`
-    const left = `${toElementPosition.left + (squareSize / 2) - (width / 2)}px`
+    const positionX = `${toElementPosition.x + (squareSize / 2) - (width / 2)}px`
+    const positionY = `${toElementPosition.y + (squareSize / 2) - (white ? 0 : height)}px`
 
     return (
-        <svg style={{top, left, transformOrigin: '50% 0', rotate: (-degs)+'deg'}} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        <svg style={{top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs)+'deg'}} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <line x1={lineCenter} y1={height} x2={lineCenter} y2={`${arrowHeadHeight - 1}`} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
     )
 }
 
-function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean }) {
-    const { move, squareSize, forward } = props
+function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean, white: boolean }) {
+    const { move, squareSize, forward, white } = props
     if (move.length === 0) return
     const [from, to] = move
 
@@ -168,8 +168,8 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     }
 
     const distance = {
-        x: toElementPosition.left - fromElementPosition.left,
-        y: toElementPosition.bottom - fromElementPosition.bottom,
+        x: (toElementPosition.left - fromElementPosition.left) * (white ? 1 : -1),
+        y: (toElementPosition.bottom - fromElementPosition.bottom) * (white ? 1 : -1),
     }
 
     return (
@@ -193,18 +193,15 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean }) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
 
-    const { boardProportions, boardSize } = props
+    const { boardProportions, boardSize, bestMove, moveRating, forward, white } = props
     const position = props.position ?? DEFAULT_POSITION
     const move = props.move ?? []
     const nextMove = props.nextMove ?? []
-    const bestMove = props.bestMove
-    const moveRating = props.moveRating
-    const forward = props.forward
 
     const squareSize = boardSize / boardProportions
     const guideSize = squareSize / 4
@@ -231,12 +228,12 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     return (
         <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
-            <MoveAnimation move={forward ? move : nextMove} squareSize={squareSize} forward={forward} />
+            <MoveAnimation move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
-                    for (let row = 0; row < boardProportions; row++) {
-                        for (let column = 0; column < boardProportions; column++) {
+                    for (let row = white ? 0 : boardProportions - 1; white ? row < boardProportions : row >= 0; white ? row++ : row--) {
+                        for (let column = white ? 0 : boardProportions - 1; white ? column < boardProportions : column >= 0; white ? column++ : column--) {
                             const squareId = [getColumnLetter(column), getRowNumber(row, boardProportions)]
 
                             let bgColor, guideColor
@@ -271,10 +268,10 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             })
 
                             let squareNumGuide, squareLetterGuide
-                            if (row === boardProportions - 1) {
+                            if (row === (white ? boardProportions - 1 : 0)) {
                                 squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
                             }
-                            if (column === 0) {
+                            if (column === (white ? 0 : boardProportions - 1)) {
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
@@ -296,7 +293,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
             }
             {
                 arrows.map(move => {
-                    return <Arrow move={move} squareSize={squareSize} class="" />
+                    return <Arrow move={move} squareSize={squareSize} class="" white={white} />
                 })
             }
             {
@@ -304,7 +301,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                     const adaptedBestMove = bestMove?.map(square => {
                         return adaptSquare(square, boardProportions)
                     })
-                    return adaptedBestMove ? <Arrow move={adaptedBestMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" /> : ''
+                    return adaptedBestMove ? <Arrow move={adaptedBestMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" white={white} /> : ''
                 })()
             }
         </div>

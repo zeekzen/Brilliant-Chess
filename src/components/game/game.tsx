@@ -25,6 +25,7 @@ export default function Game() {
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [metadata, setMetadata] = useContext(AnalyzeContext).metadata
     const [forward, setForward] = useContext(AnalyzeContext).forward
+    const [white, setWhite] = useContext(AnalyzeContext).white
 
     const componentRef = useRef<HTMLDivElement>(null)
 
@@ -126,16 +127,16 @@ export default function Game() {
 
     return (
         <div tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
-            <Evaluation height={boardSize} white={true} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
+            <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
-                    <Name white={false}>{names[1]}</Name>
-                    <Clock white={false} moving={false}>{time}</Clock>
+                    <Name white={!white}>{names[1]}</Name>
+                    <Clock white={!white} moving={false}>{time}</Clock>
                 </div>
-                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} />
+                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} />
                 <div className="flex flex-row justify-between">
-                    <Name white={true}>{names[0]}</Name>
-                    <Clock white={true} moving={false}>{time}</Clock>
+                    <Name white={white}>{names[0]}</Name>
+                    <Clock white={white} moving={false}>{time}</Clock>
                 </div>
             </div>
         </div>
