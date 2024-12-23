@@ -24,6 +24,7 @@ export interface move {
     staticEval: string[],
     bestMove: square[],
     moveRating?: moveRating,
+    color: Color,
 }
 
 function formatTime(seconds: number, noTime: string): string {
@@ -309,11 +310,13 @@ export async function parsePGN(pgn: string, depth: number) {
         if (moveNumber === 0) {
             chess.load(move.before)
             const position = chess.board()
+            const color = move.color
             const { bestMove, staticEval } = await analyze(stockfish, move.before, depth)
             moves.push({
                 position,
                 staticEval,
                 bestMove,
+                color,
             })
             previousBestMove = bestMove
         }
@@ -321,13 +324,15 @@ export async function parsePGN(pgn: string, depth: number) {
 
         const position = chess.board()
 
+        const color: Color = move.color === 'b' ? 'w' : 'b'
+
         if (chess.isCheckmate()) {
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, color)
         } else {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, color)
         }
 
         moves.push({
@@ -336,6 +341,7 @@ export async function parsePGN(pgn: string, depth: number) {
             staticEval,
             bestMove,
             moveRating,
+            color,
         })
 
         previousBestMove = bestMove

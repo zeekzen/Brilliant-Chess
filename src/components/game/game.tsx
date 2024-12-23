@@ -131,12 +131,12 @@ export default function Game() {
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
                     <Name white={!white}>{names[1]}</Name>
-                    <Clock white={!white} moving={false}>{time}</Clock>
+                    <Clock white={!white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
                 </div>
                 <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} />
                 <div className="flex flex-row justify-between">
                     <Name white={white}>{names[0]}</Name>
-                    <Clock white={white} moving={false}>{time}</Clock>
+                    <Clock white={white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
                 </div>
             </div>
         </div>
