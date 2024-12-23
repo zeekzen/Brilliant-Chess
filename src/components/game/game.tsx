@@ -28,12 +28,24 @@ export default function Game() {
     const [white, setWhite] = useContext(AnalyzeContext).white
 
     const componentRef = useRef<HTMLDivElement>(null)
+    const gameRef = useRef<HTMLDivElement>(null)
 
-    function focusBoard() {
-        const element = componentRef.current?.parentElement
+    useEffect(() => {
+        function focusGame(e: MouseEvent) {
+            const element = e.target as HTMLElement
 
-        element?.focus()
-    }
+            const focusableInputTypes = [
+                'text', 'password', 'email', 'number', 'search', 'tel', 'url', 'date', 'datetime-local', 'month', 'time', 'week'
+            ]
+
+            if (element.tagName === 'INPUT' && focusableInputTypes.includes((element as HTMLInputElement).type)) return
+
+            gameRef.current?.focus()
+        }
+
+        document.addEventListener('mouseup', focusGame)
+        return () => document.removeEventListener('mousedown', focusGame)
+    }, [])
 
     async function handlePGN(pgn: string, depth: number) {
         setPageState('loading')
@@ -51,7 +63,6 @@ export default function Game() {
         setNames(metadata.names)
         setGame(moves)
 
-        focusBoard()
         setPageState('analyze')
     }
 
@@ -126,7 +137,7 @@ export default function Game() {
     }, [])
 
     return (
-        <div tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
+        <div ref={gameRef} tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
             <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
