@@ -286,7 +286,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div ref={moved ? pieceRef : null} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grabs"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
+                            const piece = pieceImages ? <div ref={moved ? pieceRef : null} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
 
                             squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }
