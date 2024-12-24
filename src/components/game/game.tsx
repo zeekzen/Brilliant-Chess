@@ -24,6 +24,7 @@ export default function Game() {
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [forward, setForward] = useContext(AnalyzeContext).forward
+    const [animation, setAnimation] = useContext(AnalyzeContext).animation
     const [white, setWhite] = useContext(AnalyzeContext).white
 
     const componentRef = useRef<HTMLDivElement>(null)
@@ -74,22 +75,24 @@ export default function Game() {
                 e.preventDefault()
                 if (moveNumber === 0) return
                 setForward(false)
+                setAnimation(true)
                 setMoveNumber(prev => prev - 1)
                 break
             case 'ArrowRight':
                 e.preventDefault()
                 if (moveNumber === game.length - 1) return
                 setForward(true)
+                setAnimation(true)
                 setMoveNumber(prev => prev + 1)
                 break
             case 'ArrowUp':
                 e.preventDefault()
-                setForward(true)
+                setAnimation(false)
                 setMoveNumber(0)
                 break
             case 'ArrowDown':
                 e.preventDefault()
-                setForward(false)
+                setAnimation(false)
                 setMoveNumber(game.length - 1)
                 break
         }
@@ -146,7 +149,7 @@ export default function Game() {
                     <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
                 </div>
-                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} />
+                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} />
                 <div className="flex flex-row justify-between">
                     <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{time}</Clock>

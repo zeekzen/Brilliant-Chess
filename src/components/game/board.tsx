@@ -194,12 +194,12 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean }) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean}) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
 
-    const { boardProportions, boardSize, bestMove, moveRating, forward, white } = props
+    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation } = props
     const position = props.position ?? DEFAULT_POSITION
     const move = props.move ?? []
     const nextMove = props.nextMove ?? []
@@ -221,10 +221,11 @@ export default function Board(props: { boardProportions: number, boardSize: numb
             for (const piece of document.getElementsByClassName('moveAnimation')) {
                 piece.classList.remove('moveAnimation')
             }
+            if (!animation) return
             void pieceRef.current.offsetWidth
             pieceRef.current.classList.add('moveAnimation')
         }
-    }, [move])
+    }, [move, animation])
 
     return (
         <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>

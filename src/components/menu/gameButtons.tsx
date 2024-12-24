@@ -12,6 +12,7 @@ export default function GameButtons() {
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
     const [forward, setForward] = useContext(AnalyzeContext).forward
+    const [animation, setAnimation] = useContext(AnalyzeContext).animation
 
     const moveNumberRef = useRef(moveNumber)
 
@@ -44,12 +45,12 @@ export default function GameButtons() {
     }
 
     function firstMove() {
-        setForward(true)
+        setAnimation(false)
         setMoveNumber(0)
     }
 
     function lastMove() {
-        setForward(false)
+        setAnimation(false)
         setMoveNumber(game.length - 1)
     }
 

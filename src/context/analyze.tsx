@@ -15,6 +15,7 @@ export const AnalyzeContext = createContext<{
     players: [players, Dispatch<SetStateAction<players>>],
     moveNumber: [number, Dispatch<SetStateAction<number>>],
     forward: [boolean, Dispatch<SetStateAction<boolean>>],
+    animation: [boolean, Dispatch<SetStateAction<boolean>>],
     white: [boolean, Dispatch<SetStateAction<boolean>>],
 }>({
     data: [[0, ['', NaN]], () => {}],
@@ -23,6 +24,7 @@ export const AnalyzeContext = createContext<{
     players: [[], () => {}],
     moveNumber: [0, () => {}],
     forward: [true, () => {}],
+    animation: [false, () => {}],
     white: [true, () => {}],
 })
 
@@ -35,10 +37,11 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [players, setPlayers] = useState<players>([{name: 'White', elo: '?'}, {name: 'Black', elo: '?'}])
     const [moveNumber, setMoveNumber] = useState(0)
     const [forward, setForward] = useState(true)
+    const [animation, setAnimation] = useState(true)
     const [white, setWhite] = useState(true)
 
     return (
-        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite]}}>
+        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation]}}>
             {props.children}
         </AnalyzeContext.Provider>
     )
