@@ -3,13 +3,16 @@
 import { move } from '@/server/analyze'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
-export type metadata = {names: string[];time: string}|undefined
+export type players = {
+    name: string;
+    elo: string;
+}[]
 
 export const AnalyzeContext = createContext<{
     data: [[number, [string, number]], Dispatch<SetStateAction<[number, [string, number]]>>],
     pageState: [string, Dispatch<SetStateAction<pageState>>],
     game: [move[], Dispatch<SetStateAction<move[]>>],
-    metadata: [metadata, Dispatch<SetStateAction<metadata>>],
+    players: [players, Dispatch<SetStateAction<players>>],
     moveNumber: [number, Dispatch<SetStateAction<number>>],
     forward: [boolean, Dispatch<SetStateAction<boolean>>],
     white: [boolean, Dispatch<SetStateAction<boolean>>],
@@ -17,7 +20,7 @@ export const AnalyzeContext = createContext<{
     data: [[0, ['', NaN]], () => {}],
     pageState: ['', () => {}],
     game: [[], () => {}],
-    metadata: [undefined, () => {}],
+    players: [[], () => {}],
     moveNumber: [0, () => {}],
     forward: [true, () => {}],
     white: [true, () => {}],
@@ -29,13 +32,13 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [data, setData] = useState<[number, [string, number]]>([0, ['', NaN]])
     const [pageState, setPageState] = useState<pageState>('default')
     const [game, setGame] = useState<move[]>([])
-    const [metadata, setMetadata] = useState<metadata>(undefined)
+    const [players, setPlayers] = useState<players>([{name: 'White', elo: '?'}, {name: 'Black', elo: '?'}])
     const [moveNumber, setMoveNumber] = useState(0)
     const [forward, setForward] = useState(true)
     const [white, setWhite] = useState(true)
 
     return (
-        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], metadata: [metadata, setMetadata], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite]}}>
+        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite]}}>
             {props.children}
         </AnalyzeContext.Provider>
     )

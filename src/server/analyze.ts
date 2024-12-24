@@ -61,7 +61,7 @@ function formatTime(seconds: number, noTime: string): string {
     return noTime
 }
 
-function getNames(headers: Record<string, string>) {
+function getPlayers(headers: Record<string, string>) {
     const NO_NAME = 'Unknown'
     const NO_ELO = '?'
 
@@ -71,10 +71,7 @@ function getNames(headers: Record<string, string>) {
     const whiteElo = headers.WhiteElo ?? NO_ELO
     const blackElo = headers.BlackElo ?? NO_ELO
 
-    const fullWhiteName = `${whiteName} (${whiteElo})`
-    const fullBlackName = `${blackName} (${blackElo})`
-
-    return [fullWhiteName, fullBlackName]
+    return [{name: whiteName, elo: whiteElo}, {name: blackName, elo: blackElo}]
 }
 
 function getTime(headers: Record<string, string>) {
@@ -358,10 +355,10 @@ export async function parsePGN(pgn: string, depth: number) {
 
     const headers = chess.header()
 
-    const names = getNames(headers)
+    const players = getPlayers(headers)
     const time = getTime(headers)
 
-    const metadata = {names, time}
+    const metadata = {players, time}
 
     const moves: move[] = []
 

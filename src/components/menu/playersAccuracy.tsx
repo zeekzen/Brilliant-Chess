@@ -1,10 +1,10 @@
-import { metadata } from "@/context/analyze";
+import { players } from "@/context/analyze";
 import Profile from "../svg/profile";
 import { move } from "@/server/analyze";
 import { useEffect, useState } from "react";
 
-export default function PlayersAccuracy(props: {metadata: metadata, moves: move[]}) {
-    const { metadata, moves } = props
+export default function PlayersAccuracy(props: {players: players, moves: move[]}) {
+    const { players, moves } = props
     const [accuracy, setAccuracy] = useState({w: NaN, b: NaN})
 
     useEffect(() => {
@@ -107,8 +107,8 @@ export default function PlayersAccuracy(props: {metadata: metadata, moves: move[
     return (
         <div className="w-[85%] flex flex-col items-end gap-3">
             <div className="w-[262px] flex flex-row justify-between font-extrabold">
-                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{metadata?.names[0].split(" ").slice(0, -1).join(" ") ?? 'Unknown'}</span></div>
-                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{metadata?.names[1].split(" ").slice(0, -1).join(" ") ?? 'Unknown'}</span></div>
+                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[0].name}</span></div>
+                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[1].name}</span></div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Players</span>

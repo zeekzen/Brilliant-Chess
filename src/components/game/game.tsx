@@ -17,13 +17,12 @@ export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
     const [time, setTime] = useState('--:--')
-    const [names, setNames] = useState(['White (?)', 'Black (?)'])
     
+    const [players, setPlayers] = useContext(AnalyzeContext).players
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
     const [data, setData] = useContext(AnalyzeContext).data
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
-    const [metadata, setMetadata] = useContext(AnalyzeContext).metadata
     const [forward, setForward] = useContext(AnalyzeContext).forward
     const [white, setWhite] = useContext(AnalyzeContext).white
 
@@ -60,9 +59,8 @@ export default function Game() {
             return
         }
 
-        setMetadata(metadata)
         setTime(metadata.time)
-        setNames(metadata.names)
+        setPlayers(metadata.players)
         setGame(moves)
 
         focusGame()
@@ -145,12 +143,12 @@ export default function Game() {
             <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
-                    <Name white={!white}>{names[white ? 1 : 0]}</Name>
+                    <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
                 </div>
                 <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} />
                 <div className="flex flex-row justify-between">
-                    <Name white={white}>{names[white ? 0 : 1]}</Name>
+                    <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
                 </div>
             </div>

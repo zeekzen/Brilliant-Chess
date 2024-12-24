@@ -7,12 +7,12 @@ import PlayersAccuracy from "./playersAccuracy";
 
 export default function AnalyzeMenu() {
     const [game, setGame] = useContext(AnalyzeContext).game
-    const [metadata, setMetadata] = useContext(AnalyzeContext).metadata
+    const [players, setPlayers] = useContext(AnalyzeContext).players
 
     return (
         <div className="flex flex-col gap-3 items-center">
             <GameChart moves={game} />
-            <PlayersAccuracy metadata={metadata} moves={game} />
+            <PlayersAccuracy players={players} moves={game} />
             <hr className="border-neutral-600 w-[85%]" />
             <RatingCount moves={game} />
         </div>
