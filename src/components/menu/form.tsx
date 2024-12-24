@@ -75,7 +75,7 @@ export default function Form(props: {setData: (data: [number, [string, number]])
                             )
                         })}
                     </ul>
-                    <h6 className="mt-2 font-bold flex flex-row gap-2"><Image alt="depth" src="/images/type.svg" width={20} height={0} />Analysis Type</h6>
+                    <h6 className="mt-2 font-bold flex flex-row gap-2"><Image priority alt="depth" src="/images/type.svg" width={20} height={0} />Analysis Type</h6>
                     <ul className="grid grid-cols-3 gap-3">
                         {TYPES.map((depth, i) => {
                             return (
