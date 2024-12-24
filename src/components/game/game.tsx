@@ -30,23 +30,48 @@ export default function Game() {
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
 
-    function focusGame(e?: MouseEvent) {
-        if (e) {
-            const element = e.target as HTMLElement
-            const focusableInputTypes = [
-                'text', 'password', 'email', 'number', 'search', 'tel', 'url', 'date', 'datetime-local', 'month', 'time', 'week'
-            ]
-
-            if (element.tagName === 'INPUT' && focusableInputTypes.includes((element as HTMLInputElement).type)) return
-        }
-
-        gameRef.current?.focus()
-    }
+    const moveNumberRef = useRef(moveNumber)
 
     useEffect(() => {
+        moveNumberRef.current = moveNumber
+    }, [moveNumber])
 
-        document.addEventListener('mouseup', focusGame)
-        return () => document.removeEventListener('mousedown', focusGame)
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            const element = e.target as HTMLElement
+            const focusableInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url']
+            if (element.tagName === 'INPUT' && !focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault()
+                    if (moveNumberRef.current === 0) return
+                    setForward(false)
+                    setAnimation(true)
+                    setMoveNumber(prev => prev - 1)
+                    break
+                case 'ArrowRight':
+                    e.preventDefault()
+                    if (moveNumberRef.current === game.length - 1) return
+                    setForward(true)
+                    setAnimation(true)
+                    setMoveNumber(prev => prev + 1)
+                    break
+                case 'ArrowUp':
+                    e.preventDefault()
+                    setAnimation(false)
+                    setMoveNumber(0)
+                    break
+                case 'ArrowDown':
+                    e.preventDefault()
+                    setAnimation(false)
+                    setMoveNumber(game.length - 1)
+                    break
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
     }, [])
 
     async function handlePGN(pgn: string, depth: number) {
@@ -64,38 +89,7 @@ export default function Game() {
         setPlayers(metadata.players)
         setGame(moves)
 
-        focusGame()
-
         setPageState('analyze')
-    }
-
-    function handleKeyDown(e: React.KeyboardEvent) {
-        switch (e.key) {
-            case 'ArrowLeft':
-                e.preventDefault()
-                if (moveNumber === 0) return
-                setForward(false)
-                setAnimation(true)
-                setMoveNumber(prev => prev - 1)
-                break
-            case 'ArrowRight':
-                e.preventDefault()
-                if (moveNumber === game.length - 1) return
-                setForward(true)
-                setAnimation(true)
-                setMoveNumber(prev => prev + 1)
-                break
-            case 'ArrowUp':
-                e.preventDefault()
-                setAnimation(false)
-                setMoveNumber(0)
-                break
-            case 'ArrowDown':
-                e.preventDefault()
-                setAnimation(false)
-                setMoveNumber(game.length - 1)
-                break
-        }
     }
 
     useEffect(() => {
@@ -142,7 +136,7 @@ export default function Game() {
     }, [])
 
     return (
-        <div ref={gameRef} tabIndex={0} onKeyDown={handleKeyDown} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
+        <div ref={gameRef} tabIndex={0} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
             <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
