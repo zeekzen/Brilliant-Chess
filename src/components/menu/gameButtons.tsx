@@ -6,9 +6,9 @@ import Pause from "../svg/pause";
 import { AnalyzeContext } from "@/context/analyze";
 
 export default function GameButtons() {
-    const [playing, setPlaying] = useState(false)
     const [playPauseHover, setPlayPauseHover] = useState(false)
-
+    
+    const [playing, setPlaying] = useContext(AnalyzeContext).playing
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
     const [forward, setForward] = useContext(AnalyzeContext).forward
@@ -16,21 +16,9 @@ export default function GameButtons() {
 
     const moveNumberRef = useRef(moveNumber)
 
-    const intervalRef = useRef<NodeJS.Timeout>()
-
     useEffect(() => {
         moveNumberRef.current = moveNumber
     }, [moveNumber])
-
-    function togglePlaying() {
-        if (playing) {
-            clearInterval(intervalRef.current)
-        } else {
-            nextMove()
-            intervalRef.current = setInterval(nextMove, 1000)
-        }
-        setPlaying(playing => !playing)
-    }
 
     function previousMove() {
         if (moveNumberRef.current === 0) return
@@ -59,8 +47,8 @@ export default function GameButtons() {
             <SkipGame click={firstMove} class="h-[45px] rotate-180 fill-foregroundGrey transition-colors hover:fill-foregroundHighlighted" />
             <NextMove click={previousMove} class="h-[25px] rotate-180 fill-foregroundGrey transition-colors hover:fill-foregroundHighlighted" />
             <div onMouseEnter={() => setPlayPauseHover(true)} onMouseLeave={() => setPlayPauseHover(false)}>
-                <Play click={togglePlaying} class={`h-[25px] transition-colors pl-1 ${playPauseHover ? 'fill-foregroundHighlighted' : 'fill-foregroundGrey'} ${playing ? 'hidden' : ''}`} />
-                <Pause click={togglePlaying} class={`h-[25px] transition-colors pr-1 ${playPauseHover ? 'fill-foregroundHighlighted' : 'fill-foregroundGrey'} ${!playing ? 'hidden' : ''}`} />
+                <Play click={() => setPlaying(true)} class={`h-[25px] transition-colors pl-1 ${playPauseHover ? 'fill-foregroundHighlighted' : 'fill-foregroundGrey'} ${playing ? 'hidden' : ''}`} />
+                <Pause click={() => setPlaying(false)} class={`h-[25px] transition-colors pr-1 ${playPauseHover ? 'fill-foregroundHighlighted' : 'fill-foregroundGrey'} ${!playing ? 'hidden' : ''}`} />
             </div>
             <NextMove click={nextMove} class="h-[25px] fill-foregroundGrey transition-colors hover:fill-foregroundHighlighted" />
             <SkipGame click={lastMove} class="h-[45px] fill-foregroundGrey transition-colors hover:fill-foregroundHighlighted" />

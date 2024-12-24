@@ -26,15 +26,39 @@ export default function Game() {
     const [forward, setForward] = useContext(AnalyzeContext).forward
     const [animation, setAnimation] = useContext(AnalyzeContext).animation
     const [white, setWhite] = useContext(AnalyzeContext).white
+    const [playing, setPlaying] = useContext(AnalyzeContext).playing
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
 
+    const intervalRef = useRef<NodeJS.Timeout>()
     const moveNumberRef = useRef(moveNumber)
+    const gameLengthRef = useRef(game.length)
+
+    useEffect(() => {
+        gameLengthRef.current = game.length
+    }, [game])
 
     useEffect(() => {
         moveNumberRef.current = moveNumber
     }, [moveNumber])
+
+    useEffect(() => {
+        if (playing) {
+            function nextMove() {
+                if (moveNumberRef.current === gameLengthRef.current - 1) return
+                setForward(true)
+                setAnimation(true)
+                setMoveNumber(prev => prev + 1)
+            }
+            nextMove()
+            intervalRef.current = setInterval(nextMove, 1000)
+        } else {
+            clearInterval(intervalRef.current)
+        }
+
+        return () => clearInterval(intervalRef.current)
+    }, [playing])
 
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
@@ -52,7 +76,7 @@ export default function Game() {
                     break
                 case 'ArrowRight':
                     e.preventDefault()
-                    if (moveNumberRef.current === game.length - 1) return
+                    if (moveNumberRef.current === gameLengthRef.current - 1) return
                     setForward(true)
                     setAnimation(true)
                     setMoveNumber(prev => prev + 1)
@@ -65,7 +89,11 @@ export default function Game() {
                 case 'ArrowDown':
                     e.preventDefault()
                     setAnimation(false)
-                    setMoveNumber(game.length - 1)
+                    setMoveNumber(gameLengthRef.current - 1)
+                    break
+                case ' ':
+                    e.preventDefault()
+                    setPlaying(prev => !prev)
                     break
             }
         }
