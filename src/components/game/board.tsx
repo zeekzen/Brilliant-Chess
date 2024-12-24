@@ -276,6 +276,12 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
+                            let rounded
+                            if (row === 0 && column === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
+                            if (row === boardProportions - 1 && column === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
+                            if (row === 0 && column === boardProportions - 1) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
+                            if (row === boardProportions - 1 && column === boardProportions - 1) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
+
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
                             const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : {col: NaN, row: NaN}
                             const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
@@ -286,7 +292,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const pieceImages = imageColor[pieceType as keyof object]
                             const piece = pieceImages ? <div ref={moved ? pieceRef : null} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
 
-                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }
                     }
                     return squares
