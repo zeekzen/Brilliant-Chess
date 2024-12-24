@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "chess.js": "^1.0.0-beta.8",
+    "chess.js": "github:jhlywa/chess.js#9cde04c51e6ad5f7898bf10a5c712efdf4af1488",
     "next": "^15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106"
