@@ -8,7 +8,9 @@ export default function Loading(props: { format: string }) {
     const [ellipsis, setEllipsis] = useState('')
     const [progress, setProgress] = useState(0)
     const [transition, setTransition] = useState(300)
+
     const [data, setData] = useContext(AnalyzeContext).data
+    const [game, setGame] = useContext(AnalyzeContext).game
 
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)
@@ -42,15 +44,16 @@ export default function Loading(props: { format: string }) {
     useEffect(() => {
         const type = TYPES.filter(type => type[2] === data[1][1])[0][0] ?? "Standard"
 
+        let intervalTime = 300
         switch (type) {
             case "Quick":
-                var intervalTime = 100
+                intervalTime = 100
                 break
             case "Standard":
-                var intervalTime = 300
+                intervalTime = 300
                 break
             case "Deep":
-                var intervalTime = 1000
+                intervalTime = 1100
                 break
         }
 
