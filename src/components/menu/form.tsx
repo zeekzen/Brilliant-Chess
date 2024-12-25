@@ -28,6 +28,19 @@ export default function Form(props: {setData: (data: [number, [string, number]])
         setValue("")
     }, [])
 
+    useEffect(() => {
+        switch (FORMATS[selected][0]) {
+            case "Chess.com":
+                const previousChesscomUserName = localStorage.getItem('chesscom') ?? ''
+                setValue(previousChesscomUserName)
+                break
+            case "Lichess.org":
+                const previousLichessorgUserName = localStorage.getItem('lichessorg') ?? ''
+                setValue(previousLichessorgUserName)
+                break
+        }
+    }, [selected])
+
     useEffect(() => localStorage.setItem('format', String(selected)), [selected])
     useEffect(() => localStorage.setItem('type', String(type)), [type])
 
@@ -37,6 +50,15 @@ export default function Form(props: {setData: (data: [number, [string, number]])
 
     function analyze(e: React.FormEvent) {
         e.preventDefault()
+
+        switch (FORMATS[selected][0]) {
+            case "Chess.com":
+                localStorage.setItem("chesscom", value)
+                break
+            case "Lichess.org":
+                localStorage.setItem("lichessorg", value)
+                break
+        }
 
         const depth = TYPES[type][2]
         setData([selected, [value, depth]])
