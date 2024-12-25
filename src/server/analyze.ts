@@ -195,6 +195,8 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const previousStaticEvalAmount = Number(previousStaticEval[1]) / 100 * (color === 'b' ? -1 : 1)
     const previousPreviousStaticEvalAmount = Number(previousPreviousStaticEval[1]) / 100 * (color === 'w' ? -1 : 1)
 
+    const isNotMateRelated = staticEval[0] !== 'mate' && previousStaticEval[0] !== 'mate'
+
     // book
     const openingsFile = readFileSync(path.join(process.cwd(), 'openings/openings.json'), 'utf-8')
     const openings = JSON.parse(openingsFile)
@@ -210,11 +212,11 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const previousStandardRating = getStandardRating(previousEvaluationDiff)
 
     // brilliant - sacrifice
-    if (staticEval[0] !== 'mate' && standardRating === 'excellent' && sacrifice) return 'brilliant'
+    if (isNotMateRelated && standardRating === 'excellent' && sacrifice) return 'brilliant'
 
     // great - gaining advantage
     if (
-        staticEval[0] !== 'mate'
+        isNotMateRelated
         &&
         standardRating === 'excellent'
         &&
@@ -247,7 +249,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, previousStaticEvalAmount, color) && !winning) return 'good'
 
     // mistake - lose advantage
-    if (staticEval[0] !== 'mate' && standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color) || givingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color))) return 'mistake'
+    if (isNotMateRelated && standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color) || givingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color))) return 'mistake'
     
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
@@ -257,7 +259,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     // miss - gain advantage
     if (
-        staticEval[0] !== 'mate'
+        isNotMateRelated
         &&
         (
             (previousStandardRating === "inaccuracy" && (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor)))
