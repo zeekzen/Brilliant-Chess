@@ -121,7 +121,7 @@ export default function Game() {
     }
 
     useEffect(() => {
-        if (data[1]) {
+        if (data[1][0]) {
             const dataType = FORMATS[data[0]][0]
             const [ code, depth ] = data[1]
 
@@ -139,6 +139,15 @@ export default function Game() {
                     // parseFEN()
                     break
             }
+        } else {
+            setTime('--:--')
+            setPlayers([{name: 'White', elo: '?'}, {name: 'Black', elo: '?'}])
+            setGame([])
+            setWhite(true)
+            setPlaying(false)
+            setMoveNumber(0)
+
+            setPageState('default')
         }
     }, [data])
 
