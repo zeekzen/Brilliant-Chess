@@ -20,7 +20,7 @@ export default function BoardMenu() {
                 <button onClick={flipBoard} type='button'><Image src="/images/flip.svg" title='Flip Board' alt="Flip Board" width={17} height={17} /></button>
             </div>
             <div>
-                
+
             </div>
         </div>
     )

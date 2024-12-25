@@ -1,4 +1,4 @@
-export default function NextMove(props: {class: string, click?: () => void}) {
+export default function NextMove(props: { class: string, click?: () => void }) {
 	return (
 		<svg className={props.class} onClick={props.click} version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
 			viewBox="0 0 493.796 493.796">

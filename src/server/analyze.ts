@@ -16,7 +16,7 @@ export type square = {
     col: number,
 }
 
-export type moveRating = "brilliant"|"great"|"best"|"excellent"|"good"|"book"|"inaccuracy"|"mistake"|"miss"|"blunder"
+export type moveRating = "brilliant" | "great" | "best" | "excellent" | "good" | "book" | "inaccuracy" | "mistake" | "miss" | "blunder"
 
 export interface move {
     position: position,
@@ -71,7 +71,7 @@ function getPlayers(headers: Record<string, string>) {
     const whiteElo = headers.WhiteElo ?? NO_ELO
     const blackElo = headers.BlackElo ?? NO_ELO
 
-    return [{name: whiteName, elo: whiteElo}, {name: blackName, elo: blackElo}]
+    return [{ name: whiteName, elo: whiteElo }, { name: blackName, elo: blackElo }]
 }
 
 function getTime(headers: Record<string, string>) {
@@ -90,7 +90,7 @@ function formatSquare(square: string): square {
     const col = letters.indexOf(square[0])
     const row = Number(square[1]) - 1
 
-    return {col, row}
+    return { col, row }
 }
 
 function cleanProgramListeners(program: ChildProcessWithoutNullStreams) {
@@ -103,9 +103,9 @@ function formatMove(evaluation: string) {
     if (move === '(none)') return []
 
     const movement = move ? [move.slice(0, 2), move.slice(2, 4)].map(square => {
-        const {col, row} = formatSquare(square)
+        const { col, row } = formatSquare(square)
 
-        return {col, row}
+        return { col, row }
     }) : undefined
     return movement
 }
@@ -114,7 +114,7 @@ function formatStaticEval(evaluation: string) {
     const line = evaluation.split('\n').filter(line => line.startsWith('info')).pop()
     const fields = line?.split(/\s+/)
 
-    const staticEval = fields?.slice(fields?.indexOf('score')+1, fields.indexOf('nodes'))
+    const staticEval = fields?.slice(fields?.indexOf('score') + 1, fields.indexOf('nodes'))
 
     return staticEval
 }
@@ -225,7 +225,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
             &&
             (losingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor) || givingGeatAdvantage(previousStaticEvalAmount, previousPreviousStaticEvalAmount, previousColor))
         )
-        ) return 'great'
+    ) return 'great'
 
     // best
     const isBest = movement.every((move, i) => {
@@ -238,7 +238,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     // excellent - start mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
-    
+
     // excellent - right move to mate
     if (previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, previousStaticEvalAmount, color) && winning) return 'excellent'
 
@@ -250,7 +250,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     // mistake - lose advantage
     if (isNotMateRelated && standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color) || givingGeatAdvantage(staticEvalAmount, previousStaticEvalAmount, color))) return 'mistake'
-    
+
     // mistake - mate
     if (previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
 
@@ -314,7 +314,7 @@ function isSacrifice(move: Move, color: Color) {
 
             const validAttackers = attackers.filter(attacker => {
                 try {
-                    new Chess(move.after).move({from: attacker, to: square.square})
+                    new Chess(move.after).move({ from: attacker, to: square.square })
                 } catch {
                     return false
                 }
@@ -325,8 +325,8 @@ function isSacrifice(move: Move, color: Color) {
             const validDefenders = defenders.filter(defender => {
                 try {
                     const testChess = new Chess(move.after)
-                    testChess.move({from: validAttackers[0], to: square.square})
-                    testChess.move({from: defender, to: square.square})
+                    testChess.move({ from: validAttackers[0], to: square.square })
+                    testChess.move({ from: defender, to: square.square })
                 } catch {
                     return false
                 }
@@ -360,19 +360,19 @@ export async function parsePGN(pgn: string, depth: number) {
     const players = getPlayers(headers)
     const time = getTime(headers)
 
-    const metadata = {players, time}
+    const metadata = { players, time }
 
     const moves: move[] = []
 
     const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
     const stockfish = spawn(stockfishFile)
 
-    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousPreviousStaticEval: string[] = [] , previousBestMove
-    for (const move of chess.history({verbose: true})) {
+    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousPreviousStaticEval: string[] = [], previousBestMove
+    for (const move of chess.history({ verbose: true })) {
         const movement: square[] = [move.from, move.to].map(square => {
-            const {col, row} = formatSquare(square)
+            const { col, row } = formatSquare(square)
 
-            return {col, row}
+            return { col, row }
         })
 
         if (moveNumber === 0) {
@@ -420,5 +420,5 @@ export async function parsePGN(pgn: string, depth: number) {
         moveNumber++
     }
 
-    return {metadata, moves}
+    return { metadata, moves }
 }

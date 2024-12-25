@@ -19,15 +19,15 @@ function title(str: string) {
     return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
-export default function RatingCount(props: {moves: move[]}) {
-    const [counter, setCounter] = useState<{w: {[key: string]: number}, b: {[key: string]: number}}>({w: {}, b: {}})
+export default function RatingCount(props: { moves: move[] }) {
+    const [counter, setCounter] = useState<{ w: { [key: string]: number }, b: { [key: string]: number } }>({ w: {}, b: {} })
     const { moves } = props
 
     useEffect(() => {
-        const newCounter: {w: {[key: string]: number}, b: {[key: string]: number}} = {w: {}, b: {}}
+        const newCounter: { w: { [key: string]: number }, b: { [key: string]: number } } = { w: {}, b: {} }
         moves.forEach((move, i) => {
             const rating = move.moveRating as string
-            const color = i%2===0 ? 'b' : 'w'
+            const color = i % 2 === 0 ? 'b' : 'w'
 
             newCounter[color][rating] = newCounter[color][rating] + 1 || 1
         })

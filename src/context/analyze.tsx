@@ -19,15 +19,15 @@ export const AnalyzeContext = createContext<{
     white: [boolean, Dispatch<SetStateAction<boolean>>],
     playing: [boolean, Dispatch<SetStateAction<boolean>>],
 }>({
-    data: [[0, ['', NaN]], () => {}],
-    pageState: ['', () => {}],
-    game: [[], () => {}],
-    players: [[], () => {}],
-    moveNumber: [0, () => {}],
-    forward: [true, () => {}],
-    animation: [false, () => {}],
-    white: [true, () => {}],
-    playing: [false, () => {}],
+    data: [[0, ['', NaN]], () => { }],
+    pageState: ['', () => { }],
+    game: [[], () => { }],
+    players: [[], () => { }],
+    moveNumber: [0, () => { }],
+    forward: [true, () => { }],
+    animation: [false, () => { }],
+    white: [true, () => { }],
+    playing: [false, () => { }],
 })
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -36,7 +36,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [data, setData] = useState<[number, [string, number]]>([0, ['', NaN]])
     const [pageState, setPageState] = useState<pageState>('default')
     const [game, setGame] = useState<move[]>([])
-    const [players, setPlayers] = useState<players>([{name: 'White', elo: '?'}, {name: 'Black', elo: '?'}])
+    const [players, setPlayers] = useState<players>([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
     const [moveNumber, setMoveNumber] = useState(0)
     const [forward, setForward] = useState(true)
     const [animation, setAnimation] = useState(true)
@@ -44,7 +44,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [playing, setPlaying] = useState(false)
 
     return (
-        <AnalyzeContext.Provider value={{data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying]}}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

@@ -28,24 +28,24 @@ const DEFAULT_POSITION = [
     [null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null],
     [
-      { square: 'a2', type: 'p', color: 'w' },
-      { square: 'b2', type: 'p', color: 'w' },
-      { square: 'c2', type: 'p', color: 'w' },
-      { square: 'd2', type: 'p', color: 'w' },
-      { square: 'e2', type: 'p', color: 'w' },
-      { square: 'f2', type: 'p', color: 'w' },
-      { square: 'g2', type: 'p', color: 'w' },
-      { square: 'h2', type: 'p', color: 'w' }
+        { square: 'a2', type: 'p', color: 'w' },
+        { square: 'b2', type: 'p', color: 'w' },
+        { square: 'c2', type: 'p', color: 'w' },
+        { square: 'd2', type: 'p', color: 'w' },
+        { square: 'e2', type: 'p', color: 'w' },
+        { square: 'f2', type: 'p', color: 'w' },
+        { square: 'g2', type: 'p', color: 'w' },
+        { square: 'h2', type: 'p', color: 'w' }
     ],
     [
-      { square: 'a1', type: 'r', color: 'w' },
-      { square: 'b1', type: 'n', color: 'w' },
-      { square: 'c1', type: 'b', color: 'w' },
-      { square: 'd1', type: 'q', color: 'w' },
-      { square: 'e1', type: 'k', color: 'w' },
-      { square: 'f1', type: 'b', color: 'w' },
-      { square: 'g1', type: 'n', color: 'w' },
-      { square: 'h1', type: 'r', color: 'w' }
+        { square: 'a1', type: 'r', color: 'w' },
+        { square: 'b1', type: 'n', color: 'w' },
+        { square: 'c1', type: 'b', color: 'w' },
+        { square: 'd1', type: 'q', color: 'w' },
+        { square: 'e1', type: 'k', color: 'w' },
+        { square: 'f1', type: 'b', color: 'w' },
+        { square: 'g1', type: 'n', color: 'w' },
+        { square: 'h1', type: 'r', color: 'w' }
     ]
 ]
 
@@ -69,16 +69,16 @@ const PIECES_IMAGES = {
 }
 
 const HIGHLIGHT_STYLE = {
-    brilliant: {color: "bg-highlightBrilliant", icon: "brilliant.svg"},
-    great: {color: "bg-highlightGreat", icon: "great.svg"},
-    best: {color: "bg-highlightBest", icon: "best.svg"},
-    excellent: {color: "bg-highlightExcellent", icon: "excellent.svg"},
-    good: {color: "bg-highlightGood", icon: "good.svg"},
-    book: {color: "bg-highlightBook", icon: "book.svg"},
-    inaccuracy: {color: "bg-highlightInaccuracy", icon: "inaccuracy.svg"},
-    mistake: {color: "bg-highlightMistake", icon: "mistake.svg"},
-    miss: {color: "bg-highlightMiss", icon: "miss.svg"},
-    blunder: {color: "bg-highlightBlunder", icon: "blunder.svg"},
+    brilliant: { color: "bg-highlightBrilliant", icon: "brilliant.svg" },
+    great: { color: "bg-highlightGreat", icon: "great.svg" },
+    best: { color: "bg-highlightBest", icon: "best.svg" },
+    excellent: { color: "bg-highlightExcellent", icon: "excellent.svg" },
+    good: { color: "bg-highlightGood", icon: "good.svg" },
+    book: { color: "bg-highlightBook", icon: "book.svg" },
+    inaccuracy: { color: "bg-highlightInaccuracy", icon: "inaccuracy.svg" },
+    mistake: { color: "bg-highlightMistake", icon: "mistake.svg" },
+    miss: { color: "bg-highlightMiss", icon: "miss.svg" },
+    blunder: { color: "bg-highlightBlunder", icon: "blunder.svg" },
 }
 
 function isEven(num: number) {
@@ -96,7 +96,7 @@ function getColumnLetter(num: number) {
 }
 
 function adaptSquare(square: square, boardProportions: number): square {
-    return {col: square.col, row: (boardProportions - 1) - square.row}
+    return { col: square.col, row: (boardProportions - 1) - square.row }
 }
 
 function PreloadRatingImages() {
@@ -132,13 +132,13 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
     }
 
     const realDistance = Math.sqrt((distance.x ** 2) + (distance.y ** 2))
-    
+
     const angle = Math.atan2(distance.x, distance.y)
     const degs = angle * (180 / Math.PI)
 
     const width = squareSize / 2
     const lineCenter = width / 2
-    const lineWidth = width * (3/7)
+    const lineWidth = width * (3 / 7)
     const arrowHeadHeight = lineWidth * 1.6
     const height = realDistance - arrowHeadHeight
 
@@ -146,7 +146,7 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
     const positionY = `${toElementPosition.y + (squareSize / 2) - (white ? 0 : height)}px`
 
     return (
-        <svg style={{top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs)+'deg'}} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <line x1={lineCenter} y1={height} x2={lineCenter} y2={`${arrowHeadHeight - 1}`} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
@@ -194,7 +194,7 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean}) {
+export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
@@ -263,7 +263,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     if (i === 1) {
-                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{transform: 'translateX(50%) translateY(-50%)', width: squareSize/2.2}} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
+                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
                                     }
                                     return
                                 }
@@ -284,7 +284,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             if (row === boardProportions - 1 && column === boardProportions - 1) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
 
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
-                            const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : {col: NaN, row: NaN}
+                            const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : { col: NaN, row: NaN }
                             const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
 
                             const pieceColor = position[row][column]?.color

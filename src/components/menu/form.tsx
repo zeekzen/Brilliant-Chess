@@ -15,7 +15,7 @@ export const TYPES = [
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
-export default function Form(props: {setData: (data: [number, [string, number]]) => void}) {
+export default function Form(props: { setData: (data: [number, [string, number]]) => void }) {
     const [isSelecting, setSelecting] = useState(false)
     const [selected, select] = useState(0)
     const [type, setType] = useState(1)
@@ -45,7 +45,7 @@ export default function Form(props: {setData: (data: [number, [string, number]])
     useEffect(() => localStorage.setItem('type', String(type)), [type])
 
     const setData = props.setData
-    
+
     const inputRef = useRef<HTMLInputElement>(null)
 
     function analyze(e: React.FormEvent) {
@@ -99,7 +99,7 @@ export default function Form(props: {setData: (data: [number, [string, number]])
                         {FORMATS.map((format, i) => {
                             return (
                                 <li key={i}>
-                                    <button type="button" onClick={() => changeSelected(i)} style={{gap: i !== 0 ? '.4rem' : '0'}} className="flex flex-row items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
+                                    <button type="button" onClick={() => changeSelected(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className="flex flex-row items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
                                         <Image alt="format" src={format[1]} width={150} height={0} className="h-6 w-fit" priority />
                                         {format[0]}
                                     </button>
@@ -112,7 +112,7 @@ export default function Form(props: {setData: (data: [number, [string, number]])
                         {TYPES.map((depth, i) => {
                             return (
                                 <li key={i}>
-                                    <button title={depth[3]} type="button" onClick={() => setType(i)} style={{gap: i !== 0 ? '.4rem' : '0'}} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
+                                    <button title={depth[3]} type="button" onClick={() => setType(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
                                         <Image alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
                                         {depth[0]}
                                     </button>

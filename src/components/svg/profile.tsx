@@ -1,5 +1,5 @@
-export default function Profile(props: {class: string, height: number, width: number}) {
-return (
+export default function Profile(props: { class: string, height: number, width: number }) {
+	return (
 		<svg className="scale-x-[1.15]" height={props.height} width={props.width} version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" >
 			<g>
 				<path className={props.class} d="M359.51,367.614c-19.106-7.148-40.877-18.276-40.877-32.676c0-9.533,0-21.444,0-37.782

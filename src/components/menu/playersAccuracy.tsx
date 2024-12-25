@@ -3,12 +3,12 @@ import Profile from "../svg/profile";
 import { move } from "@/server/analyze";
 import { useEffect, useState } from "react";
 
-export default function PlayersAccuracy(props: {players: players, moves: move[]}) {
+export default function PlayersAccuracy(props: { players: players, moves: move[] }) {
     const { players, moves } = props
-    const [accuracy, setAccuracy] = useState({w: NaN, b: NaN})
+    const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
 
     useEffect(() => {
-        const accuracies: {w: number[], b: number[]} = {w: [], b: []}
+        const accuracies: { w: number[], b: number[] } = { w: [], b: [] }
 
         function pushAccuracies(white: boolean, value: number) {
             if (white) {
@@ -21,7 +21,7 @@ export default function PlayersAccuracy(props: {players: players, moves: move[]}
         let prevWinPerc: number
         let prevMateIn = NaN
         moves.forEach((move, i) => {
-            const white = i%2===1
+            const white = i % 2 === 1
 
             if (move.staticEval[0] === 'mate') {
                 if (!move.staticEval[1]) {
@@ -96,7 +96,7 @@ export default function PlayersAccuracy(props: {players: players, moves: move[]}
         const avgWhite = sumWhite / accuracies.w.length
         const avgBlack = sumBlack / accuracies.b.length
 
-        setAccuracy({w: avgWhite, b: avgBlack})
+        setAccuracy({ w: avgWhite, b: avgBlack })
     }, [])
 
     function avg(arr: number[]) {

@@ -17,7 +17,7 @@ export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
     const [time, setTime] = useState('--:--')
-    
+
     const [players, setPlayers] = useContext(AnalyzeContext).players
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
@@ -105,7 +105,7 @@ export default function Game() {
     async function handlePGN(pgn: string, depth: number) {
         setPageState('loading')
 
-        const {metadata, moves} = await parsePGN(pgn, depth) ?? {}
+        const { metadata, moves } = await parsePGN(pgn, depth) ?? {}
 
         if (!metadata || !moves) {
             console.error('ERROR PARSING PGN')
@@ -123,7 +123,7 @@ export default function Game() {
     useEffect(() => {
         if (data[1][0]) {
             const dataType = FORMATS[data[0]][0]
-            const [ code, depth ] = data[1]
+            const [code, depth] = data[1]
 
             switch (dataType) {
                 case "Chess.com":
@@ -141,7 +141,7 @@ export default function Game() {
             }
         } else {
             setTime('--:--')
-            setPlayers([{name: 'White', elo: '?'}, {name: 'Black', elo: '?'}])
+            setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
             setGame([])
             setWhite(true)
             setPlaying(false)
@@ -173,8 +173,8 @@ export default function Game() {
     }, [])
 
     return (
-        <div ref={gameRef} tabIndex={0} style={{gap: GAP}} className="h-full flex flex-row items-center outline-none">
-            <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber%2 === 0} />
+        <div ref={gameRef} tabIndex={0} style={{ gap: GAP }} className="h-full flex flex-row items-center outline-none">
+            <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
                     <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>

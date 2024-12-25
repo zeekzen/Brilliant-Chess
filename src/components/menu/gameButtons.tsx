@@ -7,7 +7,7 @@ import { AnalyzeContext } from "@/context/analyze";
 
 export default function GameButtons() {
     const [playPauseHover, setPlayPauseHover] = useState(false)
-    
+
     const [playing, setPlaying] = useContext(AnalyzeContext).playing
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game

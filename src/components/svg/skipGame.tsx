@@ -1,4 +1,4 @@
-export default function SkipGame(props: {class: string, click?: () => void}) {
+export default function SkipGame(props: { class: string, click?: () => void }) {
    return (
       <svg
          onClick={props.click}
