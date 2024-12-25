@@ -214,6 +214,12 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     // brilliant - sacrifice
     if (isNotMateRelated && standardRating === 'excellent' && sacrifice) return 'brilliant'
 
+    // brilliant - start mate
+    if (sacrifice && previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'brilliant'
+
+    // brilliant - right move to mate
+    if (sacrifice && previousStaticEval[0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, previousStaticEvalAmount, color) && winning) return 'brilliant'
+
     // great - gaining advantage
     if (
         isNotMateRelated
@@ -350,7 +356,7 @@ function isSacrifice(move: Move, color: Color) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game6.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
