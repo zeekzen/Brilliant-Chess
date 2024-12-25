@@ -28,6 +28,9 @@ export default function Form(props: {setData: (data: [number, [string, number]])
         setValue("")
     }, [])
 
+    useEffect(() => localStorage.setItem('format', String(selected)), [selected])
+    useEffect(() => localStorage.setItem('type', String(type)), [type])
+
     const setData = props.setData
     
     const inputRef = useRef<HTMLInputElement>(null)
