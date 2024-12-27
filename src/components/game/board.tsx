@@ -185,7 +185,7 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
                     }
                 }
                 .moveAnimation {
-                    animation: move 50ms linear ${forward ? 'forwards' : 'reverse'};
+                    animation: move 100ms linear ${forward ? 'forwards' : 'reverse'};
                     will-change: transform;
                     z-index: 30;
                 }
