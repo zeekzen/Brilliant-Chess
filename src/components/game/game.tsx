@@ -113,6 +113,7 @@ export default function Game() {
             return
         }
 
+        setMoveNumber(0)
         setTime(metadata.time)
         setPlayers(metadata.players)
         setGame(moves)
