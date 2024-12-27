@@ -140,7 +140,7 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEval: string[], previousPreviousStaticEval: string[], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean): moveRating {
+function getMoveRating(staticEval: string[], previousStaticEval: string[], previousPreviousStaticEval: string[], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean): moveRating {
     const winning = Number(staticEval[1]) < 0
     const previousWinig = Number(previousStaticEval[1]) > 0
 
@@ -196,23 +196,27 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const previousPreviousStaticEvalAmount = Number(previousPreviousStaticEval[1]) / 100 * (color === 'w' ? -1 : 1)
 
     const isNotMateRelated = staticEval[0] !== 'mate' && previousStaticEval[0] !== 'mate'
+    const wasNotMateRelated = previousStaticEval[0] !== 'mate' && previousPreviousStaticEval[0] !== 'mate'
 
+    
     // book
     const openingsFile = readFileSync(path.join(process.cwd(), 'openings/openings.json'), 'utf-8')
     const openings = JSON.parse(openingsFile)
-
+    
     const openingName = openings[fen]
     if (openingName) return 'book'
-
+    
     // standard
     const evaluationDiff = color === "w" ? previousStaticEvalAmount - staticEvalAmount : staticEvalAmount - previousStaticEvalAmount
     const standardRating = getStandardRating(evaluationDiff)
-
+    
     const previousEvaluationDiff = color === "b" ? previousPreviousStaticEvalAmount - previousStaticEvalAmount : previousStaticEvalAmount - previousPreviousStaticEvalAmount
     const previousStandardRating = getStandardRating(previousEvaluationDiff)
 
+
     // brilliant - sacrifice
-    if (isNotMateRelated && standardRating === 'excellent' && sacrifice) return 'brilliant'
+    const previousBrilliant = wasNotMateRelated && previousSacrice && previousStandardRating === 'excellent'
+    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice) return 'brilliant'
 
     // brilliant - start mate
     if (sacrifice && previousStaticEval[0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'brilliant'
@@ -222,6 +226,8 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
 
     // great - gaining advantage
     if (
+        wasNotMateRelated
+        &&
         isNotMateRelated
         &&
         standardRating === 'excellent'
@@ -291,7 +297,7 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
     return { bestMove, staticEval }
 }
 
-function isSacrifice(move: Move, color: Color) {
+function isSacrifice(move: Move) {
     const chess = new Chess(move.after)
 
     const piecesValue = {
@@ -304,6 +310,7 @@ function isSacrifice(move: Move, color: Color) {
         'none': 0,
     }
 
+    let capturedValue = 0, sacrifiedValue = 0
     for (const row of chess.board()) {
         for (const square of row) {
             if (square === null) continue
@@ -311,9 +318,18 @@ function isSacrifice(move: Move, color: Color) {
 
             const piece = square.type
             const pieceValue = piecesValue[piece as keyof typeof piecesValue] ?? 0
+            const pieceColor = square.color
 
-            const previousPiece = new Chess(move.before).get(square.square)?.type
-            const previousPieceValue = piecesValue[previousPiece as keyof typeof piecesValue] ?? 0
+            const previousSquare = new Chess(move.before).get(square.square)
+            const previousPiece = previousSquare?.type
+            let previousPieceValue = piecesValue[previousPiece as keyof typeof piecesValue] ?? 0
+            const previousPieceColor = previousSquare?.color
+
+            if (previousPieceColor === pieceColor) {
+                previousPieceValue = 0
+            }
+
+            capturedValue += previousPieceValue
 
             const attackers = chess.attackers(square.square, square.color === 'w' ? 'b' : 'w')
             const defenders = chess.attackers(square.square, square.color)
@@ -340,15 +356,25 @@ function isSacrifice(move: Move, color: Color) {
                 return true
             })
 
+            const validAttackersPieces = validAttackers.map(attacker => new Chess(move.after).get(attacker)?.type)
+            const validDefendersPieces = validDefenders.map(defender => new Chess(move.after).get(defender)?.type)
+
             if (pieceValue > previousPieceValue) {
                 if (validAttackers.length) {
                     if (!validDefenders.length) {
-                        return true
+                        sacrifiedValue += pieceValue
+                        continue
+                    }
+                    if (piece === 'q' && !(validAttackersPieces.length === 1 && validAttackersPieces[0] === 'q')) {
+                        sacrifiedValue += pieceValue
+                        continue
                     }
                 }
             }
         }
     }
+
+    if (sacrifiedValue > capturedValue) return true
 
     return false
 }
@@ -356,7 +382,7 @@ function isSacrifice(move: Move, color: Color) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game6.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -373,7 +399,7 @@ export async function parsePGN(pgn: string, depth: number) {
     const stockfishFile = path.join(process.cwd(), 'stockfish/stockfish-ubuntu-x86-64-avx2')
     const stockfish = spawn(stockfishFile)
 
-    let moveNumber = 0, previousStaticEval = ['cp', '0'], previousPreviousStaticEval: string[] = [], previousBestMove
+    let moveNumber = 0, previousStaticEval: string[] = [], previousPreviousStaticEval: string[] = [], previousBestMove, previousSacrice = false
     for (const move of chess.history({ verbose: true })) {
         const movement: square[] = [move.from, move.to].map(square => {
             const { col, row } = formatSquare(square)
@@ -393,6 +419,7 @@ export async function parsePGN(pgn: string, depth: number) {
                 color,
             })
             previousBestMove = bestMove
+            previousStaticEval = staticEval
         }
         chess.load(move.after)
 
@@ -401,14 +428,14 @@ export async function parsePGN(pgn: string, depth: number) {
         const color: Color = move.color === 'b' ? 'w' : 'b'
 
         if (chess.isCheckmate()) {
-            const sacrifice = false
+            var sacrifice = false
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
         } else {
-            const sacrifice = isSacrifice(move, move.color)
+            var sacrifice = isSacrifice(move)
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice)
+            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
         }
 
         moves.push({
@@ -424,6 +451,7 @@ export async function parsePGN(pgn: string, depth: number) {
         previousPreviousStaticEval = previousStaticEval
         previousStaticEval = staticEval
         moveNumber++
+        previousSacrice = sacrifice
     }
 
     return { metadata, moves }
