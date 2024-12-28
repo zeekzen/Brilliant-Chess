@@ -19,12 +19,13 @@ export type square = {
 export type moveRating = "brilliant" | "great" | "best" | "excellent" | "good" | "book" | "inaccuracy" | "mistake" | "miss" | "blunder"
 
 export interface move {
-    position: position,
+    fen: string,
     movement?: square[],
     staticEval: string[],
     bestMove: square[],
     moveRating?: moveRating,
     color: Color,
+    capture?: PieceSymbol,
 }
 
 function getPlayers(headers: Record<string, string>) {
@@ -369,12 +370,12 @@ export async function parsePGN(pgn: string, depth: number) {
         })
 
         if (moveNumber === 0) {
-            chess.load(move.before)
-            const position = chess.board()
+            const fen = move.before
+            chess.load(fen)
             const color = move.color
             const { bestMove, staticEval } = await analyze(stockfish, move.before, depth)
             moves.push({
-                position,
+                fen,
                 staticEval,
                 bestMove,
                 color,
@@ -382,11 +383,11 @@ export async function parsePGN(pgn: string, depth: number) {
             previousBestMove = bestMove
             previousStaticEval = staticEval
         }
-        chess.load(move.after)
-
-        const position = chess.board()
+        const fen = move.after
+        chess.load(fen)
 
         const color: Color = move.color === 'b' ? 'w' : 'b'
+        const capture = move.captured
 
         if (chess.isCheckmate()) {
             var sacrifice = false
@@ -400,12 +401,13 @@ export async function parsePGN(pgn: string, depth: number) {
         }
 
         moves.push({
-            position,
+            fen,
             movement,
             staticEval,
             bestMove,
             moveRating,
             color,
+            capture,
         })
 
         previousBestMove = bestMove

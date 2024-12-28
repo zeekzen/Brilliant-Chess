@@ -3,6 +3,7 @@ import Profile from "../svg/profile";
 import { move, position } from "@/server/analyze";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";
+import { Chess } from "chess.js";
 
 function isEndOpening(position: position) {
     let nonDeveloppedBlack = 0, nonDeveloppedWhite = 0
@@ -88,6 +89,8 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
         let prevWinPerc: number
         let prevMateIn = NaN
         moves.forEach((move, i) => {
+            const position = new Chess(move.fen).board()
+
             const white = i % 2 === 1
 
             if (move.staticEval[0] === 'mate') {
@@ -95,21 +98,21 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
                     const value = 100
 
                     pushAccuracies(white, value)
-                    pushAccuraciesPhaseSwitch(white, value, move.position)
+                    pushAccuraciesPhaseSwitch(white, value, position)
                 } else {
                     const mateIn = Number(move.staticEval[1])
                     if (isNaN(prevMateIn)) {
                         const value = mateIn > 0 ? 0 : 100
 
                         pushAccuracies(white, value)
-                        pushAccuraciesPhaseSwitch(white, value, move.position)
+                        pushAccuraciesPhaseSwitch(white, value, position)
                     } else if (Math.abs(mateIn) < Math.abs(prevMateIn)) {
                         const value = mateIn > 0 ? 0 : 100
                         // you advanced your opponents checkmate
                         // you did the right move to checkmate
 
                         pushAccuracies(white, value)
-                        pushAccuraciesPhaseSwitch(white, value, move.position)
+                        pushAccuraciesPhaseSwitch(white, value, position)
                     } else if (Math.abs(mateIn) > Math.abs(prevMateIn)) {
                         if (mateIn > 0) {
                             // you retarded your opponents checkmate (probably a bug)
@@ -117,7 +120,7 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
                             // you retarded your checkmate
                             const value = 50
                             pushAccuracies(white, value)
-                            pushAccuraciesPhaseSwitch(white, value, move.position)
+                            pushAccuraciesPhaseSwitch(white, value, position)
                         }
                     } else if (Math.abs(mateIn) === Math.abs(prevMateIn)) {
                         if (mateIn > 0) {
@@ -126,7 +129,7 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
                             // you retarded your checkmate a little
                             const value = 50
                             pushAccuracies(white, value)
-                            pushAccuraciesPhaseSwitch(white, value, move.position)
+                            pushAccuraciesPhaseSwitch(white, value, position)
                         }
                     }
 
@@ -160,7 +163,7 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
             prevMateIn = NaN
             prevWinPerc = 100 - winPerc
             pushAccuracies(white, moveAccuracy)
-            pushAccuraciesPhaseSwitch(white, moveAccuracy, move.position)
+            pushAccuraciesPhaseSwitch(white, moveAccuracy, position)
         })
 
         const avgWhite = avg(accuracies.w)

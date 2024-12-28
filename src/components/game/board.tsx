@@ -1,53 +1,10 @@
 import { moveRating, position, square } from "@/server/analyze";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { Chess, PieceSymbol } from "chess.js";
+import { Howl } from "howler";
 
-const DEFAULT_POSITION = [
-    [
-        { square: 'a8', type: 'r', color: 'b' },
-        { square: 'b8', type: 'n', color: 'b' },
-        { square: 'c8', type: 'b', color: 'b' },
-        { square: 'd8', type: 'q', color: 'b' },
-        { square: 'e8', type: 'k', color: 'b' },
-        { square: 'f8', type: 'b', color: 'b' },
-        { square: 'g8', type: 'n', color: 'b' },
-        { square: 'h8', type: 'r', color: 'b' }
-    ],
-    [
-        { square: 'a7', type: 'p', color: 'b' },
-        { square: 'b7', type: 'p', color: 'b' },
-        { square: 'c7', type: 'p', color: 'b' },
-        { square: 'd7', type: 'p', color: 'b' },
-        { square: 'e7', type: 'p', color: 'b' },
-        { square: 'f7', type: 'p', color: 'b' },
-        { square: 'g7', type: 'p', color: 'b' },
-        { square: 'h7', type: 'p', color: 'b' }
-    ],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null],
-    [
-        { square: 'a2', type: 'p', color: 'w' },
-        { square: 'b2', type: 'p', color: 'w' },
-        { square: 'c2', type: 'p', color: 'w' },
-        { square: 'd2', type: 'p', color: 'w' },
-        { square: 'e2', type: 'p', color: 'w' },
-        { square: 'f2', type: 'p', color: 'w' },
-        { square: 'g2', type: 'p', color: 'w' },
-        { square: 'h2', type: 'p', color: 'w' }
-    ],
-    [
-        { square: 'a1', type: 'r', color: 'w' },
-        { square: 'b1', type: 'n', color: 'w' },
-        { square: 'c1', type: 'b', color: 'w' },
-        { square: 'd1', type: 'q', color: 'w' },
-        { square: 'e1', type: 'k', color: 'w' },
-        { square: 'f1', type: 'b', color: 'w' },
-        { square: 'g1', type: 'n', color: 'w' },
-        { square: 'h1', type: 'r', color: 'w' }
-    ]
-]
+const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 const PIECES_IMAGES = {
     w: {
@@ -80,6 +37,36 @@ const HIGHLIGHT_STYLE = {
     miss: { color: "bg-highlightMiss", icon: "miss.svg" },
     blunder: { color: "bg-highlightBlunder", icon: "blunder.svg" },
 }
+
+const moveSelfSound = new Howl({
+    src: ['/sounds/move-self.mp3'],
+    preload: true,
+})
+
+const moveOpponentSound = new Howl({
+    src: ['/sounds/move-opponent.mp3'],
+    preload: true,
+})
+
+const moveCheckSound = new Howl({
+    src: ['/sounds/move-check.mp3'],
+    preload: true,
+})
+
+const gameEndSound = new Howl({
+    src: ['/sounds/game-end.mp3'],
+    preload: true,
+})
+
+export const gameStartSound = new Howl({
+    src: ['/sounds/game-start.mp3'],
+    preload: true,
+})
+
+const captureSound = new Howl({
+    src: ['/sounds/capture.mp3'],
+    preload: true,
+})
 
 function isEven(num: number) {
     return (num % 2) === 0
@@ -194,13 +181,14 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, position?: position, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean }) {
+export default function Board(props: { boardProportions: number, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
 
-    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation } = props
-    const position = props.position ?? DEFAULT_POSITION
+    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture } = props
+    const fen = props.fen ?? DEFAULT_POSITION
+    const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
     const nextMove = props.nextMove ?? []
 
@@ -209,12 +197,40 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
 
+    const chess = new Chess(fen)
+    const position = chess.board()
+
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
     const BOARD_COLORS = ["whiteBoard", "blackBoard"]
 
     const highlightColor = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.color ?? "bg-highlightBoard"
     const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
+
+    const soundChessInstance = forward ? chess : new Chess(nextFen)
+    const soundCaptureInstance = forward ? capture : nextCapture
+
+    const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
+
+    useEffect(() => {
+        if (!props.fen) return
+
+        if (soundChessInstance.isCheck()) {
+            moveCheckSound.play()
+        } else if (soundCaptureInstance) {
+            captureSound.play()
+        } else {
+            if (selfTurn) {
+                moveSelfSound.play()
+            } else {
+                moveOpponentSound.play()
+            }
+        }
+
+        if (gameEnded) {
+            gameEndSound.play()
+        }
+    }, [fen])
 
     useEffect(() => {
         if (pieceRef.current) {

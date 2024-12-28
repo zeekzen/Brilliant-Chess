@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useContext } from "react"
 
-import Board from "./board"
+import Board, { gameStartSound } from "./board"
 import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
@@ -60,39 +60,63 @@ export default function Game() {
     }, [playing])
 
     useEffect(() => {
+        let lastPressed = 0
         function handleKeyDown(e: KeyboardEvent) {
             const element = e.target as HTMLElement
             const focusableInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url']
             if (element.tagName === 'INPUT' && !focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
 
+            const now = new Date().getTime()
+            const minPressInterval = 100
+
             switch (e.key) {
                 case 'ArrowLeft':
                     e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
                     if (moveNumberRef.current === 0) return
+
                     setForward(false)
                     setAnimation(true)
                     setMoveNumber(prev => prev - 1)
+
+                    lastPressed = new Date().getTime()
                     break
                 case 'ArrowRight':
                     e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
                     if (moveNumberRef.current === gameLengthRef.current - 1) return
+
                     setForward(true)
                     setAnimation(true)
                     setMoveNumber(prev => prev + 1)
+
+                    lastPressed = new Date().getTime()
                     break
                 case 'ArrowUp':
                     e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
+
                     setAnimation(false)
                     setMoveNumber(0)
+
+                    lastPressed = new Date().getTime()
                     break
                 case 'ArrowDown':
                     e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
+
                     setAnimation(false)
                     setMoveNumber(gameLengthRef.current - 1)
+
+                    lastPressed = new Date().getTime()
                     break
                 case ' ':
                     e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
+
                     setPlaying(prev => !prev)
+
+                    lastPressed = new Date().getTime()
                     break
             }
         }
@@ -117,6 +141,7 @@ export default function Game() {
         setPlayers(metadata.players)
         setGame(moves)
 
+        setTimeout(() => gameStartSound.play(), 100)
         setPageState('analyze')
     }
 
@@ -216,7 +241,7 @@ export default function Game() {
                     <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
-                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} />
+                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} />
                 <div className="flex flex-row justify-between">
                     <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
