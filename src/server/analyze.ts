@@ -27,40 +27,6 @@ export interface move {
     color: Color,
 }
 
-function formatTime(seconds: number, noTime: string): string {
-    const toTwoDigits = (num: number) => {
-        return String(num).padStart(2, '0')
-    }
-
-    const getMinutes = (seconds: number) => {
-        return [Math.floor(seconds / 60), seconds % 60]
-    }
-
-    const getHours = (minutes: number) => {
-        return Math.ceil(minutes / 60)
-    }
-
-    const getDays = (hours: number) => {
-        return Math.ceil(hours / 24)
-    }
-
-    const [minutes, restSeconds] = getMinutes(seconds)
-
-    if (minutes) {
-        const hours = getHours(minutes)
-        if (hours > 2) {
-            const days = getDays(hours)
-            if (days > 2) {
-                return `${days} days`
-            }
-            return `${hours} ${hours > 1 ? 'hours' : 'hour'}`
-        }
-        return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
-    }
-    if (restSeconds) return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
-    return noTime
-}
-
 function getPlayers(headers: Record<string, string>) {
     const NO_NAME = 'Unknown'
     const NO_ELO = '?'
@@ -75,13 +41,8 @@ function getPlayers(headers: Record<string, string>) {
 }
 
 function getTime(headers: Record<string, string>) {
-    const NO_TIME = '--:--'
-
-    const seconds = headers.TimeControl ?? '0'
-
-    const formattedTime = formatTime(Number(seconds), NO_TIME)
-
-    return formattedTime
+    const seconds = headers.TimeControl ?? "0"
+    return Number(seconds)
 }
 
 function formatSquare(square: string): square {

@@ -16,7 +16,7 @@ const GAP = 10
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
-    const [time, setTime] = useState('--:--')
+    const [time, setTime] = useState(0)
 
     const [players, setPlayers] = useContext(AnalyzeContext).players
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
@@ -141,7 +141,7 @@ export default function Game() {
                     break
             }
         } else {
-            setTime('--:--')
+            setTime(0)
             setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
             setGame([])
             setWhite(true)
@@ -173,18 +173,54 @@ export default function Game() {
         return () => window.removeEventListener('resize', updateBoardSize)
     }, [])
 
+    function formatTime(seconds: number): string {
+        const noTime = '--:--'
+
+        const toTwoDigits = (num: number) => {
+            return String(num).padStart(2, '0')
+        }
+    
+        const getMinutes = (seconds: number) => {
+            return [Math.floor(seconds / 60), seconds % 60]
+        }
+    
+        const getHours = (minutes: number) => {
+            return Math.ceil(minutes / 60)
+        }
+    
+        const getDays = (hours: number) => {
+            return Math.ceil(hours / 24)
+        }
+    
+        const [minutes, restSeconds] = getMinutes(seconds)
+    
+        if (minutes) {
+            const hours = getHours(minutes)
+            if (hours > 2) {
+                const days = getDays(hours)
+                if (days > 2) {
+                    return `${days} days`
+                }
+                return `${hours} ${hours > 1 ? 'hours' : 'hour'}`
+            }
+            return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
+        }
+        if (restSeconds) return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
+        return noTime
+    }
+
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: GAP }} className="h-full flex flex-row items-center outline-none">
             <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
                     <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
-                    <Clock white={!white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
+                    <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
                 <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} position={game[moveNumber]?.position} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} />
                 <div className="flex flex-row justify-between">
                     <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
-                    <Clock white={white} colorMoving={game[moveNumber]?.color}>{time}</Clock>
+                    <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
             </div>
         </div>
