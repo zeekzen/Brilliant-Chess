@@ -1,12 +1,12 @@
 import { players } from "@/context/analyze";
 import Profile from "../svg/profile";
 import { move } from "@/server/analyze";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";
 
-export default function PlayersAccuracy(props: { players: players, moves: move[] }) {
+export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{w: number, b: number}>>] }) {
     const { players, moves } = props
-    const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
+    const [accuracy, setAccuracy] = props.accuracy
 
     useEffect(() => {
         const accuracies: { w: number[], b: number[] } = { w: [], b: [] }

@@ -16,9 +16,8 @@ const GAP = 10
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
 
-    const [time, setTime] = useState(0)
-
     const [players, setPlayers] = useContext(AnalyzeContext).players
+    const [time, setTime] = useContext(AnalyzeContext).time
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [game, setGame] = useContext(AnalyzeContext).game
     const [data, setData] = useContext(AnalyzeContext).data
