@@ -1,21 +1,87 @@
 import { players } from "@/context/analyze";
 import Profile from "../svg/profile";
-import { move } from "@/server/analyze";
+import { move, position } from "@/server/analyze";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";
 
-export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{w: number, b: number}>>] }) {
-    const { players, moves } = props
+function isEndOpening(position: position) {
+    let nonDeveloppedBlack = 0, nonDeveloppedWhite = 0
+    for (const square of position[0]) {
+        if (square?.color === 'w') continue
+        if (square?.type === 'n' || square?.type === 'b' || square?.type === 'q') nonDeveloppedBlack++
+    }
+    for (const square of position[position.length - 1]) {
+        if (square?.color === 'b') continue
+        if (square?.type === 'n' || square?.type === 'b' || square?.type === 'q') nonDeveloppedWhite++
+    }
+
+    const developpedBlack = 5 - nonDeveloppedBlack
+    const developpedWhite = 5 - nonDeveloppedWhite
+
+    if (developpedBlack > 2 && developpedWhite > 1) return true
+    if (developpedWhite > 2 && developpedBlack > 1) return true
+    if (developpedBlack > 3) return true
+    if (developpedWhite > 3) return true
+}
+
+function isEndMiddlegame(position: position) {
+    let whitePieces = 0, blackPieces = 0
+    for (const row of position) {
+        for (const square of row) {
+            if (square?.type === 'r' || square?.type === 'n' || square?.type === 'b' || square?.type === 'q') {
+                if (square.color === 'w') whitePieces++
+                else blackPieces++
+            }
+        }
+    }
+
+    if (whitePieces < 3 && blackPieces < 3) return true
+    if (whitePieces < 2 || blackPieces < 2) return true
+}
+
+export function avg(arr: number[]) {
+    const sum = arr.reduce((acc, cur) => acc + cur, 0)
+    return sum / arr.length
+}
+
+export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{ w: number, b: number }>>], setAccuracyPhases: Dispatch<SetStateAction<{ opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } }>> }) {
+    const { players, moves, setAccuracyPhases } = props
     const [accuracy, setAccuracy] = props.accuracy
 
     useEffect(() => {
         const accuracies: { w: number[], b: number[] } = { w: [], b: [] }
+        const accuraciesPhases: { opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } } = { opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } }
 
         function pushAccuracies(white: boolean, value: number) {
             if (white) {
                 accuracies.w.push(value)
             } else {
                 accuracies.b.push(value)
+            }
+        }
+
+        function pushAccuraciesPhase(white: boolean, value: number, phase: 'opening' | 'middlegame' | 'endgame') {
+            if (white) {
+                accuraciesPhases[phase].w.push(value)
+            } else {
+                accuraciesPhases[phase].b.push(value)
+            }
+        }
+
+        let gamePhase: 'opening' | 'middlegame' | 'endgame' = 'opening'
+        function pushAccuraciesPhaseSwitch(white: boolean, moveAccuracy: number, position: position) {
+            switch (gamePhase) {
+                case 'opening':
+                    if (isEndOpening(position)) gamePhase = 'middlegame'
+                    pushAccuraciesPhase(white, moveAccuracy, 'opening')
+                    break
+                case 'middlegame':
+                    if (isEndMiddlegame(position)) gamePhase = 'endgame'
+                    pushAccuraciesPhase(white, moveAccuracy, 'middlegame')
+                    break
+                case 'endgame':
+                    pushAccuraciesPhase(white, moveAccuracy, 'endgame')
+                    break
             }
         }
 
@@ -26,36 +92,41 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
 
             if (move.staticEval[0] === 'mate') {
                 if (!move.staticEval[1]) {
-                    pushAccuracies(white, 100)
+                    const value = 100
+
+                    pushAccuracies(white, value)
+                    pushAccuraciesPhaseSwitch(white, value, move.position)
                 } else {
                     const mateIn = Number(move.staticEval[1])
                     if (isNaN(prevMateIn)) {
-                        if (mateIn > 0) {
-                            pushAccuracies(white, 0)
-                        } else {
-                            pushAccuracies(white, 100)
-                        }
+                        const value = mateIn > 0 ? 0 : 100
+
+                        pushAccuracies(white, value)
+                        pushAccuraciesPhaseSwitch(white, value, move.position)
                     } else if (Math.abs(mateIn) < Math.abs(prevMateIn)) {
-                        if (mateIn > 0) {
-                            // you advanced your opponents checkmate
-                            pushAccuracies(white, 0)
-                        } else {
-                            // you did the right move to checkmate
-                            pushAccuracies(white, 100)
-                        }
+                        const value = mateIn > 0 ? 0 : 100
+                        // you advanced your opponents checkmate
+                        // you did the right move to checkmate
+
+                        pushAccuracies(white, value)
+                        pushAccuraciesPhaseSwitch(white, value, move.position)
                     } else if (Math.abs(mateIn) > Math.abs(prevMateIn)) {
                         if (mateIn > 0) {
                             // you retarded your opponents checkmate (probably a bug)
                         } else {
                             // you retarded your checkmate
-                            pushAccuracies(white, 50)
+                            const value = 50
+                            pushAccuracies(white, value)
+                            pushAccuraciesPhaseSwitch(white, value, move.position)
                         }
                     } else if (Math.abs(mateIn) === Math.abs(prevMateIn)) {
                         if (mateIn > 0) {
                             // you did not advance your opponents checkmate
                         } else {
                             // you retarded your checkmate a little
-                            pushAccuracies(white, 50)
+                            const value = 50
+                            pushAccuracies(white, value)
+                            pushAccuraciesPhaseSwitch(white, value, move.position)
                         }
                     }
 
@@ -89,18 +160,15 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
             prevMateIn = NaN
             prevWinPerc = 100 - winPerc
             pushAccuracies(white, moveAccuracy)
+            pushAccuraciesPhaseSwitch(white, moveAccuracy, move.position)
         })
 
         const avgWhite = avg(accuracies.w)
         const avgBlack = avg(accuracies.b)
 
         setAccuracy({ w: avgWhite, b: avgBlack })
+        setAccuracyPhases(accuraciesPhases)
     }, [])
-
-    function avg(arr: number[]) {
-        const sum = arr.reduce((acc, cur) => acc + cur, 0)
-        return sum / arr.length
-    }
 
     return (
         <div className="w-[85%] flex flex-col items-end gap-3">

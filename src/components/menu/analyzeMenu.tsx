@@ -8,6 +8,7 @@ import GameRating from "./gameRating";
 
 export default function AnalyzeMenu() {
     const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
+    const [accuracyPhases, setAccuracyPhases] = useState<{ opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } }>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
 
     const [game, setGame] = useContext(AnalyzeContext).game
     const [players, setPlayers] = useContext(AnalyzeContext).players
@@ -16,11 +17,11 @@ export default function AnalyzeMenu() {
     return (
         <div className="flex flex-col gap-3 items-center">
             <GameChart moves={game} />
-            <PlayersAccuracy accuracy={[accuracy, setAccuracy]} players={players} moves={game} />
+            <PlayersAccuracy setAccuracyPhases={setAccuracyPhases} accuracy={[accuracy, setAccuracy]} players={players} moves={game} />
             <hr className="border-neutral-600 w-[85%]" />
             <RatingCount moves={game} />
             <hr className="border-neutral-600 w-[85%]" />
-            <GameRating time={time} accuracy={accuracy} />
+            <GameRating accuracy={accuracy} accuracyPhases={accuracyPhases} />
         </div>
     )
 }

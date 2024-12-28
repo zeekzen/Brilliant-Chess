@@ -1,4 +1,7 @@
+import { moveRating } from "@/server/analyze"
+import { avg } from "./playersAccuracy"
 import RatingBox from "./ratingBox"
+import Image from "next/image"
 
 function getRating(accuracy: number): number {
     function nonLinearFunction(x: number): number {
@@ -20,8 +23,38 @@ function getRating(accuracy: number): number {
     return isNaN(roundedRating) ? 0 : roundedRating
 }
 
-export default function GameRating(props: { accuracy: { w: number, b: number } }) {
-    const { accuracy } = props
+function getRatingPhase(accuracy: number[]) {
+    const avgAccuracy = avg(accuracy)
+
+    let rating: moveRating
+    if (avgAccuracy >= 95) {
+        rating = 'great'
+    } else if (avgAccuracy >= 90) {
+        rating = 'best'
+    } else if (avgAccuracy >= 80) {
+        rating = 'excellent'
+    } else if (avgAccuracy >= 60) {
+        rating = 'good'
+    } else if (avgAccuracy >= 40) {
+        rating = 'inaccuracy'
+    } else if (avgAccuracy >= 20) {
+        rating = 'mistake'
+    } else {
+        rating = 'blunder'
+    }
+
+    return { rating, accuracy: avgAccuracy.toFixed(1) }
+}
+
+function RatingIcon(props: { ratingPhase: {rating: moveRating, accuracy: string}, titleText: string }) {
+    const { titleText, ratingPhase } = props
+    const { rating, accuracy } = ratingPhase
+
+    return <Image alt={rating} title={titleText + ': ' + accuracy} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
+}
+
+export default function GameRating(props: { accuracy: { w: number, b: number }, accuracyPhases: { opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } } }) {
+    const { accuracy, accuracyPhases } = props
 
     return (
         <div className="w-[85%] flex flex-col items-end gap-3">
@@ -30,6 +63,27 @@ export default function GameRating(props: { accuracy: { w: number, b: number } }
                 <div className="flex flex-row w-[262px] justify-between">
                     <RatingBox white>{getRating(accuracy.w)}</RatingBox>
                     <RatingBox>{getRating(accuracy.b)}</RatingBox>
+                </div>
+            </div>
+            <div className="flex flex-row w-full justify-between items-center">
+                <span className="font-bold text-foregroundGrey text-lg">Opening</span>
+                <div className="flex flex-row w-[262px] justify-between">
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.w)} titleText="Opening Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.b)} titleText="Opening Accuracy" /></div>
+                </div>
+            </div>
+            <div className="flex flex-row w-full justify-between items-center">
+                <span className="font-bold text-foregroundGrey text-lg">Middlegame</span>
+                <div className="flex flex-row w-[262px] justify-between">
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.w)} titleText="Middlegame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.b)} titleText="Middlegame Accuracy" /></div>
+                </div>
+            </div>
+            <div className="flex flex-row w-full justify-between items-center">
+                <span className="font-bold text-foregroundGrey text-lg">Endgame</span>
+                <div className="flex flex-row w-[262px] justify-between">
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.w)} titleText="Endgame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.b)} titleText="Endgame Accuracy" /></div>
                 </div>
             </div>
         </div>
