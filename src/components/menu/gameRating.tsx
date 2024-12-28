@@ -26,6 +26,8 @@ function getRating(accuracy: number): number {
 function getRatingPhase(accuracy: number[]) {
     const avgAccuracy = avg(accuracy)
 
+    if (accuracy.length < 3) return { rating: null, accuracy: null }
+
     let rating: moveRating
     if (avgAccuracy >= 95) {
         rating = 'great'
@@ -46,9 +48,11 @@ function getRatingPhase(accuracy: number[]) {
     return { rating, accuracy: avgAccuracy.toFixed(1) }
 }
 
-function RatingIcon(props: { ratingPhase: {rating: moveRating, accuracy: string}, titleText: string }) {
+function RatingIcon(props: { ratingPhase: {rating: moveRating|null, accuracy: string|null}, titleText: string }) {
     const { titleText, ratingPhase } = props
     const { rating, accuracy } = ratingPhase
+
+    if (!rating || !accuracy) return <span className="text-xl" title="Missing moves to evaluate this phase.">-</span>
 
     return <Image alt={rating} title={titleText + ': ' + accuracy} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
 }
