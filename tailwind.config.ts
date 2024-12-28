@@ -46,6 +46,7 @@ export default {
         highlightBest: "var(--highlightBest)",
         highlightExcellent: "var(--highlightExcellent)",
         highlightGood: "var(--highlightGood)",
+        highlightBook: "var(--highlightBook)",
         highlightInaccuracy: "var(--highlightInaccuracy)",
         highlightMistake: "var(--highlightMistake)",
         highlightMiss: "var(--highlightMiss)",
