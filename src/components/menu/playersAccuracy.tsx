@@ -91,11 +91,8 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
             pushAccuracies(white, moveAccuracy)
         })
 
-        const sumWhite = accuracies.w.reduce((acc, cur) => acc + cur, 0)
-        const sumBlack = accuracies.b.reduce((acc, cur) => acc + cur, 0)
-
-        const avgWhite = sumWhite / accuracies.w.length
-        const avgBlack = sumBlack / accuracies.b.length
+        const avgWhite = avg(accuracies.w)
+        const avgBlack = avg(accuracies.b)
 
         setAccuracy({ w: avgWhite, b: avgBlack })
     }, [])
