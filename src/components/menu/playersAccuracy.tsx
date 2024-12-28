@@ -2,6 +2,7 @@ import { players } from "@/context/analyze";
 import Profile from "../svg/profile";
 import { move } from "@/server/analyze";
 import { useEffect, useState } from "react";
+import RatingBox from "./ratingBox";
 
 export default function PlayersAccuracy(props: { players: players, moves: move[] }) {
     const { players, moves } = props
@@ -124,8 +125,8 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Accuracy</span>
                 <div className="flex flex-row w-[262px] justify-between">
-                    <div className="w-20 bg-evaluationBarWhite py-2 rounded-borderRoundness text-2xl font-bold text-evaluationBarBlack text-center">{accuracy.w.toFixed(1)}</div>
-                    <div className="w-20 bg-evaluationBarBlack py-2 rounded-borderRoundness text-2xl font-bold text-evaluationBarWhite text-center">{accuracy.b.toFixed(1)}</div>
+                    <RatingBox white>{accuracy.w.toFixed(1)}</RatingBox>
+                    <RatingBox>{accuracy.b.toFixed(1)}</RatingBox>
                 </div>
             </div>
         </div>
