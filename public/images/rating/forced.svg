@@ -28,8 +28,8 @@
      inkscape:document-units="px"
      showgrid="false"
      inkscape:zoom="5.146622"
-     inkscape:cx="55.376129"
-     inkscape:cy="64.119728"
+     inkscape:cx="11.075226"
+     inkscape:cy="64.31403"
      inkscape:window-width="1900"
      inkscape:window-height="1015"
      inkscape:window-x="0"
@@ -157,13 +157,13 @@
      id="layer3"
      inkscape:label="shadow"><path
        style="display:inline;fill:none;fill-opacity:1;stroke:#000000;stroke-width:5.11214;stroke-linejoin:round;stroke-opacity:0.4"
-       d="m 26.63107,52.099592 h 33.369041 v -16.68452 l 33.36904,27.807534 -33.36904,27.807536 V 74.345619 H 26.63107 Z"
+       d="m 28.63107,52.099592 h 33.369041 v -16.68452 l 33.36904,27.807534 -33.36904,27.807536 V 74.345619 H 28.63107 Z"
        id="path396"
        sodipodi:nodetypes="cccccccc" /></g><g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="arrow"><path
        style="display:inline;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:5.11214;stroke-linejoin:round;stroke-opacity:1"
-       d="M 26.63107,48.8768 H 60.000111 V 32.19228 l 33.36904,27.807534 -33.36904,27.807533 V 71.122827 H 26.63107 Z"
+       d="M 28.63107,48.8768 H 62.000111 V 32.19228 l 33.36904,27.807534 -33.36904,27.807533 V 71.122827 H 28.63107 Z"
        id="path3988"
        sodipodi:nodetypes="cccccccc" /></g></svg>
