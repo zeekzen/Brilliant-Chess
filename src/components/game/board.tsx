@@ -86,6 +86,24 @@ function adaptSquare(square: square, boardProportions: number): square {
     return { col: square.col, row: (boardProportions - 1) - square.row }
 }
 
+function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean, position: position): square | undefined {
+    if (!castle) return
+    if (whiteMoving) {
+        const row = castle === 'k' ? position[7] : position[7].toReversed()
+        const col = row.findIndex(square => square?.type === 'r' && square?.color === 'w')
+        return { col: castle === 'k' ? 7 - col : col, row: 7 }
+    } else {
+        const row = castle === 'k' ? position[0] : position[0].toReversed()
+        const col = row.findIndex(square => square?.type === 'r' && square?.color === 'b')
+        return { col: castle === 'k' ? 7 - col : col, row: 0 }
+    }
+}
+
+function getCastleRookToSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean): square | undefined {
+    if (!castle) return
+    return { col: castle === 'k' ? 5 : 3, row: whiteMoving ? 7 : 0 }
+}
+
 function PreloadRatingImages() {
     const preloaders = []
     for (const rating in HIGHLIGHT_STYLE) {
@@ -140,8 +158,8 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
     )
 }
 
-function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean, white: boolean }) {
-    const { move, squareSize, forward, white } = props
+function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean, white: boolean, className: string, zIndex: number }) {
+    const { move, squareSize, forward, white , className, zIndex } = props
     if (move.length === 0) return
     const [from, to] = move
 
@@ -163,7 +181,7 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     return (
         <style>
             {`
-                @keyframes move {
+                @keyframes ${className} {
                     0% {
                         transform: translate(${forward ? -distance.x : 0}px, ${forward ? distance.y : 0}px);
                     }
@@ -171,22 +189,23 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
                         transform: translate(${!forward ? distance.x : 0}px, ${!forward ? -distance.y : 0}px);
                     }
                 }
-                .moveAnimation {
-                    animation: move 100ms linear ${forward ? 'forwards' : 'reverse'};
+                .${className} {
+                    animation: ${className} 100ms linear ${forward ? 'forwards' : 'reverse'};
                     will-change: transform;
-                    z-index: 30;
+                    z-index: ${zIndex};
                 }
             `}
         </style>
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol }) {
+export default function Board(props: { boardProportions: number, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
+    const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture } = props
+    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -199,6 +218,15 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
     const chess = new Chess(fen)
     const position = chess.board()
+
+    const whiteMoving = !(chess.turn() === 'w')
+
+    const castleRookFrom = getCastleRookFromSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving, position)
+    const castleRookTo = getCastleRookToSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving)
+
+    const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
+
+    console.log(castleRookMove)
 
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
@@ -233,20 +261,33 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     }, [fen])
 
     useEffect(() => {
+        for (const piece of document.getElementsByClassName('moveAnimation')) {
+            piece.classList.remove('moveAnimation')
+        }
         if (pieceRef.current) {
-            for (const piece of document.getElementsByClassName('moveAnimation')) {
-                piece.classList.remove('moveAnimation')
-            }
             if (!animation) return
             void pieceRef.current.offsetWidth
             pieceRef.current.classList.add('moveAnimation')
         }
     }, [move, animation])
 
+    useEffect(() => {
+        for (const piece of document.getElementsByClassName('castleAnimation')) {
+            piece.classList.remove('castleAnimation')
+        }
+        if (!castle && !nextCastle) return
+        if (castleRookRef.current) {
+            if (!animation) return
+            void castleRookRef.current.offsetWidth
+            castleRookRef.current.classList.add('castleAnimation')
+        }
+    }, [move, animation])
+
     return (
         <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
-            <MoveAnimation move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
+            <MoveAnimation zIndex={40} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
+            <MoveAnimation zIndex={30} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -303,13 +344,15 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : { col: NaN, row: NaN }
                             const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
 
+                            const isCastleRook = forward ? (castleRookTo?.col === column && castleRookTo?.row === row) : (castleRookFrom?.col === column && castleRookFrom?.row === row)
+
                             const pieceColor = position[row][column]?.color
                             const pieceType = position[row][column]?.type
                             const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
                             const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div ref={moved ? pieceRef : null} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
+                            const piece = pieceImages ? <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
 
-                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
                         }
                     }
                     return squares

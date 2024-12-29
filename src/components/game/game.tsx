@@ -241,7 +241,7 @@ export default function Game() {
                     <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
-                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} />
+                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardProportions={BOARD_PROPORTIONS} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} />
                 <div className="flex flex-row justify-between">
                     <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>

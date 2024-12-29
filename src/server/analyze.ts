@@ -26,6 +26,7 @@ export interface move {
     moveRating?: moveRating,
     color: Color,
     capture?: PieceSymbol,
+    castle?: 'k' | 'q',
 }
 
 function getPlayers(headers: Record<string, string>) {
@@ -344,7 +345,7 @@ function isSacrifice(move: Move) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game3.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game2.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -389,12 +390,14 @@ export async function parsePGN(pgn: string, depth: number) {
         const color: Color = move.color === 'b' ? 'w' : 'b'
         const capture = move.captured
 
+        
         if (chess.isCheckmate()) {
             var sacrifice = false
             var staticEval = ["mate"]
             var bestMove: square[] = []
             var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
         } else {
+            var castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
             var sacrifice = isSacrifice(move)
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
@@ -408,6 +411,7 @@ export async function parsePGN(pgn: string, depth: number) {
             moveRating,
             color,
             capture,
+            castle,
         })
 
         previousBestMove = bestMove
