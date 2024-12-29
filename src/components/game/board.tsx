@@ -68,6 +68,11 @@ const captureSound = new Howl({
     preload: true,
 })
 
+const castleSound = new Howl({
+    src: ['/sounds/castle.mp3'],
+    preload: true,
+})
+
 function isEven(num: number) {
     return (num % 2) === 0
 }
@@ -237,6 +242,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
     const soundCaptureInstance = forward ? capture : nextCapture
+    const soundCastleInstance = forward ? castle : nextCastle
 
     const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
 
@@ -245,6 +251,8 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
         if (soundChessInstance.isCheck()) {
             moveCheckSound.play()
+        } else if (soundCastleInstance) {
+            castleSound.play()
         } else if (soundCaptureInstance) {
             captureSound.play()
         } else {
