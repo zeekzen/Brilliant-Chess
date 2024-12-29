@@ -16,7 +16,7 @@ export type square = {
     col: number,
 }
 
-export type moveRating = "brilliant" | "great" | "best" | "excellent" | "good" | "book" | "inaccuracy" | "mistake" | "miss" | "blunder"
+export type moveRating = "forced" | "brilliant" | "great" | "best" | "excellent" | "good" | "book" | "inaccuracy" | "mistake" | "miss" | "blunder"
 
 export interface move {
     fen: string,
@@ -342,10 +342,16 @@ function isSacrifice(move: Move) {
     return false
 }
 
+function isForced(move: Move) {
+    const chess = new Chess(move.before)
+
+    return chess.moves().length === 1
+}
+
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game2.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game11.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -390,17 +396,19 @@ export async function parsePGN(pgn: string, depth: number) {
         const color: Color = move.color === 'b' ? 'w' : 'b'
         const capture = move.captured
 
-        
+        const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
+
+        const forced = isForced(move)
+
         if (chess.isCheckmate()) {
             var sacrifice = false
             var staticEval = ["mate"]
             var bestMove: square[] = []
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+            var moveRating = forced ? 'forced' : getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
         } else {
-            var castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
             var sacrifice = isSacrifice(move)
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var moveRating = getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+            var moveRating = forced ? 'forced' : getMoveRating(staticEval, previousStaticEval, previousPreviousStaticEval, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
         }
 
         moves.push({

@@ -26,6 +26,7 @@ const PIECES_IMAGES = {
 }
 
 const HIGHLIGHT_STYLE = {
+    forced: { color: "bg-highlightBoard", icon: "forced.svg" },
     brilliant: { color: "bg-highlightBrilliant", icon: "brilliant.svg" },
     great: { color: "bg-highlightGreat", icon: "great.svg" },
     best: { color: "bg-highlightBest", icon: "best.svg" },
@@ -230,8 +231,6 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     const castleRookTo = getCastleRookToSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving)
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
-
-    console.log(castleRookMove)
 
     // text-whiteBoard / text-blackBoard
     // bg-whiteBoard / bg-blackBoard
