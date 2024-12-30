@@ -2,7 +2,7 @@
 
 import { readFileSync } from "fs";
 import path from "path";
-import { Chess, Color, Move, PAWN, Piece, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, Move, PAWN, Piece, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 export type position = ({
@@ -285,8 +285,6 @@ function getAttackersDefenders(chess: Chess, color: Color, from: Square, to: Squ
     })
     const legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
 
-    console.log(legalDefendersPieces, legalAttackersPieces)
-
     return { attackers: { squares: legalAttackers, pieces: legalAttackersPieces, length: legalAttackers.length }, defenders: { squares: legalDefenders, pieces: legalDefendersPieces, length: legalDefenders.length } }
 }
 
@@ -298,6 +296,8 @@ function isSacrifice(move: Move) {
         const { attackers, defenders } = getAttackersDefenders(chess, move.color, move.from, move.to)
 
         if (!defenders.length && attackers.length && (!captured || captured === PAWN)) return true
+        if (move.piece === ROOK && attackers.length && !(attackers.length === 1 && ((attackers.pieces[0] ?? ('p' as string)) === QUEEN || (attackers.pieces[0] ?? ('p' as string)) === ROOK) && defenders.length)) return true
+        if (move.piece === QUEEN && attackers.length && captured !== QUEEN && !(attackers.length === 1 && (attackers.pieces[0] ?? ('p' as string)) === QUEEN && defenders.length)) return true
     }
 
     const chess = new Chess(move.after)
@@ -316,7 +316,7 @@ function isForced(move: Move) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game11.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game12.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
