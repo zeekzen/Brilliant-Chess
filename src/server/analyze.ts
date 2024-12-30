@@ -2,7 +2,7 @@
 
 import { readFileSync } from "fs";
 import path from "path";
-import { Chess, Color, Move, PieceSymbol, Square } from "chess.js";
+import { Chess, Color, Move, PAWN, Piece, PieceSymbol, Square } from "chess.js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 export type position = ({
@@ -27,6 +27,10 @@ export interface move {
     color: Color,
     capture?: PieceSymbol,
     castle?: 'k' | 'q',
+}
+
+function invertColor(color: Color): Color {
+    return color === 'w' ? 'b' : 'w'
 }
 
 function getPlayers(headers: Record<string, string>) {
@@ -107,7 +111,7 @@ function getMoveRating(staticEval: string[], previousStaticEval: string[], previ
     const winning = Number(staticEval[1]) < 0
     const previousWinig = Number(previousStaticEval[1]) > 0
 
-    const previousColor = color === 'w' ? 'b' : 'w'
+    const previousColor = invertColor(color)
 
     function getStandardRating(diff: number) {
         let rating: moveRating = 'excellent'
@@ -260,84 +264,45 @@ async function analyze(program: ChildProcessWithoutNullStreams, fen: string, dep
     return { bestMove, staticEval }
 }
 
-function isSacrifice(move: Move) {
-    const chess = new Chess(move.after)
+function getAttackersDefenders(chess: Chess, color: Color, from: Square, to: Square) {
+    const attackers = chess.attackers(to, invertColor(color))
+    const legalAttackers = attackers.filter(attacker => chess.moves({ verbose: true }).findIndex(move => move.from === attacker && move.to === to) !== -1)
+    const legalAttackersPieces = legalAttackers.map(attacker => chess.get(attacker))
 
-    const piecesValue = {
-        'p': 1,
-        'n': 3,
-        'b': 3,
-        'r': 5,
-        'q': 9,
-        'k': 999,
-        'none': 0,
-    }
+    const defenders = chess.attackers(to, color)
+    const legalDefenders = defenders.filter(defender => {
+        for (const attacker of legalAttackers) {
+            const testChess = new Chess(chess.fen())
+            try {
+                testChess.move({from: attacker, to: to})
+            } catch {}
 
-    let capturedValue = 0, sacrifiedValue = 0
-    for (const row of chess.board()) {
-        for (const square of row) {
-            if (square === null) continue
-            if (square.type === 'p') continue
-
-            const piece = square.type
-            const pieceValue = piecesValue[piece as keyof typeof piecesValue] ?? 0
-            const pieceColor = square.color
-
-            const previousSquare = new Chess(move.before).get(square.square)
-            const previousPiece = previousSquare?.type
-            let previousPieceValue = piecesValue[previousPiece as keyof typeof piecesValue] ?? 0
-            const previousPieceColor = previousSquare?.color
-
-            if (previousPieceColor === pieceColor) {
-                previousPieceValue = 0
-            }
-
-            capturedValue += previousPieceValue
-
-            const attackers = chess.attackers(square.square, square.color === 'w' ? 'b' : 'w')
-            const defenders = chess.attackers(square.square, square.color)
-
-            const validAttackers = attackers.filter(attacker => {
-                try {
-                    new Chess(move.after).move({ from: attacker, to: square.square })
-                } catch {
-                    return false
-                }
-
-                return true
-            })
-
-            const validDefenders = defenders.filter(defender => {
-                try {
-                    const testChess = new Chess(move.after)
-                    testChess.move({ from: validAttackers[0], to: square.square })
-                    testChess.move({ from: defender, to: square.square })
-                } catch {
-                    return false
-                }
-
-                return true
-            })
-
-            const validAttackersPieces = validAttackers.map(attacker => new Chess(move.after).get(attacker)?.type)
-            const validDefendersPieces = validDefenders.map(defender => new Chess(move.after).get(defender)?.type)
-
-            if (pieceValue > previousPieceValue) {
-                if (validAttackers.length) {
-                    if (!validDefenders.length) {
-                        sacrifiedValue += pieceValue
-                        continue
-                    }
-                    if (piece === 'q' && !(validAttackersPieces.length === 1 && validAttackersPieces[0] === 'q')) {
-                        sacrifiedValue += pieceValue
-                        continue
-                    }
-                }
+            if (testChess.moves({ verbose: true }).findIndex(move => move.from === defender && move.to === to) === -1) {
+                return false
             }
         }
+        return true
+    })
+    const legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+
+    console.log(legalDefendersPieces, legalAttackersPieces)
+
+    return { attackers: { squares: legalAttackers, pieces: legalAttackersPieces, length: legalAttackers.length }, defenders: { squares: legalDefenders, pieces: legalDefendersPieces, length: legalDefenders.length } }
+}
+
+function isSacrifice(move: Move) {
+    function isSuicide(chess: Chess, move: Move) {
+        if (move.piece === PAWN) return false
+
+        const captured = move.captured
+        const { attackers, defenders } = getAttackersDefenders(chess, move.color, move.from, move.to)
+
+        if (!defenders.length && attackers.length && (!captured || captured === PAWN)) return true
     }
 
-    if (sacrifiedValue > capturedValue) return true
+    const chess = new Chess(move.after)
+
+    if (isSuicide(chess, move)) return true
 
     return false
 }
@@ -393,12 +358,14 @@ export async function parsePGN(pgn: string, depth: number) {
         const fen = move.after
         chess.load(fen)
 
-        const color: Color = move.color === 'b' ? 'w' : 'b'
+        const color = invertColor(move.color)
         const capture = move.captured
 
         const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
         const forced = isForced(move)
+
+        console.log(moveNumber)
 
         if (chess.isCheckmate()) {
             var sacrifice = false
