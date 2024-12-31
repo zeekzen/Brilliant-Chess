@@ -380,8 +380,6 @@ export async function parsePGN(pgn: string, depth: number) {
 
         const forced = isForced(move)
 
-        console.log(moveNumber)
-
         if (chess.isCheckmate()) {
             var sacrifice = false
             var staticEval = ["mate"]
