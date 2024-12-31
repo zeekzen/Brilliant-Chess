@@ -175,18 +175,18 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     const isNotMateRelated = staticEval[0] !== 'mate' && reversePreviousStaticEvals[0][0] !== 'mate'
     const wasNotMateRelated = reversePreviousStaticEvals[0][0] !== 'mate' && reversePreviousStaticEvals[1][0] !== 'mate'
 
-    
+
     // book
     const openingsFile = readFileSync(path.join(process.cwd(), 'openings/openings.json'), 'utf-8')
     const openings = JSON.parse(openingsFile)
-    
+
     const openingName = openings[fen]
     if (openingName) return 'book'
-    
+
     // standard
     const evaluationDiff = color === "w" ? getPreviousStaticEvalAmount(0) - staticEvalAmount : staticEvalAmount - getPreviousStaticEvalAmount(0)
     const standardRating = getStandardRating(evaluationDiff)
-    
+
     const previousEvaluationDiff = color === "b" ? getPreviousStaticEvalAmount(1) - getPreviousStaticEvalAmount(0) : getPreviousStaticEvalAmount(0) - getPreviousStaticEvalAmount(1)
     const previousStandardRating = getStandardRating(previousEvaluationDiff)
 
@@ -289,8 +289,8 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
         for (const attacker of legalAttackers) {
             const testChess = new Chess(chess.fen())
             try {
-                testChess.move({from: attacker, to: to})
-            } catch {}
+                testChess.move({ from: attacker, to: to })
+            } catch { }
 
             if (testChess.moves({ verbose: true }).findIndex(move => move.from === defender && move.to === to) === -1) {
                 return false
