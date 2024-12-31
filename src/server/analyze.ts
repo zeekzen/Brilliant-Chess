@@ -184,21 +184,18 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (openingName) return 'book'
 
     // standard
+    function getPreviousStandardRating(number: number) {
+        const checkColor = number % 2 === 0 ? 'b' : 'w'
+        const evaluationDiff = color === checkColor ? getPreviousStaticEvalAmount(number + 1) - getPreviousStaticEvalAmount(number) : getPreviousStaticEvalAmount(number) - getPreviousStaticEvalAmount(number + 1)
+        return getStandardRating(evaluationDiff)
+    }
+
     const evaluationDiff = color === "w" ? getPreviousStaticEvalAmount(0) - staticEvalAmount : staticEvalAmount - getPreviousStaticEvalAmount(0)
     const standardRating = getStandardRating(evaluationDiff)
 
-    const previousEvaluationDiff = color === "b" ? getPreviousStaticEvalAmount(1) - getPreviousStaticEvalAmount(0) : getPreviousStaticEvalAmount(0) - getPreviousStaticEvalAmount(1)
-    const previousStandardRating = getStandardRating(previousEvaluationDiff)
-
-    const previousPreviousEvaluationDiff = color === "w" ? getPreviousStaticEvalAmount(2) - getPreviousStaticEvalAmount(1) : getPreviousStaticEvalAmount(1) - getPreviousStaticEvalAmount(2)
-    const previousPreviousStandardRating = getStandardRating(previousPreviousEvaluationDiff)
-
-    const previousPreviousPreviousEvaluationDiff = color === "b" ? getPreviousStaticEvalAmount(3) - getPreviousStaticEvalAmount(2) : getPreviousStaticEvalAmount(2) - getPreviousStaticEvalAmount(3)
-    const previousPreviousPreviousStandardRating = getStandardRating(previousPreviousPreviousEvaluationDiff)
-
     // brilliant - sacrifice
-    const previousBrilliant = wasNotMateRelated && previousSacrice && previousStandardRating === 'excellent'
-    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (previousStandardRating === 'inaccuracy' || previousStandardRating === 'blunder' || previousPreviousPreviousStandardRating === 'inaccuracy' || previousPreviousPreviousStandardRating === 'blunder')) return 'brilliant'
+    const previousBrilliant = wasNotMateRelated && previousSacrice && getPreviousStandardRating(0) === 'excellent'
+    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return 'brilliant'
 
     // brilliant - start mate
     if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'brilliant'
@@ -215,7 +212,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
         standardRating === 'excellent'
         &&
         (
-            (previousStandardRating === 'inaccuracy' || previousStandardRating === 'blunder')
+            (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder')
             &&
             (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor))
         )
@@ -256,9 +253,9 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
         isNotMateRelated
         &&
         (
-            (previousStandardRating === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor)))
+            (getPreviousStandardRating(0) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor)))
             ||
-            previousStandardRating === "blunder"
+            getPreviousStandardRating(0) === "blunder"
         )
         &&
         (standardRating === "blunder" || standardRating === "inaccuracy")
