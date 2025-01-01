@@ -249,7 +249,20 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
 
     // miss - gain advantage
+    const previousMiss = wasNotMateRelated
+    &&
+    (
+        (getPreviousStandardRating(1) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color) || givingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color)))
+        ||
+        getPreviousStandardRating(1) === "blunder"
+    )
+    &&
+    (getPreviousStandardRating(0) === "blunder" || getPreviousStandardRating(0) === "inaccuracy")
+
+
     if (
+        !previousMiss
+        &&
         isNotMateRelated
         &&
         (
@@ -329,7 +342,7 @@ function isForced(move: Move) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game4.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
