@@ -307,7 +307,7 @@ function isSacrifice(move: Move) {
     for (const row of board) {
         for (const square of row) {
             if (!square || square.type === PAWN) continue
-            if (square.color !== move.color) continue //
+            if (square.color !== move.color) continue
 
             const { attackers, defenders } = getAttackersDefenders(chess, move.color, square.square)
 
@@ -367,7 +367,6 @@ export async function parsePGN(pgn: string, depth: number) {
                 color,
             })
             previousBestMove = bestMove
-            // previousStaticEval = staticEval
             previousStaticEvals.push(staticEval)
         }
         const fen = move.after
@@ -403,8 +402,6 @@ export async function parsePGN(pgn: string, depth: number) {
         })
 
         previousBestMove = bestMove
-        // previousPreviousStaticEval = previousStaticEval
-        // previousStaticEval = staticEval
         previousStaticEvals.push(staticEval)
         moveNumber++
         previousSacrice = sacrifice
