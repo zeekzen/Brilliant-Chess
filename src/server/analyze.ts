@@ -377,7 +377,6 @@ export async function parsePGN(pgn: string, depth: number) {
 
         const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
-        
         if (chess.isCheckmate()) {
             var sacrifice = false
             var staticEval = ["mate"]
