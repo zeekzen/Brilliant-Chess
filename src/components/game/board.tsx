@@ -78,14 +78,10 @@ function isEven(num: number) {
     return (num % 2) === 0
 }
 
-function getRowNumber(num: number, boardProportions: number) {
-    return (boardProportions + 1) - (num + 1)
-}
-
-function getColumnLetter(num: number) {
-    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
-
-    return letters[num]
+function getSquareId(column: number, row: number) {
+    const columnId = String.fromCharCode(97 + column)
+    const rowId = 8 - row
+    return columnId + rowId
 }
 
 function adaptSquare(square: square): square {
@@ -108,6 +104,13 @@ function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boo
 function getCastleRookToSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean): square | undefined {
     if (!castle) return
     return { col: castle === 'k' ? 5 : 3, row: whiteMoving ? 7 : 0 }
+}
+
+function flipBoard(board: position) {
+    for (const row of board) {
+        row.reverse()
+    }
+    board.reverse()
 }
 
 function PreloadRatingImages() {
@@ -223,11 +226,12 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const rightSize = guideSize / 2.5
 
     const chess = new Chess(fen)
-    const position = chess.board()
+    const board = chess.board()
+    if (!white) flipBoard(board)
 
     const whiteMoving = !(chess.turn() === 'w')
 
-    const castleRookFrom = getCastleRookFromSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving, position)
+    const castleRookFrom = getCastleRookFromSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving, board)
     const castleRookTo = getCastleRookToSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving)
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
@@ -298,13 +302,17 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             {
                 (() => {
                     const squares: JSX.Element[] = []
-                    for (let row = white ? 0 : 7; white ? row < 8 : row >= 0; white ? row++ : row--) {
-                        for (let column = white ? 0 : 7; white ? column < 8 : column >= 0; white ? column++ : column--) {
-                            const squareId = [getColumnLetter(column), getRowNumber(row, 8)]
+                    // for (let row = white ? 0 : 7; white ? row < 8 : row >= 0; white ? row++ : row--) {
+                    //     for (let column = white ? 0 : 7; white ? column < 8 : column >= 0; white ? column++ : column--) {
+                    let rowNumber = white ? 0 : 7
+                    for (const row of board) {
+                        let columnNumber = white ? 0 : 7
+                        for (const square of row) {
+                            const squareId = getSquareId(columnNumber, rowNumber)
 
                             let bgColor, guideColor
-                            if (isEven(row)) {
-                                if (isEven(column)) {
+                            if (isEven(rowNumber)) {
+                                if (isEven(columnNumber)) {
                                     bgColor = BOARD_COLORS[0]
                                     guideColor = BOARD_COLORS[1]
                                 } else {
@@ -312,7 +320,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                     guideColor = BOARD_COLORS[0]
                                 }
                             } else {
-                                if (isEven(column)) {
+                                if (isEven(columnNumber)) {
                                     bgColor = BOARD_COLORS[1]
                                     guideColor = BOARD_COLORS[0]
                                 } else {
@@ -324,7 +332,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             let highlighted, highlightedIcon
                             move.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square)
-                                if (highlightedSquare.col === column && highlightedSquare.row === row) {
+                                if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     if (i === 1) {
                                         highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
@@ -334,33 +342,38 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             })
 
                             let squareNumGuide, squareLetterGuide
-                            if (row === (white ? 7 : 0)) {
+                            if (rowNumber === (white ? 7 : 0)) {
                                 squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
                             }
-                            if (column === (white ? 0 : 7)) {
+                            if (columnNumber === (white ? 0 : 7)) {
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
                             let rounded
-                            if (row === 0 && column === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
-                            if (row === 7 && column === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
-                            if (row === 0 && column === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
-                            if (row === 7 && column === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
+                            if (rowNumber === 0 && columnNumber === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
+                            if (rowNumber === 7 && columnNumber === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
+                            if (rowNumber === 0 && columnNumber === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
+                            if (rowNumber === 7 && columnNumber === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
 
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
                             const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare) : { col: NaN, row: NaN }
-                            const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
+                            const moved = adaptedToAnimateSquare.col === columnNumber && adaptedToAnimateSquare.row === rowNumber
 
-                            const isCastleRook = forward ? (castleRookTo?.col === column && castleRookTo?.row === row) : (castleRookFrom?.col === column && castleRookFrom?.row === row)
+                            const isCastleRook = forward ? (castleRookTo?.col === columnNumber && castleRookTo?.row === rowNumber) : (castleRookFrom?.col === columnNumber && castleRookFrom?.row === rowNumber)
 
-                            const pieceColor = position[row][column]?.color
-                            const pieceType = position[row][column]?.type
-                            const imageColor = PIECES_IMAGES[pieceColor as keyof object] ?? {}
-                            const pieceImages = imageColor[pieceType as keyof object]
-                            const piece = pieceImages ? <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div> : ''
+                            const pieceColor = square?.color
+                            const pieceType = square?.type
+                            let piece
+                            if (pieceColor && pieceType) {
+                                const imageColor = PIECES_IMAGES[pieceColor as keyof object]
+                                const pieceImages = imageColor[pieceType as keyof object]
+                                piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
+                            }
 
-                            squares.push(<div data-square={`${column}${row}`} key={`${column}${row}`} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            white ? columnNumber++ : columnNumber--
                         }
+                        white ? rowNumber++ : rowNumber--
                     }
                     return squares
                 })()
