@@ -67,7 +67,7 @@ export default function Game() {
             if (element.tagName === 'INPUT' && !focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
 
             const now = new Date().getTime()
-            const minPressInterval = 100
+            const minPressInterval = 50
 
             switch (e.key) {
                 case 'ArrowLeft':
