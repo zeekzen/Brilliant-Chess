@@ -88,8 +88,8 @@ function getColumnLetter(num: number) {
     return letters[num]
 }
 
-function adaptSquare(square: square, boardProportions: number): square {
-    return { col: square.col, row: (boardProportions - 1) - square.row }
+function adaptSquare(square: square): square {
+    return { col: square.col, row: 7 - square.row }
 }
 
 function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean, position: position): square | undefined {
@@ -205,19 +205,19 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardProportions: number, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
+export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardProportions, boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle } = props
+    const { boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
     const nextMove = props.nextMove ?? []
 
-    const squareSize = boardSize / boardProportions
+    const squareSize = boardSize / 8
     const guideSize = squareSize / 4
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
@@ -291,16 +291,16 @@ export default function Board(props: { boardProportions: number, boardSize: numb
     }, [move, animation])
 
     return (
-        <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(${boardProportions}, minmax(0, 1fr))` }}>
+        <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
             <MoveAnimation zIndex={40} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
             <MoveAnimation zIndex={30} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
-                    for (let row = white ? 0 : boardProportions - 1; white ? row < boardProportions : row >= 0; white ? row++ : row--) {
-                        for (let column = white ? 0 : boardProportions - 1; white ? column < boardProportions : column >= 0; white ? column++ : column--) {
-                            const squareId = [getColumnLetter(column), getRowNumber(row, boardProportions)]
+                    for (let row = white ? 0 : 7; white ? row < 8 : row >= 0; white ? row++ : row--) {
+                        for (let column = white ? 0 : 7; white ? column < 8 : column >= 0; white ? column++ : column--) {
+                            const squareId = [getColumnLetter(column), getRowNumber(row, 8)]
 
                             let bgColor, guideColor
                             if (isEven(row)) {
@@ -323,7 +323,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
 
                             let highlighted, highlightedIcon
                             move.forEach((square, i) => {
-                                const highlightedSquare = adaptSquare(square, boardProportions)
+                                const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === column && highlightedSquare.row === row) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     if (i === 1) {
@@ -334,21 +334,21 @@ export default function Board(props: { boardProportions: number, boardSize: numb
                             })
 
                             let squareNumGuide, squareLetterGuide
-                            if (row === (white ? boardProportions - 1 : 0)) {
+                            if (row === (white ? 7 : 0)) {
                                 squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
                             }
-                            if (column === (white ? 0 : boardProportions - 1)) {
+                            if (column === (white ? 0 : 7)) {
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
                             let rounded
                             if (row === 0 && column === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
-                            if (row === boardProportions - 1 && column === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
-                            if (row === 0 && column === boardProportions - 1) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
-                            if (row === boardProportions - 1 && column === boardProportions - 1) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
+                            if (row === 7 && column === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
+                            if (row === 0 && column === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
+                            if (row === 7 && column === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
 
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
-                            const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare, boardProportions) : { col: NaN, row: NaN }
+                            const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare) : { col: NaN, row: NaN }
                             const moved = adaptedToAnimateSquare.col === column && adaptedToAnimateSquare.row === row
 
                             const isCastleRook = forward ? (castleRookTo?.col === column && castleRookTo?.row === row) : (castleRookFrom?.col === column && castleRookFrom?.row === row)
@@ -373,7 +373,7 @@ export default function Board(props: { boardProportions: number, boardSize: numb
             {
                 (() => {
                     const adaptedBestMove = bestMove?.map(square => {
-                        return adaptSquare(square, boardProportions)
+                        return adaptSquare(square)
                     })
                     return adaptedBestMove ? <Arrow move={adaptedBestMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" white={white} /> : ''
                 })()
