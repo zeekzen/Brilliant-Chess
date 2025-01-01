@@ -249,15 +249,20 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
 
     // miss - gain advantage
-    const previousMiss = wasNotMateRelated
+    const previousMiss =
+    !(wasNotMateRelated && getPreviousStandardRating(0) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor)))
     &&
     (
-        (getPreviousStandardRating(1) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color) || givingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color)))
-        ||
-        getPreviousStandardRating(1) === "blunder"
+        wasNotMateRelated
+        &&
+        (
+            (getPreviousStandardRating(1) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color) || givingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color)))
+            ||
+            getPreviousStandardRating(1) === "blunder"
+        )
+        &&
+        (getPreviousStandardRating(0) === "blunder" || getPreviousStandardRating(0) === "inaccuracy")
     )
-    &&
-    (getPreviousStandardRating(0) === "blunder" || getPreviousStandardRating(0) === "inaccuracy")
 
 
     if (
