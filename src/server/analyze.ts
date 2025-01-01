@@ -329,7 +329,7 @@ function isForced(move: Move) {
 export async function parsePGN(pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
-    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game12.pgn'), 'utf-8')
+    const pgnFile = readFileSync(path.join(process.cwd(), 'test/pgn/game1.pgn'), 'utf-8')
 
     const chess = new Chess()
     chess.loadPgn(pgnFile)
@@ -378,15 +378,16 @@ export async function parsePGN(pgn: string, depth: number) {
 
         const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
-        const forced = isForced(move)
-
+        
         if (chess.isCheckmate()) {
             var sacrifice = false
             var staticEval = ["mate"]
             var bestMove: square[] = []
+            var forced = false
         } else {
             var sacrifice = isSacrifice(move)
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
+            var forced = isForced(move)
         }
         const moveRating = forced ? 'forced' : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
 
