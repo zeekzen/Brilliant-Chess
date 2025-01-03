@@ -9,11 +9,22 @@ import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN } from "@/server/analyze"
 import { FORMATS } from "../menu/form"
+import { PieceSymbol } from "chess.js"
 
 const GAP = 10
 
+const PIECES_VALUES = {
+    p: 1,
+    n: 3,
+    b: 3,
+    r: 5,
+    q: 9,
+}
+
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
+    const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
+    const [materialAdvantage, setMaterialAdvantage] = useState(0)
 
     const [players, setPlayers] = useContext(AnalyzeContext).players
     const [time, setTime] = useContext(AnalyzeContext).time
@@ -196,6 +207,27 @@ export default function Game() {
         return () => window.removeEventListener('resize', updateBoardSize)
     }, [])
 
+    useEffect(() => {
+        let newCaptured: typeof captured = { white: [], black: [] }
+        for (const i in game) {
+            if (Number(i) > moveNumber) break
+            const move = game[i]
+            if (move.capture) newCaptured[move.color === 'w' ? 'black' : 'white'].push(move.capture)
+        }
+        setCaptured(newCaptured)
+    }, [moveNumber])
+
+    useEffect(() => {
+        let newMaterialAdvantage = 0
+        for (const piece of captured.white) {
+            newMaterialAdvantage += PIECES_VALUES[piece as keyof typeof PIECES_VALUES]
+        }
+        for (const piece of captured.black) {
+            newMaterialAdvantage -= PIECES_VALUES[piece as keyof typeof PIECES_VALUES]
+        }
+        setMaterialAdvantage(newMaterialAdvantage)
+    }, [captured])
+
     function formatTime(seconds: number): string {
         const noTime = '--:--'
 
@@ -237,12 +269,12 @@ export default function Game() {
             <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
             <div ref={componentRef} className="h-full flex flex-col justify-between">
                 <div className="flex flex-row justify-between">
-                    <Name white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
+                    <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} (${players[white ? 1 : 0].elo})`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
                 <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} />
                 <div className="flex flex-row justify-between">
-                    <Name white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
+                    <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} (${players[white ? 0 : 1].elo})`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
             </div>

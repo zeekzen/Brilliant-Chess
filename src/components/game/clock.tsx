@@ -7,7 +7,7 @@ export default function Clock(props: { white: boolean, colorMoving: Color, child
     const moving = white ? colorMoving === 'w' : colorMoving === 'b'
 
     return (
-        <div className={`flex justify-end pr-3 text-2xl font-bold items-center h-10 w-36 rounded-borderRoundness ${moving ? "" : "opacity-50"} ${white ? "bg-backgroundWhiteClock" : "bg-backgroundBlackClock"} ${white ? "text-backgroundBlackClock" : "text-backgroundWhiteClock"}`}>
+        <div className={`flex justify-end pr-3 text-2xl font-bold items-center h-11 w-36 rounded-borderRoundness ${moving ? "" : "opacity-50"} ${white ? "bg-backgroundWhiteClock" : "bg-backgroundBlackClock"} ${white ? "text-backgroundBlackClock" : "text-backgroundWhiteClock"}`}>
             {time}
         </div>
     )
