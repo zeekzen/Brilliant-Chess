@@ -19,6 +19,7 @@ export const AnalyzeContext = createContext<{
     white: [boolean, Dispatch<SetStateAction<boolean>>],
     playing: [boolean, Dispatch<SetStateAction<boolean>>],
     time: [number, Dispatch<SetStateAction<number>>],
+    materialAdvantage: [number, Dispatch<SetStateAction<number>>]
 }>({
     data: [[0, ['', NaN]], () => { }],
     pageState: ['', () => { }],
@@ -30,6 +31,7 @@ export const AnalyzeContext = createContext<{
     white: [true, () => { }],
     playing: [false, () => { }],
     time: [0, () => { }],
+    materialAdvantage: [0, () => { }]
 })
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -45,9 +47,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [white, setWhite] = useState(true)
     const [playing, setPlaying] = useState(false)
     const [time, setTime] = useState(0)
+    const [materialAdvantage, setMaterialAdvantage] = useState(0)
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

@@ -13,18 +13,9 @@ import { PieceSymbol } from "chess.js"
 
 const GAP = 10
 
-const PIECES_VALUES = {
-    p: 1,
-    n: 3,
-    b: 3,
-    r: 5,
-    q: 9,
-}
-
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
-    const [materialAdvantage, setMaterialAdvantage] = useState(0)
 
     const [players, setPlayers] = useContext(AnalyzeContext).players
     const [time, setTime] = useContext(AnalyzeContext).time
@@ -36,6 +27,7 @@ export default function Game() {
     const [animation, setAnimation] = useContext(AnalyzeContext).animation
     const [white, setWhite] = useContext(AnalyzeContext).white
     const [playing, setPlaying] = useContext(AnalyzeContext).playing
+    const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -216,17 +208,6 @@ export default function Game() {
         }
         setCaptured(newCaptured)
     }, [moveNumber])
-
-    useEffect(() => {
-        let newMaterialAdvantage = 0
-        for (const piece of captured.white) {
-            newMaterialAdvantage += PIECES_VALUES[piece as keyof typeof PIECES_VALUES]
-        }
-        for (const piece of captured.black) {
-            newMaterialAdvantage -= PIECES_VALUES[piece as keyof typeof PIECES_VALUES]
-        }
-        setMaterialAdvantage(newMaterialAdvantage)
-    }, [captured])
 
     function formatTime(seconds: number): string {
         const noTime = '--:--'

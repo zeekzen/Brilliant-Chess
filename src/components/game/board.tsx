@@ -1,8 +1,9 @@
 import { moveRating, position, square } from "@/server/analyze";
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { Chess, PieceSymbol } from "chess.js";
+import { useContext, useEffect, useRef, useState } from "react";
+import { Chess, PieceSymbol, WHITE } from "chess.js";
 import { Howl } from "howler";
+import { AnalyzeContext } from "@/context/analyze";
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -37,6 +38,15 @@ const HIGHLIGHT_STYLE = {
     mistake: { color: "bg-highlightMistake", icon: "mistake.svg" },
     miss: { color: "bg-highlightMiss", icon: "miss.svg" },
     blunder: { color: "bg-highlightBlunder", icon: "blunder.svg" },
+}
+
+const PIECES_VALUES = {
+    p: 1,
+    n: 3,
+    b: 3,
+    r: 5,
+    q: 9,
+    k: 0,
 }
 
 const moveSelfSound = new Howl({
@@ -210,6 +220,8 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
 
 export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
     const [arrows, setArrows] = useState<square[][]>([])
+    
+    const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
@@ -294,6 +306,9 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
         }
     }, [move, animation])
 
+    let newMaterialAdvantage = 0
+    useEffect(() => setMaterialAdvantage(newMaterialAdvantage), [fen])
+
     return (
         <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
@@ -302,8 +317,6 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             {
                 (() => {
                     const squares: JSX.Element[] = []
-                    // for (let row = white ? 0 : 7; white ? row < 8 : row >= 0; white ? row++ : row--) {
-                    //     for (let column = white ? 0 : 7; white ? column < 8 : column >= 0; white ? column++ : column--) {
                     let rowNumber = white ? 0 : 7
                     for (const row of board) {
                         let columnNumber = white ? 0 : 7
@@ -371,6 +384,15 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             }
 
                             squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+
+                            if (square) {
+                                if (square?.color === WHITE) {
+                                    newMaterialAdvantage += PIECES_VALUES[square.type as keyof typeof PIECES_VALUES]
+                                } else {
+                                    newMaterialAdvantage -= PIECES_VALUES[square.type as keyof typeof PIECES_VALUES]
+                                }
+                            }
+
                             white ? columnNumber++ : columnNumber--
                         }
                         white ? rowNumber++ : rowNumber--
