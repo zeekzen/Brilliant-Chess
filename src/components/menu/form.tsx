@@ -22,9 +22,12 @@ export default function Form(props: { setData: (data: [number, [string, number]]
     const [value, setValue] = useState("")
 
     useEffect(() => {
+        const previousSelected = Number(localStorage.getItem('format')) ?? 0
+        const previousType = Number(localStorage.getItem('type')) ?? 1
+
         setSelecting(false)
-        select(0)
-        setType(1)
+        select(previousSelected)
+        setType(previousType)
         setValue("")
     }, [])
 
@@ -38,6 +41,8 @@ export default function Form(props: { setData: (data: [number, [string, number]]
                 const previousLichessorgUserName = localStorage.getItem('lichessorg') ?? ''
                 setValue(previousLichessorgUserName)
                 break
+            default:
+                setValue("")
         }
     }, [selected])
 
