@@ -3,7 +3,13 @@ import Profile from "../svg/profile";
 import { move, position } from "@/server/analyze";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";
-import { Chess } from "chess.js";
+import { Chess, Color } from "chess.js";
+
+export interface accuracyPhases {
+    opening: { w: number[], b: number[] },
+    middlegame: { w: number[], b: number[] },
+    endgame: { w: number[], b: number[] }
+}
 
 function isEndOpening(position: position) {
     let nonDeveloppedBlack = 0, nonDeveloppedWhite = 0
@@ -19,10 +25,10 @@ function isEndOpening(position: position) {
     const developpedBlack = 5 - nonDeveloppedBlack
     const developpedWhite = 5 - nonDeveloppedWhite
 
-    if (developpedBlack > 2 && developpedWhite > 1) return true
-    if (developpedWhite > 2 && developpedBlack > 1) return true
-    if (developpedBlack > 3) return true
-    if (developpedWhite > 3) return true
+    if (developpedBlack >= 3 && developpedWhite >= 2) return true
+    if (developpedWhite >= 3 && developpedBlack >= 2) return true
+    if (developpedBlack >= 4) return true
+    if (developpedWhite >= 4) return true
 }
 
 function isEndMiddlegame(position: position) {
@@ -36,8 +42,8 @@ function isEndMiddlegame(position: position) {
         }
     }
 
-    if (whitePieces < 3 && blackPieces < 3) return true
-    if (whitePieces < 2 || blackPieces < 2) return true
+    if (whitePieces <= 2 && blackPieces <= 2) return true
+    if (whitePieces <= 1 || blackPieces <= 1) return true
 }
 
 export function avg(arr: number[]) {
@@ -45,133 +51,73 @@ export function avg(arr: number[]) {
     return sum / arr.length
 }
 
-export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{ w: number, b: number }>>], setAccuracyPhases: Dispatch<SetStateAction<{ opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } }>> }) {
-    const { players, moves, setAccuracyPhases } = props
+function pushAccuracyPhase(arr: accuracyPhases, value: number, phase: 'opening'|'middlegame'|'endgame', color: Color) {
+    arr[phase][color].push(value)
+}
+
+function pushAccuracy(arr: { w: number[], b: number[] }, value: number, color: Color) {
+    arr[color].push(value)
+}
+
+export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{ w: number, b: number }>>], setAccuracyPhases: Dispatch<SetStateAction<accuracyPhases>> }) {
+    const { players, setAccuracyPhases, moves } = props
     const [accuracy, setAccuracy] = props.accuracy
 
     useEffect(() => {
         const accuracies: { w: number[], b: number[] } = { w: [], b: [] }
-        const accuraciesPhases: { opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } } = { opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } }
+        const accuraciesPhases: accuracyPhases = { opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } }
 
-        function pushAccuracies(white: boolean, value: number) {
-            if (white) {
-                accuracies.w.push(value)
-            } else {
-                accuracies.b.push(value)
+        let currentPhase: 'opening'|'middlegame'|'endgame' = 'opening'
+        for (const move of moves) {
+            const board = new Chess(move.fen).board()
+            const color = move.color === 'w' ? 'b' : 'w'
+            const rating = move.moveRating
+
+            let moveAccuracy: number = NaN
+            switch (rating) {
+                case 'brilliant': case 'great': case 'best': case 'book':
+                    moveAccuracy = 100
+                    break
+                case 'excellent':
+                    moveAccuracy = 90
+                    break
+                case 'good':
+                    moveAccuracy = 70
+                    break
+                case 'inaccuracy': case 'miss':
+                    moveAccuracy = 30
+                    break
+                case 'mistake':
+                    moveAccuracy = 20
+                    break
+                case 'blunder':
+                    moveAccuracy = 0
+                    break
             }
-        }
 
-        function pushAccuraciesPhase(white: boolean, value: number, phase: 'opening' | 'middlegame' | 'endgame') {
-            if (white) {
-                accuraciesPhases[phase].w.push(value)
-            } else {
-                accuraciesPhases[phase].b.push(value)
-            }
-        }
+            if (isNaN(moveAccuracy)) continue
 
-        let gamePhase: 'opening' | 'middlegame' | 'endgame' = 'opening'
-        function pushAccuraciesPhaseSwitch(white: boolean, moveAccuracy: number, position: position) {
-            switch (gamePhase) {
+            pushAccuracy(accuracies, moveAccuracy, color)
+
+            switch (currentPhase) {
                 case 'opening':
-                    if (isEndOpening(position)) gamePhase = 'middlegame'
-                    pushAccuraciesPhase(white, moveAccuracy, 'opening')
+                    pushAccuracyPhase(accuraciesPhases, moveAccuracy, 'opening', color)
+                    if (isEndOpening(board)) currentPhase = 'middlegame'
                     break
                 case 'middlegame':
-                    if (isEndMiddlegame(position)) gamePhase = 'endgame'
-                    pushAccuraciesPhase(white, moveAccuracy, 'middlegame')
+                    pushAccuracyPhase(accuraciesPhases, moveAccuracy, 'middlegame', color)
+                    if (isEndMiddlegame(board)) currentPhase = 'endgame'
                     break
                 case 'endgame':
-                    pushAccuraciesPhase(white, moveAccuracy, 'endgame')
+                    pushAccuracyPhase(accuraciesPhases, moveAccuracy, 'endgame', color)
                     break
             }
         }
+        const newAccuracy = { w: avg(accuracies.w), b: avg(accuracies.b) }
 
-        let prevWinPerc: number
-        let prevMateIn = NaN
-        moves.forEach((move, i) => {
-            const position = new Chess(move.fen).board()
-
-            const white = i % 2 === 1
-
-            if (move.staticEval[0] === 'mate') {
-                if (!move.staticEval[1]) {
-                    const value = 100
-
-                    pushAccuracies(white, value)
-                    pushAccuraciesPhaseSwitch(white, value, position)
-                } else {
-                    const mateIn = Number(move.staticEval[1])
-                    if (isNaN(prevMateIn)) {
-                        const value = mateIn > 0 ? 0 : 100
-
-                        pushAccuracies(white, value)
-                        pushAccuraciesPhaseSwitch(white, value, position)
-                    } else if (Math.abs(mateIn) < Math.abs(prevMateIn)) {
-                        const value = mateIn > 0 ? 0 : 100
-                        // you advanced your opponents checkmate
-                        // you did the right move to checkmate
-
-                        pushAccuracies(white, value)
-                        pushAccuraciesPhaseSwitch(white, value, position)
-                    } else if (Math.abs(mateIn) > Math.abs(prevMateIn)) {
-                        if (mateIn > 0) {
-                            // you retarded your opponents checkmate (probably a bug)
-                        } else {
-                            // you retarded your checkmate
-                            const value = 50
-                            pushAccuracies(white, value)
-                            pushAccuraciesPhaseSwitch(white, value, position)
-                        }
-                    } else if (Math.abs(mateIn) === Math.abs(prevMateIn)) {
-                        if (mateIn > 0) {
-                            // you did not advance your opponents checkmate
-                        } else {
-                            // you retarded your checkmate a little
-                            const value = 50
-                            pushAccuracies(white, value)
-                            pushAccuraciesPhaseSwitch(white, value, position)
-                        }
-                    }
-
-                    prevMateIn = mateIn
-                }
-
-                return
-            } else if (!isNaN(prevMateIn)) {
-                if (prevMateIn > 0) {
-                    pushAccuracies(white, 0)
-                } else {
-                    pushAccuracies(white, 100)
-                }
-
-                prevMateIn = NaN
-                return
-            }
-
-            const staticEval = -Number(move.staticEval[1])
-
-            const winPerc = 50 + 50 * (2 / (1 + Math.exp(-0.00368208 * staticEval)) - 1)
-
-            if (i === 0) {
-                prevWinPerc = 100 - winPerc
-
-                return
-            }
-
-            const moveAccuracy = winPerc >= prevWinPerc ? 100 : 103.1668 * Math.exp(-0.04354 * (prevWinPerc - winPerc)) - 3.1669
-
-            prevMateIn = NaN
-            prevWinPerc = 100 - winPerc
-            pushAccuracies(white, moveAccuracy)
-            pushAccuraciesPhaseSwitch(white, moveAccuracy, position)
-        })
-
-        const avgWhite = avg(accuracies.w)
-        const avgBlack = avg(accuracies.b)
-
-        setAccuracy({ w: avgWhite, b: avgBlack })
+        setAccuracy(newAccuracy)
         setAccuracyPhases(accuraciesPhases)
-    }, [])
+    }, [moves])
 
     return (
         <div className="w-[85%] flex flex-col items-end gap-3">

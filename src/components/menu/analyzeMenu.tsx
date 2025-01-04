@@ -4,11 +4,11 @@ import { AnalyzeContext } from "@/context/analyze";
 import RatingCount from "./ratingCount";
 import PlayersAccuracy from "./playersAccuracy";
 import GameRating from "./gameRating";
-
+import { accuracyPhases } from "./playersAccuracy";
 
 export default function AnalyzeMenu() {
     const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
-    const [accuracyPhases, setAccuracyPhases] = useState<{ opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } }>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
+    const [accuracyPhases, setAccuracyPhases] = useState<accuracyPhases>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
 
     const [game, setGame] = useContext(AnalyzeContext).game
     const [players, setPlayers] = useContext(AnalyzeContext).players
