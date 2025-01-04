@@ -35,7 +35,7 @@ function invertColor(color: Color): Color {
 
 function getPlayers(headers: Record<string, string>) {
     const NO_NAME = 'Unknown'
-    const NO_ELO = '?'
+    const NO_ELO = 'NOELO'
 
     const whiteName = headers.White ?? NO_NAME
     const blackName = headers.Black ?? NO_NAME
