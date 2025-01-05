@@ -55,13 +55,22 @@
   --normalArrow: #ffaa00;
   --bestArrow: #9fcf3f;
 
+  --scrollbarColor: #494949;
+
   --shadowBoxBoxHighlighted: 0 0 8px;
 
   --borderRoundness: .25rem;
   --borderExtraRoundness: .5rem;
+
+  --scrollbarSize: 8px;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
+}
+
+* {
+  scrollbar-width: var(--scrollbarSize);
+  scrollbar-color: var(--scrollbarColor) transparent;
 }
