@@ -2,7 +2,7 @@
 
 import { useContext, useEffect, useState } from "react"
 import { AnalyzeContext } from "@/context/analyze"
-import { FORMATS } from "./form"
+import { TYPES } from "./form"
 
 import Lens from "../svg/lens"
 import Form from "./form"
@@ -49,7 +49,7 @@ export default function Menu() {
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
                 {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} depth={TYPES[type][2]} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 

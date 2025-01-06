@@ -53,10 +53,10 @@ function getMonthName(month: number) {
     }
 }
 
-function Games(props: {url: string, username: string}) {
-    const { url, username } = props
+function Games(props: { url: string, username: string, depth: number }) {
+    const { url, username, depth } = props
 
-    const [gamesInfo, setGamesInfo] = useState<{pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number}[]>([])
+    const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number }[]>([])
 
     const [data, setData] = useContext(AnalyzeContext).data
 
@@ -118,7 +118,7 @@ function Games(props: {url: string, username: string}) {
                     const date = new Date(timestamp)
 
                     return (
-                        <tr onClick={() => console.log()} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                        <tr onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
                             <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
                                 <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
                                 <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
@@ -126,7 +126,7 @@ function Games(props: {url: string, username: string}) {
                             <td className="py-4 px-6">
                                 <div className="flex flex-row items-center gap-3">
                                     <div className="flex w-4 flex-col text-foregroundGrey font-bold text-lg"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
-                                    <div style={{mixBlendMode: 'screen'}} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
+                                    <div style={{ mixBlendMode: 'screen' }} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
                                 </div>
                             </td>
                             <td className="py-4 pr-8">
@@ -140,10 +140,10 @@ function Games(props: {url: string, username: string}) {
     )
 }
 
-export default function SelectChessComGame(props: {username: string, stopSelecting: () => void}) {
-    const { username, stopSelecting } = props
+export default function SelectChessComGame(props: { username: string, stopSelecting: () => void, depth: number }) {
+    const { username, stopSelecting, depth } = props
 
-    const [dates, setDates] = useState<{month: string, year: string, url: string}[]>([])
+    const [dates, setDates] = useState<{ month: string, year: string, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
     const [selected, setSelected] = useState<number>(NaN)
 
@@ -157,12 +157,12 @@ export default function SelectChessComGame(props: {username: string, stopSelecti
                 const res = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
                 if (!res.ok) throw new Error('Error fetching archives')
 
-                const json: {archives: string[]} = await res.json()
+                const json: { archives: string[] } = await res.json()
                 const archives = json.archives
 
                 const newDates = archives.toReversed().map(url => {
                     const [year, month] = url.split('/').slice(-2)
-                    return {year, month, url}
+                    return { year, month, url }
                 })
 
                 setDates(newDates)
@@ -181,11 +181,11 @@ export default function SelectChessComGame(props: {username: string, stopSelecti
                         <div key={i}>
                             <button onClick={() => toggleSelected(i)} onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(NaN)} type="button" className={`${hovered === i || selected === i ? 'text-foregroundHighlighted' : 'text-foregroundGrey'} hover:bg-backgroundBoxHover w-full tracking-wide transition-colors text-2xl px-8 py-4 flex flex-row justify-between items-center`}>
                                 <span><b>{date.year}</b> {getMonthName(Number(date.month))}</span>
-                                <div style={{opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})`}} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
+                                <div style={{ opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})` }} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
                             </button>
                             {selected === i ?
-                                <Games url={date.url} username={username} />
-                            : ''}
+                                <Games url={date.url} username={username} depth={depth} />
+                                : ''}
                         </div>
                     )
                 })}
