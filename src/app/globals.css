@@ -20,6 +20,7 @@
   --backgroundBox: #00000033;
   --backgroundBoxHover: #00000024;
   --backgroundBoxBox: #ffffff1a;
+  --backgroundBoxBoxDisabled: #00000024;
   --backgroundBoxBoxHover: #ffffff29;
   --backgroundBoxBoxHighlighted: #81b64c;
   --backgroundBoxBoxHighlightedHover: #8bc550;
@@ -54,6 +55,9 @@
 
   --normalArrow: #ffaa00;
   --bestArrow: #9fcf3f;
+
+  --winGreen: #81b64c;
+  --lossRed: #fa412d;
 
   --scrollbarColor: #494949;
 

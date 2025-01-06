@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { AnalyzeContext } from "@/context/analyze"
 import { FORMATS } from "./form"
 
@@ -10,22 +10,48 @@ import Loading from "./loading"
 import AnalyzeMenu from "./analyzeMenu"
 import GameButtons from "./gameButtons"
 import Play from "../svg/play"
+import Pawn from "../svg/pawn"
+import SelectChessComGame from "./selectChessCom"
 
 export default function Menu() {
-    const [data, setData] = useContext(AnalyzeContext).data
+    const [tab, setTab] = useState<'analyze'|'selectGame'>('analyze')
+    const [username, setUsername] = useState('')
+
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
+    const [data, setData] = useContext(AnalyzeContext).data
+
+    useEffect(() => {
+        if (pageState === 'default') setTab('analyze')
+        if (pageState === 'loading') setTab('analyze')
+    }, [pageState])
+
+    function stopSelecting() {
+        setTab('analyze')
+        setUsername('')
+    }
 
     const format = FORMATS[data[0]][0]
 
+    const tabClass = "flex flex-col items-center justify-between gap-1 py-2 text-sm flex-grow font-bold h-16"
+
+    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey"
+    const nonSelectedFillClass = "fill-foregroundGrey"
+
+    const selectedFill = "fill-foreground"
+
     return (
-        <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4">
-            <menu className="flex flex-row relative">
+        <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
+            <menu className="flex flex-row relative select-none">
                 <button style={{ display: pageState === 'analyze' ? '' : 'none' }} title="Exit" onClick={() => setData([0, ["", 0]])} className="absolute left-5 top-1/2 translate-y-[-50%]"><Play class="w-5 fill-foregroundGrey hover:fill-foregroundHighlighted transition-colors rotate-180" /></button>
-                <li className="flex flex-col items-center justify-center gap-1 py-3 text-sm w-full font-bold"><Lens class="fill-foreground" />Analize Game</li>
+                <button type="button" onClick={stopSelecting} className={`${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze Game</button>
+                <li className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' ? <Form setData={setData} /> : ''}
-                {pageState === 'loading' ? <Loading format={format} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} /> : ''}
+
+                {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
+
                 {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
             </div>
             {pageState === 'analyze' ? (

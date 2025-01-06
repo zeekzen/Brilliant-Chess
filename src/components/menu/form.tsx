@@ -15,7 +15,9 @@ export const TYPES = [
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
-export default function Form(props: { setData: (data: [number, [string, number]]) => void }) {
+export default function Form(props: { setData: (data: [number, [string, number]]) => void, selectGame: (username: string) => void }) {
+    const { setData, selectGame } = props
+
     const [isSelecting, setSelecting] = useState(false)
     const [selected, select] = useState(0)
     const [type, setType] = useState(1)
@@ -49,8 +51,6 @@ export default function Form(props: { setData: (data: [number, [string, number]]
     useEffect(() => localStorage.setItem('format', String(selected)), [selected])
     useEffect(() => localStorage.setItem('type', String(type)), [type])
 
-    const setData = props.setData
-
     const inputRef = useRef<HTMLInputElement>(null)
 
     function analyze(e: React.FormEvent) {
@@ -59,14 +59,15 @@ export default function Form(props: { setData: (data: [number, [string, number]]
         switch (FORMATS[selected][0]) {
             case "Chess.com":
                 localStorage.setItem("chesscom", value)
+                selectGame(value)
                 break
             case "Lichess.org":
                 localStorage.setItem("lichessorg", value)
                 break
+            case "PGN":
+                const depth = TYPES[type][2]
+                setData([selected, [value, depth]])
         }
-
-        const depth = TYPES[type][2]
-        setData([selected, [value, depth]])
     }
 
     function changeSelected(i: number) {

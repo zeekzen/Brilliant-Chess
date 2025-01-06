@@ -20,6 +20,7 @@ export default {
         backgroundBox: "var(--backgroundBox)",
         backgroundBoxHover: "var(--backgroundBoxHover)",
         backgroundBoxBox: "var(--backgroundBoxBox)",
+        backgroundBoxBoxDisabled: "var(--backgroundBoxBoxDisabled)",
         backgroundBoxBoxHover: "var(--backgroundBoxBoxHover)",
         backgroundBoxBoxHighlighted: "var(--backgroundBoxBoxHighlighted)",
         backgroundBoxBoxHighlightedHover: "var(--backgroundBoxBoxHighlightedHover)",
@@ -54,6 +55,9 @@ export default {
 
         normalArrow: "var(--normalArrow)",
         bestArrow: "var(--bestArrow)",
+
+        winGreen: "var(--winGreen)",
+        lossRed: "var(--lossRed)",
       },
       borderRadius: {
         borderRoundness: "var(--borderRoundness)",

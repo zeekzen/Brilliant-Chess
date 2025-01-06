@@ -1,0 +1,195 @@
+import { useContext, useEffect, useState } from "react"
+import Arrow from "../svg/arrow"
+import { AnalyzeContext } from "@/context/analyze"
+
+interface Game {
+    url: string
+    pgn: string
+    time_control: string
+    end_time: number
+    rated: boolean
+    accuracies: {
+        white: number
+        black: number
+    }
+    tcn: string
+    uuid: string
+    initial_setup: string
+    fen: string
+    time_class: string
+    rules: string
+    white: {
+        rating: number
+        result: string
+        "@id": string
+        username: string
+        uuid: string
+    }
+    black: {
+        rating: number
+        result: string
+        "@id": string
+        username: string
+        uuid: string
+    }
+    eco: string
+}
+
+function getMonthName(month: number) {
+    switch (month) {
+        case 1: return 'January'
+        case 2: return 'February'
+        case 3: return 'March'
+        case 4: return 'April'
+        case 5: return 'May'
+        case 6: return 'June'
+        case 7: return 'July'
+        case 8: return 'August'
+        case 9: return 'September'
+        case 10: return 'October'
+        case 11: return 'November'
+        case 12: return 'December'
+        default: return ''
+    }
+}
+
+function Games(props: {url: string, username: string}) {
+    const { url, username } = props
+
+    const [gamesInfo, setGamesInfo] = useState<{pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number}[]>([])
+
+    const [data, setData] = useContext(AnalyzeContext).data
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch(url)
+                if (!res.ok) throw new Error('Error fetching games')
+
+                const json: { games: Game[] } = await res.json()
+                const games = json.games
+
+                const newGamesInfo = games.toReversed().map(game => {
+                    const { pgn, black, white, end_time } = game
+
+                    const whiteName = white.username
+                    const blackName = black.username
+
+                    const whiteElo = white.rating
+                    const blackElo = black.rating
+
+                    const timestamp = end_time * 1000
+
+                    let result: 'white' | 'black' | 'draw'
+                    if (white.result === 'win') result = 'white'
+                    else if (black.result === 'win') result = 'black'
+                    else result = 'draw'
+
+                    return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp }
+                })
+
+                setGamesInfo(newGamesInfo)
+            } catch (e) {
+                console.error(e)
+            }
+        })()
+    }, [])
+
+    return (
+        <table className="w-full">
+            <thead>
+                <tr>
+                    <th className="py-2 text-left pl-8">Players</th>
+                    <th className="py-2 text-left px-6">Result</th>
+                    <th className="py-2 text-left pr-8">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {gamesInfo.map((gameInfo, i) => {
+                    const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp } = gameInfo
+
+                    const whiteWon = result === 'white'
+                    const blackWon = result === 'black'
+                    const draw = result === 'draw'
+
+                    const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
+                    const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
+
+                    const date = new Date(timestamp)
+
+                    return (
+                        <tr onClick={() => console.log()} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                            <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
+                                <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
+                                <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
+                            </td>
+                            <td className="py-4 px-6">
+                                <div className="flex flex-row items-center gap-3">
+                                    <div className="flex w-4 flex-col text-foregroundGrey font-bold text-lg"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
+                                    <div style={{mixBlendMode: 'screen'}} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
+                                </div>
+                            </td>
+                            <td className="py-4 pr-8">
+                                {getMonthName(date.getMonth() + 1).slice(0, 3)} <span className="font-bold text-xl">{date.getDate()}</span>, {date.getFullYear()}
+                            </td>
+                        </tr>
+                    )
+                })}
+            </tbody>
+        </table>
+    )
+}
+
+export default function SelectChessComGame(props: {username: string, stopSelecting: () => void}) {
+    const { username, stopSelecting } = props
+
+    const [dates, setDates] = useState<{month: string, year: string, url: string}[]>([])
+    const [hovered, setHovered] = useState<number>(NaN)
+    const [selected, setSelected] = useState<number>(NaN)
+
+    const toggleSelected = (number: number) => {
+        setSelected(prev => prev === number ? NaN : number)
+    }
+
+    useEffect(() => {
+        (async () => {
+            try {
+                const res = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
+                if (!res.ok) throw new Error('Error fetching archives')
+
+                const json: {archives: string[]} = await res.json()
+                const archives = json.archives
+
+                const newDates = archives.toReversed().map(url => {
+                    const [year, month] = url.split('/').slice(-2)
+                    return {year, month, url}
+                })
+
+                setDates(newDates)
+            } catch (e) {
+                console.error(e)
+            }
+        })()
+    }, [username])
+
+    return (
+        <div className="overflow-x-hidden overflow-y-auto">
+            <h1 className="text-3xl text-center p-4 sticky text-foreground"><b className="text-backgroundBoxBoxHighlightedHover">{username}</b>'s games</h1>
+            <div className="flex flex-col w-full">
+                {dates.map((date, i) => {
+                    return (
+                        <div key={i}>
+                            <button onClick={() => toggleSelected(i)} onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(NaN)} type="button" className={`${hovered === i || selected === i ? 'text-foregroundHighlighted' : 'text-foregroundGrey'} hover:bg-backgroundBoxHover w-full tracking-wide transition-colors text-2xl px-8 py-4 flex flex-row justify-between items-center`}>
+                                <span><b>{date.year}</b> {getMonthName(Number(date.month))}</span>
+                                <div style={{opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})`}} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
+                            </button>
+                            {selected === i ?
+                                <Games url={date.url} username={username} />
+                            : ''}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
