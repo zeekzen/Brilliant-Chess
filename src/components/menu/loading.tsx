@@ -10,7 +10,6 @@ export default function Loading(props: { format: string }) {
     const [transition, setTransition] = useState(300)
 
     const [data, setData] = useContext(AnalyzeContext).data
-    const [game, setGame] = useContext(AnalyzeContext).game
 
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)
