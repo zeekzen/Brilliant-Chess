@@ -19,6 +19,7 @@ export default function Menu() {
 
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [data, setData] = useContext(AnalyzeContext).data
+    const [type, setType] = useState(1)
 
     useEffect(() => {
         if (pageState === 'default') setTab('analyze')
@@ -30,7 +31,7 @@ export default function Menu() {
         setUsername('')
     }
 
-    const format = FORMATS[data[0]][0]
+    const { format } = data
 
     const tabClass = "flex flex-col items-center justify-between gap-1 py-2 text-sm flex-grow font-bold h-16"
 
@@ -42,12 +43,12 @@ export default function Menu() {
     return (
         <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
-                <button style={{ display: pageState === 'analyze' ? '' : 'none' }} title="Exit" onClick={() => setData([0, ["", 0]])} className="absolute left-5 top-1/2 translate-y-[-50%]"><Play class="w-5 fill-foregroundGrey hover:fill-foregroundHighlighted transition-colors rotate-180" /></button>
+                <button style={{ display: pageState === 'analyze' ? '' : 'none' }} title="Exit" onClick={() => setData({format: "fen", string: "", depth: 18})} className="absolute left-5 top-1/2 translate-y-[-50%]"><Play class="w-5 fill-foregroundGrey hover:fill-foregroundHighlighted transition-colors rotate-180" /></button>
                 <button type="button" onClick={stopSelecting} className={`${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze Game</button>
                 <li className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} /> : ''}
                 {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}

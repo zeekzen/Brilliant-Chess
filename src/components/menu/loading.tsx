@@ -42,7 +42,7 @@ export default function Loading(props: { format: string }) {
     }, [progress])
 
     useEffect(() => {
-        const type = TYPES.filter(type => type[2] === data[1][1])[0][0] ?? "Standard"
+        const type = TYPES.filter(type => type[2] === data.depth)[0][0] ?? "Standard"
 
         let intervalTime = 300
         switch (type) {

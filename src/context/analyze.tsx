@@ -8,8 +8,14 @@ export type players = {
     elo: string;
 }[]
 
+export interface Data {
+    format: "pgn" | "fen",
+    string: string,
+    depth: number,
+}
+
 export const AnalyzeContext = createContext<{
-    data: [[number, [string, number]], Dispatch<SetStateAction<[number, [string, number]]>>],
+    data: [Data, Dispatch<SetStateAction<Data>>],
     pageState: [string, Dispatch<SetStateAction<pageState>>],
     game: [move[], Dispatch<SetStateAction<move[]>>],
     players: [players, Dispatch<SetStateAction<players>>],
@@ -21,7 +27,7 @@ export const AnalyzeContext = createContext<{
     time: [number, Dispatch<SetStateAction<number>>],
     materialAdvantage: [number, Dispatch<SetStateAction<number>>]
 }>({
-    data: [[0, ['', NaN]], () => { }],
+    data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ['', () => { }],
     game: [[], () => { }],
     players: [[], () => { }],
@@ -37,7 +43,7 @@ export const AnalyzeContext = createContext<{
 type pageState = 'default' | 'loading' | 'analyze'
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
-    const [data, setData] = useState<[number, [string, number]]>([0, ['', NaN]])
+    const [data, setData] = useState<Data>({format: "fen", string: "", depth: 18})
     const [pageState, setPageState] = useState<pageState>('default')
     const [game, setGame] = useState<move[]>([])
     const [players, setPlayers] = useState<players>([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])

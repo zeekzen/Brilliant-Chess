@@ -148,21 +148,13 @@ export default function Game() {
     }
 
     useEffect(() => {
-        if (data[1][0]) {
-            const dataType = FORMATS[data[0]][0]
-            const [code, depth] = data[1]
-
-            switch (dataType) {
-                case "Chess.com":
-                    // listChessComGames()
+        const { format, depth, string } = data
+        if (string) {
+            switch (format) {
+                case "pgn":
+                    handlePGN(string, depth)
                     break
-                case "Lichess.org":
-                    // listLichessOrgGames()
-                    break
-                case "PGN":
-                    handlePGN(code, depth)
-                    break
-                case "FEN":
+                case "fen":
                     // parseFEN()
                     break
             }

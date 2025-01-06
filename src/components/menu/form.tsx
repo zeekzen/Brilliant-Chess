@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import Arrow from "../svg/arrow"
 import Image from "next/image"
+import { Data } from "@/context/analyze"
 
 export const FORMATS = [
     ["Chess.com", "/images/chesscom.svg", "platform"],
@@ -15,13 +16,13 @@ export const TYPES = [
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
-export default function Form(props: { setData: (data: [number, [string, number]]) => void, selectGame: (username: string) => void }) {
+export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string) => void, type: [number, (type: number) => void] }) {
     const { setData, selectGame } = props
 
     const [isSelecting, setSelecting] = useState(false)
     const [selected, select] = useState(0)
-    const [type, setType] = useState(1)
     const [value, setValue] = useState("")
+    const [type, setType] = props.type
 
     useEffect(() => {
         const previousSelected = Number(localStorage.getItem('format')) ?? 0
@@ -66,7 +67,7 @@ export default function Form(props: { setData: (data: [number, [string, number]]
                 break
             case "PGN":
                 const depth = TYPES[type][2]
-                setData([selected, [value, depth]])
+                setData({format: "pgn", depth, string: value})
         }
     }
 
