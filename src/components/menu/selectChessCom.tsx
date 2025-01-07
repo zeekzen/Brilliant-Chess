@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
+import Image from "next/image"
 
 interface Game {
     url: string
@@ -53,16 +54,87 @@ function getMonthName(month: number) {
     }
 }
 
+function Loading(props: {whatIsLoading: string}) {
+    const [ellipsis, setEllipsis] = useState('')
+
+    const ellipsisRef = useRef(ellipsis)
+
+    useEffect(() => {ellipsisRef.current = ellipsis}, [ellipsis])
+
+    useEffect(() => {
+        function animateEllipsis() {
+            const ellipsis = ellipsisRef.current
+
+            if (ellipsis.length >= 3) {
+                setEllipsis('')
+            } else {
+                setEllipsis(ellipsis + '.')
+            }
+        }
+
+        const ellipsisInterval = setInterval(animateEllipsis, 300)
+
+        return () => clearInterval(ellipsisInterval)
+    }, [])
+
+    return (
+                <div className="flex flex-col flex-grow">
+                    <div className="flex-grow flex flex-col justify-center items-center">
+                        <div className="w-[70%] bg-backgroundBox relative overflow-hidden rounded-borderExtraRoundness text-lg text-foregroundGrey flex flex-col gap-14 pb-4 pt-14 items-center">
+                            <div className="w-40 flex flex-col items-center gap-4">
+                                <Image className="animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] scale-x-[-1] fill-backgroundBoxBoxHighlighted" width={60} height={60} src='/images/files.svg' alt="files" />
+                                <span className="text-xl text-foreground font-bold">{props.whatIsLoading}</span>
+                                <span className="w-full ml-14">Fetching api{ellipsis}</span>
+                            </div>
+                            <button className="hover:text-foreground transition-colors" type="button">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+    )
+}
+
+function SimpleLoading(props: {whatIsLoading: string}) {
+    const [ellipsis, setEllipsis] = useState('')
+
+    const ellipsisRef = useRef(ellipsis)
+
+    useEffect(() => {ellipsisRef.current = ellipsis}, [ellipsis])
+
+    useEffect(() => {
+        function animateEllipsis() {
+            const ellipsis = ellipsisRef.current
+
+            if (ellipsis.length >= 3) {
+                setEllipsis('')
+            } else {
+                setEllipsis(ellipsis + '.')
+            }
+        }
+
+        const ellipsisInterval = setInterval(animateEllipsis, 300)
+
+        return () => clearInterval(ellipsisInterval)
+    }, [])
+
+    return (
+        <div className="font-extrabold text-2xl animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] w-48 my-4 m-auto">
+            Loading {props.whatIsLoading}{ellipsis}
+        </div>
+    )
+}
+
 function Games(props: { url: string, username: string, depth: number }) {
     const { url, username, depth } = props
 
     const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number }[]>([])
+    const [loading, setLoading] = useState(true)
 
     const [data, setData] = useContext(AnalyzeContext).data
 
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true)
                 const res = await fetch(url)
                 if (!res.ok) throw new Error('Error fetching games')
 
@@ -88,6 +160,7 @@ function Games(props: { url: string, username: string, depth: number }) {
                     return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp }
                 })
 
+                setLoading(false)
                 setGamesInfo(newGamesInfo)
             } catch (e) {
                 console.error(e)
@@ -96,47 +169,50 @@ function Games(props: { url: string, username: string, depth: number }) {
     }, [])
 
     return (
-        <table className="w-full">
-            <thead>
-                <tr>
-                    <th className="py-2 text-left pl-8">Players</th>
-                    <th className="py-2 text-left px-6">Result</th>
-                    <th className="py-2 text-left pr-8">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {gamesInfo.map((gameInfo, i) => {
-                    const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp } = gameInfo
+        <>
+            {loading ? <SimpleLoading whatIsLoading="games" /> : null}
+            <table className="w-full">
+                <thead style={{display: loading ? 'none' : ''}}>
+                    <tr>
+                        <th className="py-2 text-left pl-8">Players</th>
+                        <th className="py-2 text-left px-6">Result</th>
+                        <th className="py-2 text-left pr-8">Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {gamesInfo.map((gameInfo, i) => {
+                        const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp } = gameInfo
 
-                    const whiteWon = result === 'white'
-                    const blackWon = result === 'black'
-                    const draw = result === 'draw'
+                        const whiteWon = result === 'white'
+                        const blackWon = result === 'black'
+                        const draw = result === 'draw'
 
-                    const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
-                    const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
+                        const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
+                        const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
 
-                    const date = new Date(timestamp)
+                        const date = new Date(timestamp)
 
-                    return (
-                        <tr onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
-                            <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
-                                <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
-                                <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
-                            </td>
-                            <td className="py-4 px-6">
-                                <div className="flex flex-row items-center gap-3">
-                                    <div className="flex w-4 flex-col text-foregroundGrey font-bold text-lg"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
-                                    <div style={{ mixBlendMode: 'screen' }} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
-                                </div>
-                            </td>
-                            <td className="py-4 pr-8">
-                                {getMonthName(date.getMonth() + 1).slice(0, 3)} <span className="font-bold text-xl">{date.getDate()}</span>, {date.getFullYear()}
-                            </td>
-                        </tr>
-                    )
-                })}
-            </tbody>
-        </table>
+                        return (
+                            <tr onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                                <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
+                                    <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
+                                    <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
+                                </td>
+                                <td className="py-4 px-6">
+                                    <div className="flex flex-row items-center gap-3">
+                                        <div className="flex w-4 flex-col text-foregroundGrey font-bold text-lg"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
+                                        <div style={{ mixBlendMode: 'screen' }} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
+                                    </div>
+                                </td>
+                                <td className="py-4 pr-8">
+                                    {getMonthName(date.getMonth() + 1).slice(0, 3)} <span className="font-bold text-xl">{date.getDate()}</span>, {date.getFullYear()}
+                                </td>
+                            </tr>
+                        )
+                    })}
+                </tbody>
+            </table>
+        </>
     )
 }
 
@@ -146,6 +222,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
     const [dates, setDates] = useState<{ month: string, year: string, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
     const [selected, setSelected] = useState<number>(NaN)
+    const [loading, setLoading] = useState(true)
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)
@@ -154,6 +231,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
     useEffect(() => {
         (async () => {
             try {
+                setLoading(true)
                 const res = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
                 if (!res.ok) throw new Error('Error fetching archives')
 
@@ -165,6 +243,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
                     return { year, month, url }
                 })
 
+                setLoading(false)
                 setDates(newDates)
             } catch (e) {
                 console.error(e)
@@ -173,9 +252,10 @@ export default function SelectChessComGame(props: { username: string, stopSelect
     }, [username])
 
     return (
-        <div className="overflow-x-hidden overflow-y-auto">
-            <h1 className="text-3xl text-center p-4 sticky text-foreground"><b className="text-backgroundBoxBoxHighlightedHover">{username}</b>'s games</h1>
+        <div className={"overflow-x-hidden overflow-y-auto" + loading ? " flex flex-col justify-center flex-grow" : ''}>
+            <h1 style={{display: loading ? 'none' : ''}} className="text-3xl text-center p-4 sticky text-foreground"><b className="text-backgroundBoxBoxHighlightedHover">{username}</b>'s games</h1>
             <div className="flex flex-col w-full">
+                {loading ? <Loading whatIsLoading="Archives" /> : null}
                 {dates.map((date, i) => {
                     return (
                         <div key={i}>
