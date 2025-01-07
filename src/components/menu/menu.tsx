@@ -44,7 +44,7 @@ export default function Menu() {
         <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
                 <button style={{ display: pageState === 'analyze' ? '' : 'none' }} title="Exit" onClick={() => setData({format: "fen", string: "", depth: 18})} className="absolute left-5 top-1/2 translate-y-[-50%]"><Play class="w-5 fill-foregroundGrey hover:fill-foregroundHighlighted transition-colors rotate-180" /></button>
-                <button type="button" onClick={stopSelecting} className={`${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze Game</button>
+                <li onClick={stopSelecting} className={`cursor-pointer ${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze Game</li>
                 <li className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
