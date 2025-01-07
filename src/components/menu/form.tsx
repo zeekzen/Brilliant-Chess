@@ -16,13 +16,13 @@ export const TYPES = [
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
-export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string) => void, type: [number, (type: number) => void] }) {
+export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
     const { setData, selectGame } = props
 
     const [isSelecting, setSelecting] = useState(false)
-    const [selected, select] = useState(0)
     const [value, setValue] = useState("")
     const [type, setType] = props.type
+    const [selected, select] = props.selected
 
     useEffect(() => {
         const previousSelected = Number(localStorage.getItem('format')) ?? 0

@@ -17,9 +17,11 @@ export default function Menu() {
     const [tab, setTab] = useState<'analyze'|'selectGame'>('analyze')
     const [username, setUsername] = useState('')
 
+    const [type, setType] = useState(1)
+    const [selected, select] = useState(0)
+
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [data, setData] = useContext(AnalyzeContext).data
-    const [type, setType] = useState(1)
 
     useEffect(() => {
         if (pageState === 'default') setTab('analyze')
@@ -48,7 +50,7 @@ export default function Menu() {
                 <li className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} selected={[selected, select]} /> : ''}
                 {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} depth={TYPES[type][2]} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
