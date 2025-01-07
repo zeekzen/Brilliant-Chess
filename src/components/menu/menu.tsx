@@ -12,9 +12,10 @@ import GameButtons from "./gameButtons"
 import Play from "../svg/play"
 import Pawn from "../svg/pawn"
 import SelectChessComGame from "./selectChessCom"
+import Star from "../svg/star"
 
 export default function Menu() {
-    const [tab, setTab] = useState<'analyze'|'selectGame'>('analyze')
+    const [tab, setTab] = useState<'analyze'|'selectGame'|'summary'>('analyze')
     const [username, setUsername] = useState('')
 
     const [type, setType] = useState(1)
@@ -26,6 +27,7 @@ export default function Menu() {
     useEffect(() => {
         if (pageState === 'default') setTab('analyze')
         if (pageState === 'loading') setTab('analyze')
+        if (pageState === 'analyze') setTab('summary')
     }, [pageState])
 
     function stopSelecting() {
@@ -37,7 +39,7 @@ export default function Menu() {
 
     const tabClass = "flex flex-col items-center justify-between gap-1 py-2 text-sm flex-grow font-bold h-16"
 
-    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey hover:text-foregroundHighlighted group transition-colors"
+    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey hover:text-foregroundHighlighted group transition-colors cursor-pointer"
     const nonSelectedFillClass = "fill-foregroundGrey group-hover:fill-foregroundHighlighted transition-colors"
 
     const selectedFill = "fill-foreground"
@@ -45,9 +47,9 @@ export default function Menu() {
     return (
         <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
-                <button style={{ display: pageState === 'analyze' ? '' : 'none' }} title="Exit" onClick={() => setData({format: "fen", string: "", depth: 18})} className="absolute left-5 top-1/2 translate-y-[-50%]"><Play class="w-5 fill-foregroundGrey hover:fill-foregroundHighlighted transition-colors rotate-180" /></button>
-                <li onClick={stopSelecting} className={`cursor-pointer ${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze Game</li>
-                <li className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
+                <li onClick={pageState === 'analyze' ? () => setData({format: "fen", string: "", depth: 18}) : stopSelecting} className={`${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze {pageState === 'analyze' ? 'New' : ''} Game</li>
+                <li onClick={() => setTab('selectGame')} className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
+                <li onClick={() => setTab('summary')} className={`${tabClass} ${pageState !== 'analyze' ? 'hidden' : ''} pt-[10px] ${tab !== 'summary' ? nonSelectedTabClass : ''}`}><Star size={20} class={tab === 'summary' ? selectedFill : nonSelectedFillClass} />Summary</li>
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
                 {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} selected={[selected, select]} /> : ''}
