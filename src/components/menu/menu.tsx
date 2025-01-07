@@ -37,8 +37,8 @@ export default function Menu() {
 
     const tabClass = "flex flex-col items-center justify-between gap-1 py-2 text-sm flex-grow font-bold h-16"
 
-    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey"
-    const nonSelectedFillClass = "fill-foregroundGrey"
+    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey hover:text-foregroundHighlighted group transition-colors"
+    const nonSelectedFillClass = "fill-foregroundGrey group-hover:fill-foregroundHighlighted transition-colors"
 
     const selectedFill = "fill-foreground"
 
