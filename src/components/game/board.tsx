@@ -309,6 +309,20 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     let newMaterialAdvantage = 0
     useEffect(() => setMaterialAdvantage(newMaterialAdvantage), [fen])
 
+    function pushArrow(currentArrow: square[]) {
+        const repeatedIndex = arrows.findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
+        const isRepeated = repeatedIndex !== -1
+        
+        const newArrows = [...arrows]
+        if (isRepeated) {
+            newArrows.splice(repeatedIndex, 1)
+        } else {
+            newArrows.push(currentArrow)
+        }
+
+        setArrows(newArrows)
+    }
+
     const currentArrow: square[] = []
     function startArrow(x: number, y: number) {
         const square = { col: Math.floor(x / squareSize), row: Math.floor(y / squareSize) }
@@ -320,10 +334,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
         if (!currentArrow[0] || !currentArrow[1]) return
 
-        const newArrows = [...arrows]
-        newArrows.push(currentArrow)
-
-        setArrows(newArrows)
+        pushArrow(currentArrow)
     }
 
     function restartArrows() {
