@@ -338,11 +338,17 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const currentArrow: square[] = []
     function startArrow(x: number, y: number) {
-        const square = { col: Math.floor(x / squareSize), row: Math.floor(y / squareSize) }
+        const rowNumber = Math.floor(y / squareSize)
+        const colNumber = Math.floor(x / squareSize)
+
+        const square = { col: white ? colNumber : 7 - colNumber, row: white ? rowNumber : 7 - rowNumber }
         currentArrow[0] = square
     }
     function endArrow(x: number, y: number) {
-        const square = { col: Math.floor(x / squareSize), row: Math.floor(y / squareSize) }
+        const rowNumber = Math.floor(y / squareSize)
+        const colNumber = Math.floor(x / squareSize)
+
+        const square = { col: white ? colNumber : 7 - colNumber, row: white ? rowNumber : 7 - rowNumber }
         currentArrow[1] = square
 
         if (!currentArrow[0] || !currentArrow[1]) return
