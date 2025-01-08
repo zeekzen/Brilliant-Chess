@@ -383,7 +383,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     }
 
     return (
-        <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
+        <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)` }}>
             <PreloadRatingImages />
             <MoveAnimation zIndex={50} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
             <MoveAnimation zIndex={40} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
