@@ -38,11 +38,6 @@ export default function Menu() {
         }
     }, [username])
 
-    function stopSelecting() {
-        setTab('analyze')
-        setUsername('')
-    }
-
     const { format } = data
 
     interface Tab {
