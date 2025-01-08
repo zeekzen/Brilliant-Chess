@@ -55,6 +55,7 @@ export default {
 
         normalArrow: "var(--normalArrow)",
         bestArrow: "var(--bestArrow)",
+        badArrow: "var(--badArrow)",
 
         winGreen: "var(--winGreen)",
         lossRed: "var(--lossRed)",

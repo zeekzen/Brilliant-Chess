@@ -137,7 +137,20 @@ function PreloadRatingImages() {
 }
 
 function Arrow(props: { move: square[], squareSize: number, class: string, white: boolean }) {
+
     const { move, squareSize, white } = props
+
+    if (!move[1]) {
+        const elementPosition = {
+            x: (squareSize * move[0].col) + 'px',
+            y: (squareSize * move[0].row) + 'px',
+        }
+
+        const size = squareSize + 'px'
+
+        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-40 ${props.class}`} />
+    }
+
     const [from, to] = move
 
     const fromElementPosition = {
@@ -312,7 +325,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     function pushArrow(currentArrow: square[]) {
         const repeatedIndex = arrows.findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
         const isRepeated = repeatedIndex !== -1
-        
+
         const newArrows = [...arrows]
         if (isRepeated) {
             newArrows.splice(repeatedIndex, 1)
@@ -456,7 +469,9 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             }
             {
                 arrows.map((move, i) => {
-                    return <Arrow key={i} move={move} squareSize={squareSize} class="fill-normalArrow stroke-normalArrow" white={white} />
+                    const singleSquare = JSON.stringify(move[0]) === JSON.stringify(move[1])
+
+                    return <Arrow key={i} move={singleSquare ? [move[0]] : move} squareSize={squareSize} class={singleSquare ? "bg-badArrow" : "fill-normalArrow stroke-normalArrow"} white={white} />
                 })
             }
             {
