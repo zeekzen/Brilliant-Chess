@@ -9,13 +9,13 @@ import Form from "./form"
 import Loading from "./loading"
 import AnalyzeMenu from "./analyzeMenu"
 import GameButtons from "./gameButtons"
-import Play from "../svg/play"
 import Pawn from "../svg/pawn"
 import SelectChessComGame from "./selectChessCom"
 import Star from "../svg/star"
 
 export default function Menu() {
-    const [tab, setTab] = useState<'analyze'|'selectGame'|'summary'>('analyze')
+    const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary'>('analyze')
+
     const [username, setUsername] = useState('')
 
     const [type, setType] = useState(1)
@@ -30,6 +30,14 @@ export default function Menu() {
         if (pageState === 'analyze') setTab('summary')
     }, [pageState])
 
+    useEffect(() => {
+        if (username) {
+            setTab('selectGame')
+        } else {
+            setTab('analyze')
+        }
+    }, [username])
+
     function stopSelecting() {
         setTab('analyze')
         setUsername('')
@@ -37,23 +45,33 @@ export default function Menu() {
 
     const { format } = data
 
-    const tabClass = "flex flex-col items-center justify-between gap-1 py-2 text-sm flex-grow font-bold h-16"
+    interface Tab {
+        label: string,
+        state: typeof tab,
+        icon: (className: string) => React.ReactNode,
+        show: boolean,
+        onClick: () => void
+    }
 
-    const nonSelectedTabClass = "bg-backgroundBoxBoxDisabled text-foregroundGrey hover:text-foregroundHighlighted group transition-colors cursor-pointer"
-    const nonSelectedFillClass = "fill-foregroundGrey group-hover:fill-foregroundHighlighted transition-colors"
-
-    const selectedFill = "fill-foreground"
+    const tabs: Tab[] = [
+        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "", depth: 18 }); if (tab === 'selectGame') setUsername('') } },
+        { label: "Choose Game", state: "selectGame", icon: (className: string) => <Pawn class={className} size={20} />, show: tab === 'selectGame', onClick: () => { } },
+        { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
+    ]
 
     return (
         <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
-                <li onClick={pageState === 'analyze' ? () => setData({format: "fen", string: "", depth: 18}) : stopSelecting} className={`${tabClass} ${tab !== 'analyze' ? nonSelectedTabClass : ''}`}><Lens class={tab !== 'analyze' ? nonSelectedFillClass : selectedFill} />Analyze {pageState === 'analyze' ? 'New' : ''} Game</li>
-                <li onClick={() => setTab('selectGame')} className={`${tabClass} pt-3 ${tab !== 'selectGame' ? 'hidden' : ''}`}><Pawn class={selectedFill} />Choose Game</li>
-                <li onClick={() => setTab('summary')} className={`${tabClass} ${pageState !== 'analyze' ? 'hidden' : ''} pt-[10px] ${tab !== 'summary' ? nonSelectedTabClass : ''}`}><Star size={20} class={tab === 'summary' ? selectedFill : nonSelectedFillClass} />Summary</li>
+                {tabs.map((t, i) => {
+                    if (!t.show) return
+
+                    const isSelected = tab === t.state
+                    return <li key={i} onClick={() => { setTab(t.state); t.onClick() }} className={`w-full flex flex-col gap-1 group items-center py-2 text-sm ${isSelected ? 'text-foreground' : 'bg-backgroundBoxBoxDisabled text-foregroundGrey cursor-pointer transition-colors hover:text-foregroundHighlighted'}`}>{t.icon(isSelected ? "fill-foreground" : "fill-foregroundGrey transition-colors group-hover:fill-foregroundHighlighted")}{t.label}</li>
+                })}
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => {setTab('selectGame'); setUsername(username)}} type={[type, setType]} selected={[selected, select]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={stopSelecting} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => { setUsername(username) }} type={[type, setType]} selected={[selected, select]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={() => setUsername('')} depth={TYPES[type][2]} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 

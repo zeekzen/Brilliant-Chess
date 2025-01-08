@@ -1,6 +1,6 @@
-export default function Pawn(props: {class: string}) {
+export default function Pawn(props: {class: string, size: number}) {
     return (
-        <svg className={props.class} height="20px" width="20px" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 297 297">
+        <svg className={props.class} height={`${props.size}px`} width={`${props.size}px`} version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 297 297">
             <g>
                 <path d="M223.333,247h-5.926c2.607-3.811,10.798-18.024-0.727-32.248c-13.334-16.46-39.863-65.748-27.324-98.752h0.977
                 c4.418,0,7.667-3.582,7.667-8v-1c0-4.418-3.249-8-7.667-8h-1.225c10.917-10.466,17.725-25.184,17.725-41.5
