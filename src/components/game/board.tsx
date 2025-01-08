@@ -148,7 +148,7 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
 
         const size = squareSize + 'px'
 
-        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-40 ${props.class}`} />
+        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-[20] ${props.class}`} />
     }
 
     const [from, to] = move
@@ -183,7 +183,7 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
     const positionY = `${toElementPosition.y + (squareSize / 2) - (white ? 0 : height)}px`
 
     return (
-        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-80 z-40 ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-80 z-[60] ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <line x1={lineCenter} y1={height} x2={lineCenter} y2={`${arrowHeadHeight - 1}`} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
@@ -385,8 +385,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     return (
         <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
-            <MoveAnimation zIndex={40} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
-            <MoveAnimation zIndex={30} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
+            <MoveAnimation zIndex={50} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
+            <MoveAnimation zIndex={40} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -421,7 +421,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
                                     if (i === 1) {
-                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-10" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
+                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
                                     }
                                     return
                                 }
@@ -453,7 +453,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             if (pieceColor && pieceType) {
                                 const imageColor = PIECES_IMAGES[pieceColor as keyof object]
                                 const pieceImages = imageColor[pieceType as keyof object]
-                                piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-10 absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
+                                piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
                             squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
