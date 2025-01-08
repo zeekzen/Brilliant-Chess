@@ -326,6 +326,10 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
         setArrows(newArrows)
     }
 
+    function restartArrows() {
+        setArrows([])
+    }
+
     function handleMouseDown(e: React.MouseEvent) {
         if (e.button === 2) {
             e.preventDefault()
@@ -333,6 +337,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             const elementRect = element.getBoundingClientRect()
 
             startArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
+        } else {
+            restartArrows()
         }
     }
 
