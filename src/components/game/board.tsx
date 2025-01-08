@@ -178,7 +178,7 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
 }
 
 function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean, white: boolean, className: string, zIndex: number }) {
-    const { move, squareSize, forward, white , className, zIndex } = props
+    const { move, squareSize, forward, white, className, zIndex } = props
     if (move.length === 0) return
     const [from, to] = move
 
@@ -220,7 +220,7 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
 
 export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
     const [arrows, setArrows] = useState<square[][]>([])
-    
+
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
 
     const pieceRef = useRef<HTMLDivElement>(null)
@@ -309,8 +309,45 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     let newMaterialAdvantage = 0
     useEffect(() => setMaterialAdvantage(newMaterialAdvantage), [fen])
 
+    const currentArrow: square[] = []
+    function startArrow(x: number, y: number) {
+        const square = { col: Math.floor(x / squareSize), row: Math.floor(y / squareSize) }
+        currentArrow[0] = square
+    }
+    function endArrow(x: number, y: number) {
+        const square = { col: Math.floor(x / squareSize), row: Math.floor(y / squareSize) }
+        currentArrow[1] = square
+
+        if (!currentArrow[0] || !currentArrow[1]) return
+
+        const newArrows = [...arrows]
+        newArrows.push(currentArrow)
+
+        setArrows(newArrows)
+    }
+
+    function handleMouseDown(e: React.MouseEvent) {
+        if (e.button === 2) {
+            e.preventDefault()
+            const element = e.currentTarget
+            const elementRect = element.getBoundingClientRect()
+
+            startArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
+        }
+    }
+
+    function handleMouseUp(e: React.MouseEvent) {
+        if (e.button === 2) {
+            e.preventDefault()
+            const element = e.currentTarget
+            const elementRect = element.getBoundingClientRect()
+
+            endArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
+        }
+    }
+
     return (
-        <div className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
+        <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, minmax(0, 1fr))` }}>
             <PreloadRatingImages />
             <MoveAnimation zIndex={40} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
             <MoveAnimation zIndex={30} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
@@ -401,8 +438,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                 })()
             }
             {
-                arrows.map(move => {
-                    return <Arrow move={move} squareSize={squareSize} class="" white={white} />
+                arrows.map((move, i) => {
+                    return <Arrow key={i} move={move} squareSize={squareSize} class="fill-normalArrow stroke-normalArrow" white={white} />
                 })
             }
             {
