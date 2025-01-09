@@ -12,7 +12,6 @@ export default function Summary() {
 
     const [game, setGame] = useContext(AnalyzeContext).game
     const [players, setPlayers] = useContext(AnalyzeContext).players
-    const [time, setTime] = useContext(AnalyzeContext).time
 
     return (
         <div className="flex flex-col gap-3 items-center">
