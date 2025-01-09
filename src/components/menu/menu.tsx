@@ -2,19 +2,21 @@
 
 import { useContext, useEffect, useState } from "react"
 import { AnalyzeContext } from "@/context/analyze"
-import { TYPES } from "./form"
+import { TYPES } from "./analyze/form"
 
 import Lens from "../svg/lens"
-import Form from "./form"
-import Loading from "./loading"
-import AnalyzeMenu from "./analyzeMenu"
-import GameButtons from "./gameButtons"
+import Form from "./analyze/form"
+import Loading from "./loading/loading"
+import GameButtons from "./analysis/gameButtons"
 import Pawn from "../svg/pawn"
-import SelectChessComGame from "./selectChessCom"
+import SelectChessComGame from "./analyze/selectChessCom"
 import Star from "../svg/star"
+import BoardIcon from "../svg/board"
+import Summary from "./analysis/summary"
+import Moves from "./analysis/moves"
 
 export default function Menu() {
-    const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary'>('analyze')
+    const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
 
     const [username, setUsername] = useState('')
 
@@ -52,6 +54,7 @@ export default function Menu() {
         { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "", depth: 18 }); if (tab === 'selectGame') setUsername('') } },
         { label: "Choose Game", state: "selectGame", icon: (className: string) => <Pawn class={className} size={20} />, show: tab === 'selectGame', onClick: () => { } },
         { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
+        { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
     ]
 
     return (
@@ -70,7 +73,8 @@ export default function Menu() {
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
-                {pageState === 'analyze' ? <AnalyzeMenu /> : ''}
+                {pageState === 'analyze' && tab === 'summary' ? <Summary /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex flex-col gap-1 pb-1 items-center">

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import Arrow from "../svg/arrow"
+import Arrow from "../../svg/arrow"
 import Image from "next/image"
 import { Data } from "@/context/analyze"
 

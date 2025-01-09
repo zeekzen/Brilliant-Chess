@@ -6,7 +6,7 @@ import PlayersAccuracy from "./playersAccuracy";
 import GameRating from "./gameRating";
 import { accuracyPhases } from "./playersAccuracy";
 
-export default function AnalyzeMenu() {
+export default function Summary() {
     const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
     const [accuracyPhases, setAccuracyPhases] = useState<accuracyPhases>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
 

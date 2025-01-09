@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react"
-import Lens from "../svg/lens"
+import Lens from "../../svg/lens"
 import LoadingBar from "./loadingBar"
 import { AnalyzeContext } from "@/context/analyze"
-import { TYPES } from "./form"
+import { TYPES } from "../analyze/form"
 
 export default function Loading(props: { format: string }) {
     const [ellipsis, setEllipsis] = useState('')

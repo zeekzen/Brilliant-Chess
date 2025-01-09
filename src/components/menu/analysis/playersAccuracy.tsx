@@ -1,5 +1,5 @@
 import { players } from "@/context/analyze";
-import Profile from "../svg/profile";
+import Profile from "../../svg/profile";
 import { move, position } from "@/server/analyze";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";

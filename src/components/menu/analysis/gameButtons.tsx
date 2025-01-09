@@ -1,8 +1,8 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import NextMove from "../svg/nextMove";
-import Play from "../svg/play";
-import SkipGame from "../svg/skipGame";
-import Pause from "../svg/pause";
+import NextMove from "../../svg/nextMove";
+import Play from "../../svg/play";
+import SkipGame from "../../svg/skipGame";
+import Pause from "../../svg/pause";
 import { AnalyzeContext } from "@/context/analyze";
 
 export default function GameButtons() {
