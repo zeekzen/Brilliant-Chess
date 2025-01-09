@@ -245,7 +245,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const move = props.move ?? []
     const nextMove = props.nextMove ?? []
 
-    const squareSize = boardSize / 8
+    const squareSize = Math.round(boardSize / 8)
     const guideSize = squareSize / 4
     const leftSize = guideSize / 4.5
     const rightSize = guideSize / 2.5
@@ -456,7 +456,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
-                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize, width: squareSize, fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ minHeight: squareSize + 'px', minWidth: squareSize + 'px', maxHeight: squareSize + 'px', maxWidth: squareSize + 'px', height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {
