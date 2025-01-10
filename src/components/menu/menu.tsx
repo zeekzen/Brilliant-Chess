@@ -11,7 +11,7 @@ import GameButtons from "./analysis/gameButtons"
 import Pawn from "../svg/pawn"
 import SelectChessComGame from "./analyze/selectChessCom"
 import Star from "../svg/star"
-import BoardIcon from "../svg/board"
+import BoardIcon from "../svg/boardIcon"
 import Summary from "./analysis/summary"
 import Moves from "./analysis/moves"
 
