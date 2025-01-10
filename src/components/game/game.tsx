@@ -8,7 +8,6 @@ import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN } from "@/server/analyze"
-import { FORMATS } from "../menu/form"
 import { PieceSymbol } from "chess.js"
 
 const GAP = 10
