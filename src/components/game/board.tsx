@@ -231,7 +231,7 @@ function MoveAnimation(props: { move: square[], squareSize: number, forward: boo
     )
 }
 
-export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q' }) {
+export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
@@ -239,7 +239,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle } = props
+    const { boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -368,6 +368,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
             startArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
         } else {
+            setAnimation(false)
             restartArrows()
         }
     }
