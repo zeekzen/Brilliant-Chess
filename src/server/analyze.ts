@@ -27,6 +27,7 @@ export interface move {
     color: Color,
     capture?: PieceSymbol,
     castle?: 'k' | 'q',
+    san?: string,
 }
 
 function invertColor(color: Color): Color {
@@ -392,6 +393,7 @@ export async function parsePGN(pgn: string, depth: number) {
 
         const color = invertColor(move.color)
         const capture = move.captured
+        const san = move.san
 
         const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
@@ -416,6 +418,7 @@ export async function parsePGN(pgn: string, depth: number) {
             color,
             capture,
             castle,
+            san,
         })
 
         previousBestMove = bestMove

@@ -89,7 +89,7 @@ export default function Menu() {
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
                 {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} gameChart={gameChart} /> : ''}
-                {pageState === 'analyze' && tab === 'moves' ? <Moves /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves gameChart={gameChart} moves={game} /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex flex-col gap-1 pb-1 items-center">
