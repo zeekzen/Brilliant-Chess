@@ -17,10 +17,14 @@ const RATING_STYLE = {
     blunder: { color: "text-highlightBlunder", icon: "blunder.svg" },
 }
 
-function getRatingStyle(rating: moveRating | undefined): { src: string, textClass: string } | undefined {
+function getRatingStyle(rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined): { src: string, textClass: string } | undefined {
     if (!rating) return
 
     const path = '/images/rating/'
+
+    if (rating === 'book' && nextRating !== 'book') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
+
+    if (rating === 'best' && prevRating === 'inaccuracy') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
 
     if (rating === 'blunder' || rating === 'mistake' || rating === 'miss' || rating === 'great' || rating === 'brilliant') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
 
@@ -84,7 +88,10 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
                                     const rating = moves[adjustedMoveNumber].moveRating
 
-                                    const ratingStyle = getRatingStyle(rating)
+                                    const prevRating = moves[adjustedMoveNumber - 1]?.moveRating
+                                    const nextRating = moves[adjustedMoveNumber + 1]?.moveRating
+
+                                    const ratingStyle = getRatingStyle(rating, prevRating, nextRating)
 
                                     const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
