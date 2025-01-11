@@ -190,47 +190,6 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
     )
 }
 
-function MoveAnimation(props: { move: square[], squareSize: number, forward: boolean, white: boolean, className: string, zIndex: number }) {
-    const { move, squareSize, forward, white, className, zIndex } = props
-    if (move.length === 0) return
-    const [from, to] = move
-
-    const fromElementPosition = {
-        bottom: squareSize * from.row,
-        left: squareSize * from.col,
-    }
-
-    const toElementPosition = {
-        bottom: squareSize * to.row,
-        left: squareSize * to.col,
-    }
-
-    const distance = {
-        x: (toElementPosition.left - fromElementPosition.left) * (white ? 1 : -1),
-        y: (toElementPosition.bottom - fromElementPosition.bottom) * (white ? 1 : -1),
-    }
-
-    return (
-        <style>
-            {`
-                @keyframes ${className} {
-                    0% {
-                        transform: translate(${forward ? -distance.x : 0}px, ${forward ? distance.y : 0}px);
-                    }
-                    100% {
-                        transform: translate(${!forward ? distance.x : 0}px, ${!forward ? -distance.y : 0}px);
-                    }
-                }
-                .${className} {
-                    animation: ${className} 100ms linear ${forward ? 'forwards' : 'reverse'};
-                    will-change: transform;
-                    z-index: ${zIndex};
-                }
-            `}
-        </style>
-    )
-}
-
 export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
@@ -297,26 +256,9 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     }, [fen])
 
     useEffect(() => {
-        for (const piece of document.getElementsByClassName('moveAnimation')) {
-            piece.classList.remove('moveAnimation')
-        }
-        if (pieceRef.current) {
-            if (!animation) return
-            void pieceRef.current.offsetWidth
-            pieceRef.current.classList.add('moveAnimation')
-        }
-    }, [move, animation])
-
-    useEffect(() => {
-        for (const piece of document.getElementsByClassName('castleAnimation')) {
-            piece.classList.remove('castleAnimation')
-        }
-        if (!castle && !nextCastle) return
-        if (castleRookRef.current) {
-            if (!animation) return
-            void castleRookRef.current.offsetWidth
-            castleRookRef.current.classList.add('castleAnimation')
-        }
+        if (!animation) return
+        if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 50, forward, white, squareSize)
+        if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 40, forward, white, squareSize)
     }, [move, animation])
 
     let newMaterialAdvantage = 0
@@ -383,11 +325,49 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
         }
     }
 
+    function animateMove(element: HTMLElement, move: square[], zIndex: number, forward: boolean, white: boolean, squareSize: number) {
+        if (move.length === 0) return
+        const [from, to] = move
+    
+        const fromElementPosition = {
+            bottom: squareSize * from.row,
+            left: squareSize * from.col,
+        }
+    
+        const toElementPosition = {
+            bottom: squareSize * to.row,
+            left: squareSize * to.col,
+        }
+    
+        const distance = {
+            x: (toElementPosition.left - fromElementPosition.left) * (white ? 1 : -1),
+            y: (toElementPosition.bottom - fromElementPosition.bottom) * (white ? 1 : -1),
+        }
+
+        function resetElements() {
+            if (!element) return
+            element.style.zIndex = ''
+            element.style.willChange = ''
+        }
+
+        element.style.zIndex = String(zIndex)
+        element.style.willChange = 'transform'
+
+        const animation = element.animate(
+            [
+                { transform: `translate(${forward ? -distance.x : 0}px, ${forward ? distance.y : 0}px)` },
+                { transform: `translate(${!forward ? distance.x : 0}px, ${!forward ? -distance.y : 0}px)` },
+            ],
+            { duration: 100, easing: 'linear', direction: forward ? 'normal' : 'reverse' },
+        )
+
+        animation.finished.then(resetElements).catch(resetElements)
+        animation.oncancel = resetElements
+    }
+
     return (
         <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)` }}>
             <PreloadRatingImages />
-            <MoveAnimation zIndex={50} className="moveAnimation" move={forward ? move : nextMove} squareSize={squareSize} forward={forward} white={white} />
-            <MoveAnimation zIndex={40} className="castleAnimation" move={castleRookMove} squareSize={squareSize} forward={forward} white={white} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
