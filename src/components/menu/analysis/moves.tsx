@@ -1,7 +1,7 @@
 import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/server/analyze"
 import Image from "next/image"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 
 const RATING_STYLE = {
     forced: { color: "text-highlightBoard", icon: "forced.svg" },
@@ -40,6 +40,9 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
     const [animation, setAnimation] = useContext(AnalyzeContext).animation
     const [forward, setForward] = useContext(AnalyzeContext).forward
 
+    const moveListRef = useRef<HTMLUListElement>(null)
+    const currentMoveRef = useRef<HTMLButtonElement>(null)
+
     useEffect(() => {
         const realMoves = moves.slice(1)
 
@@ -52,6 +55,13 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
         setTurns(newTurns)
     }, [moves])
+
+    useEffect(() => {
+        currentMoveRef.current?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        })
+    }, [moveNumber])
 
     function handleMoveClick(number: number) {
         setMoveNumber(number)
@@ -71,7 +81,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
     return (
         <div className="flex flex-col gap-3 items-center">
-            <ul className="gap-y-1 overflow-y-auto overflow-x-hidden h-72 w-[85%] select-none flex flex-col">
+            <ul ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden h-72 w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {
                     const currentMoveNumber = (i * 2) + 1
 
@@ -96,7 +106,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
                                     const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
                                     return (
-                                        <button type="button" key={`${i}-${j}`} onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[180px] flex flex-row gap-1 items-center">
+                                        <button ref={isSelected ? currentMoveRef : null} type="button" key={`${i}-${j}`} onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[180px] flex flex-row gap-1 items-center">
                                             <div className="w-[22px]">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</div>
                                             <div className={`rounded-borderRoundness border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</div>
                                         </button>
