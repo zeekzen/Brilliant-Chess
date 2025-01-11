@@ -1,6 +1,6 @@
 "use client"
 
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { AnalyzeContext } from "@/context/analyze"
 import { TYPES } from "./analyze/form"
 
@@ -14,9 +14,12 @@ import Star from "../svg/star"
 import BoardIcon from "../svg/boardIcon"
 import Summary from "./analysis/summary"
 import Moves from "./analysis/moves"
+import GameChart from "./analysis/gameChart"
 
 export default function Menu() {
     const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
+
+    const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
 
     const [username, setUsername] = useState('')
 
@@ -25,6 +28,9 @@ export default function Menu() {
 
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [data, setData] = useContext(AnalyzeContext).data
+    const [game, setGame] = useContext(AnalyzeContext).game
+
+    const menuRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         if (pageState === 'default') setTab('analyze')
@@ -39,6 +45,13 @@ export default function Menu() {
             setTab('analyze')
         }
     }, [username])
+
+    useEffect(() => {
+        const container = menuRef.current
+        const width = (container?.clientWidth ?? 0) * 0.85
+
+        setGameChartSize({width, height: 96})
+    }, [])
 
     const { format } = data
 
@@ -57,8 +70,10 @@ export default function Menu() {
         { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
     ]
 
+    const gameChart = GameChart({ moves: game, size: gameChartSize })
+
     return (
-        <div className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
+        <div ref={menuRef} className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
                 {tabs.map((t, i) => {
                     if (!t.show) return
@@ -73,7 +88,7 @@ export default function Menu() {
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
-                {pageState === 'analyze' && tab === 'summary' ? <Summary /> : ''}
+                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} gameChart={gameChart} /> : ''}
                 {pageState === 'analyze' && tab === 'moves' ? <Moves /> : ''}
             </div>
             {pageState === 'analyze' ? (
