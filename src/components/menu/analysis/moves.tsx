@@ -1,7 +1,31 @@
 import { AnalyzeContext } from "@/context/analyze"
-import { move } from "@/server/analyze"
-import { BLACK, WHITE } from "chess.js"
+import { move, moveRating } from "@/server/analyze"
+import Image from "next/image"
 import { useContext, useEffect, useState } from "react"
+
+const RATING_STYLE = {
+    forced: { color: "text-highlightBoard", icon: "forced.svg" },
+    brilliant: { color: "text-highlightBrilliant", icon: "brilliant.svg" },
+    great: { color: "text-highlightGreat", icon: "great.svg" },
+    best: { color: "text-highlightBest", icon: "best.svg" },
+    excellent: { color: "text-highlightExcellent", icon: "excellent.svg" },
+    good: { color: "text-highlightGood", icon: "good.svg" },
+    book: { color: "text-highlightBook", icon: "book.svg" },
+    inaccuracy: { color: "text-highlightInaccuracy", icon: "inaccuracy.svg" },
+    mistake: { color: "text-highlightMistake", icon: "mistake.svg" },
+    miss: { color: "text-highlightMiss", icon: "miss.svg" },
+    blunder: { color: "text-highlightBlunder", icon: "blunder.svg" },
+}
+
+function getRatingStyle(rating: moveRating | undefined): { src: string, textClass: string } | undefined {
+    if (!rating) return
+
+    const path = '/images/rating/'
+
+    if (rating === 'blunder' || rating === 'mistake' || rating === 'miss' || rating === 'great' || rating === 'brilliant') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
+
+    return
+}
 
 export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) {
     const { gameChart, moves } = props
@@ -50,7 +74,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
                     return (
                         <li key={i} className="flex flex-row text-foregroundGrey items-center">
                             <span className="font-bold w-[33px]">{turn[0]}.</span>
-                            <div className="flex flex-row gap-24 text-lg font-extrabold">
+                            <div className="flex flex-row text-lg font-extrabold">
                                 {turn.slice(1).map((move, j) => {
                                     const isWhite = j === 0
                                     let adjustedMoveNumber = currentMoveNumber
@@ -58,7 +82,18 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
                                     const isSelected = moveNumber === adjustedMoveNumber
 
-                                    return <button type="button" key={`${i}-${j}`} onClick={() => handleMoveClick(adjustedMoveNumber)} className={`w-[50px] rounded-borderRoundness border-b-2 ${isSelected ? 'text-foregroundHighlighted bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'}`}>{move}</button>
+                                    const rating = moves[adjustedMoveNumber].moveRating
+
+                                    const ratingStyle = getRatingStyle(rating)
+
+                                    const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
+
+                                    return (
+                                        <button type="button" key={`${i}-${j}`} onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[180px] flex flex-row gap-1 items-center">
+                                            <div className="w-[22px]">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</div>
+                                            <div className={`rounded-borderRoundness border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</div>
+                                        </button>
+                                    )
                                 })}
                             </div>
                         </li>
