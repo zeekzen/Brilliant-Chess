@@ -19,6 +19,7 @@ import GameChart from "./analysis/gameChart"
 export default function Menu() {
     const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
 
+    const [gameChart, setGameChart] = useState<JSX.Element>(<></>)
     const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
 
     const [username, setUsername] = useState('')
@@ -50,8 +51,12 @@ export default function Menu() {
         const container = menuRef.current
         const width = (container?.clientWidth ?? 0) * 0.85
 
-        setGameChartSize({width, height: 96})
+        setGameChartSize({ width, height: 96 })
     }, [])
+
+    useEffect(() => {
+        setGameChart(GameChart({ moves: game, size: gameChartSize }))
+    }, [gameChartSize, game])
 
     const { format } = data
 
@@ -69,8 +74,6 @@ export default function Menu() {
         { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
         { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
     ]
-
-    const gameChart = GameChart({ moves: game, size: gameChartSize })
 
     return (
         <div ref={menuRef} className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
