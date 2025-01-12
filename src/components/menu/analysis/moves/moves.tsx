@@ -2,8 +2,10 @@ import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/server/analyze"
 import Image from "next/image"
 import { useContext, useEffect, useRef, useState } from "react"
+import Comments from "./comments"
+import { WHITE } from "chess.js"
 
-const RATING_STYLE = {
+export const RATING_STYLE = {
     forced: { color: "text-highlightBoard", icon: "forced.svg" },
     brilliant: { color: "text-highlightBrilliant", icon: "brilliant.svg" },
     great: { color: "text-highlightGreat", icon: "great.svg" },
@@ -88,10 +90,10 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
     return (
         <div className="flex flex-col gap-3 items-center">
+            <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} />
             <ul ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden h-72 w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {
                     const currentMoveNumber = (i * 2) + 1
-
                     return (
                         <li key={i} className="flex flex-row text-foregroundGrey items-center">
                             <span className="font-bold w-[33px]">{turn[0]}.</span>

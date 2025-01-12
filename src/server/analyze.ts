@@ -24,6 +24,7 @@ export interface move {
     staticEval: string[],
     bestMove: square[],
     moveRating?: moveRating,
+    comment?: string,
     color: Color,
     capture?: PieceSymbol,
     castle?: 'k' | 'q',
@@ -108,7 +109,7 @@ async function getBestMove(program: ChildProcessWithoutNullStreams, depth: numbe
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean): moveRating {
+function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean): { comment: string, moveRating: moveRating } {
     const reversePreviousStaticEvals = previousStaticEvals.toReversed()
 
     if (reversePreviousStaticEvals[0] === undefined) reversePreviousStaticEvals[0] = []
@@ -182,7 +183,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     const openings = JSON.parse(openingsFile)
 
     const openingName = openings[fen]
-    if (openingName) return 'book'
+    if (openingName) return { moveRating: 'book', comment: openingName }
 
     // standard
     function getPreviousStandardRating(number: number) {
@@ -196,13 +197,13 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // brilliant - sacrifice
     const previousBrilliant = wasNotMateRelated && previousSacrice && getPreviousStandardRating(0) === 'excellent'
-    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return 'brilliant'
+    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return { moveRating: 'brilliant', comment: '' }
 
     // brilliant - start mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'brilliant'
+    if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: '' }
 
     // brilliant - right move to mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return 'brilliant'
+    if (sacrifice && reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'brilliant', comment: '' }
 
     // great - gaining advantage
     if (
@@ -217,37 +218,37 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
             &&
             (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor))
         )
-    ) return 'great'
+    ) return { moveRating: 'great', comment: '' }
 
     // best
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
-    if (isBest) return 'best'
+    if (isBest) return { moveRating: 'best', comment: ''}
 
     // excellent - mate
-    if (staticEval[0] === 'mate' && !staticEval[1]) return 'excellent'
+    if (staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'excellent', comment: ''}
 
     // excellent - start mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return 'excellent'
+    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'excellent', comment: '' }
 
     // excellent - right move to mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return 'excellent'
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'excellent', comment: '' }
 
     // good - delay mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return 'good'
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'good', comment: '' }
 
     // good - advance mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return 'good'
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: '' }
 
     // mistake - lose advantage
-    if (isNotMateRelated && standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color) || givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color))) return 'mistake'
+    if (isNotMateRelated && standardRating === "inaccuracy" && (losingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color) || givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color))) return { moveRating: 'mistake', comment: '' }
 
     // mistake - mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return 'mistake'
+    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'mistake', comment: '' }
 
     // miss - mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return 'miss'
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: '' }
 
     // miss - gain advantage
     const previousMiss =
@@ -278,9 +279,9 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
         )
         &&
         (standardRating === "blunder" || standardRating === "inaccuracy")
-    ) return 'miss'
+    ) return { moveRating: 'miss', comment: '' }
 
-    return standardRating
+    return { moveRating: standardRating, comment: '' }
 }
 
 function checkDepth(depth: number) {
@@ -407,7 +408,7 @@ export async function parsePGN(pgn: string, depth: number) {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var forced = isForced(move)
         }
-        const moveRating = forced ? 'forced' : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: 'This was the only legal move.' } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
 
         moves.push({
             fen,
@@ -415,6 +416,7 @@ export async function parsePGN(pgn: string, depth: number) {
             staticEval,
             bestMove,
             moveRating,
+            comment,
             color,
             capture,
             castle,

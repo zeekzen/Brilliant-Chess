@@ -12,8 +12,8 @@ import Pawn from "../svg/pawn"
 import SelectChessComGame from "./analyze/selectChessCom"
 import Star from "../svg/star"
 import BoardIcon from "../svg/boardIcon"
-import Summary from "./analysis/summary"
-import Moves from "./analysis/moves"
+import Summary from "./analysis/summary/summary"
+import Moves from "./analysis/moves/moves"
 import GameChart from "./analysis/gameChart"
 
 export default function Menu() {
