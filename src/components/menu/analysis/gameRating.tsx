@@ -72,22 +72,22 @@ export default function GameRating(props: { accuracy: { w: number, b: number }, 
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Opening</span>
                 <div className="flex flex-row w-[262px] justify-between">
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.w)} titleText="Opening Accuracy" /></div>
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.b)} titleText="Opening Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.w)} titleText="Opening Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.opening.b)} titleText="Opening Accuracy" /></div>
                 </div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Middlegame</span>
                 <div className="flex flex-row w-[262px] justify-between">
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.w)} titleText="Middlegame Accuracy" /></div>
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.b)} titleText="Middlegame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.w)} titleText="Middlegame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.middlegame.b)} titleText="Middlegame Accuracy" /></div>
                 </div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Endgame</span>
                 <div className="flex flex-row w-[262px] justify-between">
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.w)} titleText="Endgame Accuracy" /></div>
-                    <div className="w-20 flex items-center justify-center"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.b)} titleText="Endgame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.w)} titleText="Endgame Accuracy" /></div>
+                    <div className="w-20 flex items-center justify-center select-none"><RatingIcon ratingPhase={getRatingPhase(accuracyPhases.endgame.b)} titleText="Endgame Accuracy" /></div>
                 </div>
             </div>
         </div>
