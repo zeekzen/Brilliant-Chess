@@ -52,7 +52,7 @@ function RatingIcon(props: { ratingPhase: {rating: moveRating|null, accuracy: st
     const { titleText, ratingPhase } = props
     const { rating, accuracy } = ratingPhase
 
-    if (!rating || !accuracy) return <span className="text-xl" title="Missing moves to evaluate this phase.">-</span>
+    if (!rating || !accuracy) return <span className="text-xl" title="Not enough moves to evaluate this phase.">-</span>
 
     return <Image alt={rating} title={titleText + ': ' + accuracy} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
 }
