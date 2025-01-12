@@ -61,6 +61,13 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
             behavior: 'smooth',
             block: 'start',
         })
+
+        if (moveNumber === 0) {
+            moveListRef.current?.scrollTo({
+                behavior: "smooth",
+                top: 0,
+            })
+        }
     }, [moveNumber])
 
     function handleMoveClick(number: number) {
