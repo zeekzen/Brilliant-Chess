@@ -41,7 +41,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
     const [forward, setForward] = useContext(AnalyzeContext).forward
 
     const moveListRef = useRef<HTMLUListElement>(null)
-    const currentMoveRef = useRef<HTMLButtonElement>(null)
+    const currentMoveRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const realMoves = moves.slice(1)
@@ -106,10 +106,10 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
                                     const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
                                     return (
-                                        <button ref={isSelected ? currentMoveRef : null} type="button" key={`${i}-${j}`} onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[180px] flex flex-row gap-1 items-center">
-                                            <div className="w-[22px]">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</div>
-                                            <div className={`rounded-borderRoundness border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</div>
-                                        </button>
+                                        <div ref={isSelected ? currentMoveRef : null} key={`${i}-${j}`} className="w-[180px] flex flex-row gap-1 items-center">
+                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px]">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</button>
+                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className={`rounded-borderRoundness border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
+                                        </div>
                                     )
                                 })}
                             </div>
