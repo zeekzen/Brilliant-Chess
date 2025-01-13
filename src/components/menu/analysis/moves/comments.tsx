@@ -34,8 +34,11 @@ function formatEval(evaluation: string[], white: boolean) {
     return (
         <div style={{backgroundColor: prevChar === '-' ? 'var(--evaluationBarBlack)' : 'var(--evaluationBarWhite)', color: prevChar === '-' ? 'var(--foreground)' : 'var(--foregroundBlack)', filter: prevChar === '-' ? '' : 'brightness(0.9)'}} className="rounded-borderRoundness px-2 py-1 font-extrabold w-[61px] text-center">
             {(() => {
-                if (evaluation[0] === 'mate') {
+                if (evaluation[0] === 'mate' && evaluation[1]) {
                     return prevChar + "M" + evaluation[1]
+                } else if (!evaluation[1]) {
+                    if (white) return '0-1'
+                    else return '1-0'
                 } else {
                     return prevChar + Math.abs(number).toFixed(2)
                 }
