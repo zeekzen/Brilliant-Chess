@@ -49,7 +49,7 @@ const COMMENTS = {
     ],
     excellent: [
         'This was not the absolute best move, but it is just as strong.',
-        'An excellent move that keeps the position highly favorable.',
+        'An excellent move that fits the demands of the position perfectly. It is not the best though.',
         'A top-tier choice, even if not the single best move.',
     ],
     good: [
