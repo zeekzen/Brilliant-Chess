@@ -31,8 +31,100 @@ export interface move {
     san?: string,
 }
 
+const COMMENTS = {
+    brilliant: [
+        'You found a brilliant way to sacrifice a piece.',
+        'This move showcases a deep understanding of the position.',
+        'A bold and exceptional sacrifice to gain a strategic edge.',
+    ],
+    great: [
+        "You capitalized on your opponent's mistake effectively.",
+        "This move takes full advantage of your opponent's error.",
+        "A strong response to punish your opponent's oversight.",
+    ],
+    best: [
+        'This has been the best move in this position.',
+        'This was the most optimal move you could play here.',
+        'The most precise and effective move for this scenario.',
+    ],
+    excellent: [
+        'This was not the absolute best move, but it is just as strong.',
+        'An excellent move that keeps the position highly favorable.',
+        'A top-tier choice, even if not the single best move.',
+    ],
+    good: [
+        'This is not among the best moves, but it is still acceptable.',
+        'An acceptable move, but there were better options.',
+        'This move works, but it misses stronger alternatives.',
+    ],
+    inaccuracy: [
+        'This move causes you to lose some advantage.',
+        'This move weakens your overall position.',
+        'An avoidable slip that leads to a worse situation.',
+    ],
+    blunder: [
+        'This move loses significant advantage.',
+        'This move significantly worsens your position.',
+        'This move severely harms your position.',
+    ],
+    mate: [
+        'Delivering checkmate is always a satisfying move.',
+        'Checkmating your opponent is the ultimate goal.',
+        'A decisive and final move to end the game.',
+    ],
+    mateIn: [
+        'This is the right move to force an eventual checkmate.',
+        'A precise move that guarantees a checkmate in the near future.',
+        'This move sets up an unstoppable sequence to deliver checkmate.',
+    ],
+    delayMate: [
+        'This move delays a checkmate, but your opponent is still being checkmated.',
+        "You slowed down the checkmate sequence, but it's still guaranteed.",
+        'A move that postpones the unavoidable checkmate you are delivering.',
+    ],
+    advanceMate: [
+        "This decision shortens the path to your opponent's victory.",
+        'You hastened the process of being checkmated with this move.',
+        'This move brings your opponent closer to delivering checkmate.',
+    ],
+    loseAdvantage: [
+        'This move causes you to lose the advantage you had.',
+        'A costly error that sacrifices your winning edge.',
+        'This move shifts the position from advantageous to equal or worse.',
+    ],
+    giveAdvantage: [
+        'This move turns an equal position into a losing one.',
+        'A mistake that hands the advantage to your opponent.',
+        'This move creates a clear advantage for your opponent.',
+    ],
+    gettingMated: [
+        'This move leads to an eventual forced checkmate by your opponent.',
+        'A fatal error that guarantees your opponent will checkmate you.',
+        'This move sets up an inevitable checkmate against you.',
+    ],
+    missMate: [
+        'You missed an opportunity to force a checkmate, allowing your opponent to escape.',
+        'A chance to secure a decisive checkmate was overlooked with this move.',
+        'This move lets your opponent avoid a checkmate you could have forced.',
+    ],
+    missAdvantage: [
+        'You missed an opportunity to gain an advantage.',
+        'A key chance to improve your position was lost.',
+        'This move overlooks a way to strengthen your position.',
+    ],
+    forced: [
+        'There were no alternatives; this was the only possible move.',
+        'You had no choice but to play this move.',
+        'The situation left you with just one legal option, and this was it.',
+    ]
+}
+
 function invertColor(color: Color): Color {
     return color === 'w' ? 'b' : 'w'
+}
+
+function getRandomNumber(number: number) {
+    return Math.floor(Math.random() * number)
 }
 
 function getPlayers(headers: Record<string, string>) {
@@ -122,6 +214,12 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     const previousColor = invertColor(color)
 
+    function getRandomCommentNumber() {
+        return getRandomNumber(3)
+    }
+
+    const commentNumber = getRandomCommentNumber()
+
     function getStandardRating(diff: number) {
         let rating: moveRating = 'excellent'
         if (diff >= 0.4) rating = 'good'
@@ -195,34 +293,15 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     const evaluationDiff = color === "w" ? getPreviousStaticEvalAmount(0) - staticEvalAmount : staticEvalAmount - getPreviousStaticEvalAmount(0)
     const standardRating = getStandardRating(evaluationDiff)
 
-    const COMMENTS = {
-        brilliant: 'You found a brilliant way to sacrifice a piece.',
-        great: "You capitalized on your opponent's mistake effectively.",
-        best: 'This has been the best move in this position.',
-        excellent: 'This was not the absolute best move, but it is just as strong.',
-        good: 'This is not among the best moves, but it is still acceptable.',
-        inaccuracy: 'This move causes you to lose some advantage.',
-        blunder: 'This move loses significant advantage.',
-        mate: 'Delivering checkmate is always a satisfying move.',
-        mateIn: 'This is the right move to force an eventual checkmate.',
-        delayMate: 'This move delays a checkmate, but your opponent is still being checkmated.',
-        advanceMate: 'This move advances a checkmate, but you are still being checkmated.',
-        loseAdvantage: 'This move causes you to lose the advantage you had.',
-        giveAdvantage: 'This move turns an equal position into a losing one.',
-        gettingMated: 'This move leads to an eventual forced checkmate by your opponent.',
-        missMate: 'You missed an opportunity to force a checkmate, allowing your opponent to escape.',
-        missAdvantage: 'You missed an opportunity to gain an advantage.',
-    };
-
     // brilliant - sacrifice
     const previousBrilliant = wasNotMateRelated && previousSacrice && getPreviousStandardRating(0) === 'excellent'
-    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return { moveRating: 'brilliant', comment: COMMENTS.brilliant }
+    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - start mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant }
+    if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - right move to mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant }
+    if (sacrifice && reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // great - gaining advantage
     if (
@@ -237,42 +316,42 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
             &&
             (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor))
         )
-    ) return { moveRating: 'great', comment: COMMENTS.great }
+    ) return { moveRating: 'great', comment: COMMENTS.great[commentNumber] }
 
     // best
     const isBest = movement.every((move, i) => {
         return JSON.stringify(move) === JSON.stringify(bestMove[i])
     })
-    if (isBest && staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'best', comment: COMMENTS.mate }
+    if (isBest && staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'best', comment: COMMENTS.mate[commentNumber] }
 
-    if (isBest) return { moveRating: 'best', comment: COMMENTS.best }
+    if (isBest) return { moveRating: 'best', comment: COMMENTS.best[commentNumber] }
 
     // excellent - mate
-    if (staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'excellent', comment: COMMENTS.mate }
+    if (staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'excellent', comment: COMMENTS.mate[commentNumber] }
 
     // excellent - start mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn }
+    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
 
     // excellent - right move to mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn }
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
 
     // good - delay mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'good', comment: COMMENTS.delayMate }
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'good', comment: COMMENTS.delayMate[commentNumber] }
 
     // good - advance mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: COMMENTS.advanceMate }
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: COMMENTS.advanceMate[commentNumber] }
 
     // mistake - lose advantage
-    if (isNotMateRelated && standardRating === "inaccuracy" && losingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.loseAdvantage }
+    if (isNotMateRelated && standardRating === "inaccuracy" && losingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.loseAdvantage[commentNumber] }
 
     // mistake - give advantage
-    if (isNotMateRelated && standardRating === "inaccuracy" && givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.giveAdvantage }
+    if (isNotMateRelated && standardRating === "inaccuracy" && givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.giveAdvantage[commentNumber] }
 
     // mistake - mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'mistake', comment: COMMENTS.gettingMated }
+    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
 
     // miss - mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate }
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate[commentNumber] }
 
     // miss - gain advantage
     const previousMiss =
@@ -302,10 +381,10 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
         )
         &&
         (standardRating === "blunder" || standardRating === "inaccuracy")
-    ) return { moveRating: 'miss', comment: COMMENTS.missAdvantage }
+    ) return { moveRating: 'miss', comment: COMMENTS.missAdvantage[commentNumber] }
 
 
-    return { moveRating: standardRating, comment: COMMENTS[standardRating] }
+    return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
 
 function checkDepth(depth: number) {
@@ -432,7 +511,7 @@ export async function parsePGN(pgn: string, depth: number) {
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var forced = isForced(move)
         }
-        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: 'This was the only legal move.' } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
 
         moves.push({
             fen,
