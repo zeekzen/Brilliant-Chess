@@ -47,14 +47,12 @@ function formatEval(evaluation: string[], white: boolean) {
     )
 }
 
-export default function Comments(props: { comment?: string, rating?: moveRating, moveSan?: string, evaluation: string[], white: boolean }) {
-    const { comment, rating, moveSan, evaluation, white } = props
+export default function Comments(props: { comment?: string, rating?: moveRating, moveSan?: string, evaluation: string[], white: boolean, overallGameComment: string }) {
+    const { comment, rating, moveSan, evaluation, white, overallGameComment } = props
 
     if (!comment || !rating || !moveSan) {
         return (
-            <div className="bg-white w-[85%] rounded-borderExtraRoundness p-4 font-bold text-lg text-foregroundBlack">
-                comment
-            </div>
+            <div className="bg-white w-[85%] rounded-borderExtraRoundness p-4 font-bold text-lg text-foregroundBlack" dangerouslySetInnerHTML={{ __html: overallGameComment }} />
         )
     }
 

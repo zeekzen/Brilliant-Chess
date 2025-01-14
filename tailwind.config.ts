@@ -15,6 +15,7 @@ export default {
         foregroundHighlighted: "var(--foregroundHighlighted)",
         foregroundGrey: "var(--foregroundGrey)",
         foregroundBlack: "var(--foregroundBlack)",
+        foregroundBlackDark: "var(--foregroundBlackDark)",
 
         placeholder: "var(--placeholder)",
 

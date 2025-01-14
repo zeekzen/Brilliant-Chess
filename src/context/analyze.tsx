@@ -1,6 +1,6 @@
 "use client"
 
-import { move } from '@/server/analyze'
+import { move, result } from '@/server/analyze'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
 export type players = {
@@ -25,7 +25,8 @@ export const AnalyzeContext = createContext<{
     white: [boolean, Dispatch<SetStateAction<boolean>>],
     playing: [boolean, Dispatch<SetStateAction<boolean>>],
     time: [number, Dispatch<SetStateAction<number>>],
-    materialAdvantage: [number, Dispatch<SetStateAction<number>>]
+    materialAdvantage: [number, Dispatch<SetStateAction<number>>],
+    result: [result, Dispatch<SetStateAction<result>>],
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ['', () => { }],
@@ -37,7 +38,8 @@ export const AnalyzeContext = createContext<{
     white: [true, () => { }],
     playing: [false, () => { }],
     time: [0, () => { }],
-    materialAdvantage: [0, () => { }]
+    materialAdvantage: [0, () => { }],
+    result: ['1/2-1/2', () => { }],
 })
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -54,9 +56,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [playing, setPlaying] = useState(false)
     const [time, setTime] = useState(0)
     const [materialAdvantage, setMaterialAdvantage] = useState(0)
+    const [result, setResult] = useState<result>('1/2-1/2')
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

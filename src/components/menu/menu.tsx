@@ -15,6 +15,7 @@ import BoardIcon from "../svg/boardIcon"
 import Summary from "./analysis/summary/summary"
 import Moves from "./analysis/moves/moves"
 import GameChart from "./analysis/gameChart"
+import getOverallGameComment from "./analysis/moves/overallGameComment"
 
 export default function Menu() {
     const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
@@ -27,9 +28,13 @@ export default function Menu() {
     const [type, setType] = useState(1)
     const [selected, select] = useState(0)
 
+    const [overallGameComment, setOverallGameComment] = useState("")
+
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [data, setData] = useContext(AnalyzeContext).data
     const [game, setGame] = useContext(AnalyzeContext).game
+    const [players, setPlayers] = useContext(AnalyzeContext).players
+    const [result, setResult] = useContext(AnalyzeContext).result
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -59,6 +64,11 @@ export default function Menu() {
     }, [gameChartSize, game])
 
     const { format } = data
+
+    useEffect(() => {
+        const playerNames = players.map(player => player.name) as [ string, string ]
+        setOverallGameComment(getOverallGameComment(playerNames, result))
+    }, [players, result])
 
     interface Tab {
         label: string,
@@ -92,7 +102,7 @@ export default function Menu() {
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
                 {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} gameChart={gameChart} /> : ''}
-                {pageState === 'analyze' && tab === 'moves' ? <Moves gameChart={gameChart} moves={game} /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves gameChart={gameChart} moves={game} overallGameComment={overallGameComment} /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex flex-col gap-1 pb-1 items-center">

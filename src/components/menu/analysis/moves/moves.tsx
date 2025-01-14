@@ -33,8 +33,8 @@ function getRatingStyle(rating: moveRating | undefined, prevRating: moveRating |
     return
 }
 
-export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) {
-    const { gameChart, moves } = props
+export default function Moves(props: { gameChart: JSX.Element, moves: move[], overallGameComment: string }) {
+    const { gameChart, moves, overallGameComment } = props
 
     const [turns, setTurns] = useState<[number, string, string][]>([])
 
@@ -90,7 +90,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[] }) 
 
     return (
         <div className="flex flex-col gap-3 items-center">
-            <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} />
+            <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
             <ul ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden h-72 w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {
                     const currentMoveNumber = (i * 2) + 1

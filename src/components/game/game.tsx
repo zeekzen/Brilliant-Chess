@@ -27,6 +27,7 @@ export default function Game() {
     const [white, setWhite] = useContext(AnalyzeContext).white
     const [playing, setPlaying] = useContext(AnalyzeContext).playing
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
+    const [result, setResult] = useContext(AnalyzeContext).result
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -142,6 +143,7 @@ export default function Game() {
         setTime(metadata.time)
         setPlayers(metadata.players)
         setGame(moves)
+        setResult(metadata.result)
 
         setTimeout(() => gameStartSound.play(), 100)
         setPageState('analyze')
@@ -165,6 +167,7 @@ export default function Game() {
             setWhite(true)
             setPlaying(false)
             setMoveNumber(0)
+            setResult('1/2-1/2')
 
             setPageState('default')
         }

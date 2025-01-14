@@ -2,8 +2,10 @@
 
 import { readFileSync } from "fs";
 import path from "path";
-import { Chess, Color, Move, PAWN, Piece, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
+import { Chess, Color, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
+
+export type result = '1-0' | '0-1' | '1/2-1/2'
 
 export type position = ({
     square: Square,
@@ -143,6 +145,13 @@ function getPlayers(headers: Record<string, string>) {
 function getTime(headers: Record<string, string>) {
     const seconds = headers.TimeControl ?? "0"
     return Number(seconds)
+}
+
+function getResult(chess: Chess): result {
+    const result = chess.pgn().split(' ').pop()
+    if (!(result === '1-0' || result === '0-1' || result === '1/2-1/2')) throw new Error('Invalid PGN: Game result must be "1-0", "0-1" or "1/2-1/2"')
+
+    return result as result
 }
 
 function formatSquare(square: string): square {
@@ -461,8 +470,9 @@ export async function parsePGN(pgn: string, depth: number) {
 
     const players = getPlayers(headers)
     const time = getTime(headers)
+    const result = getResult(chess)
 
-    const metadata = { players, time }
+    const metadata = { players, time, result }
 
     const moves: move[] = []
 

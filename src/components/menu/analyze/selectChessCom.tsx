@@ -36,6 +36,8 @@ interface Game {
     eco: string
 }
 
+export const PLAYER_URL = 'https://www.chess.com/member/'
+
 function getMonthName(month: number) {
     switch (month) {
         case 1: return 'January'
@@ -253,7 +255,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
 
     return (
         <div className={"overflow-x-hidden overflow-y-auto" + loading ? " flex flex-col justify-center flex-grow" : ''}>
-            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a href={`https://www.chess.com/member/${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>'s games</h1>
+            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a href={`${PLAYER_URL}${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>'s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
                 {loading ? <Loading whatIsLoading="Archives" /> : null}
