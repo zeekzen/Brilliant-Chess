@@ -318,6 +318,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     function handleMouseUp(e: React.MouseEvent) {
         if (e.button === 2) {
             e.preventDefault()
+            setAnimation(false)
             const element = e.currentTarget
             const elementRect = element.getBoundingClientRect()
 
