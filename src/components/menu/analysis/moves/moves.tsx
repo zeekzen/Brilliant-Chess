@@ -37,12 +37,16 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
     const { gameChart, moves, overallGameComment } = props
 
     const [turns, setTurns] = useState<[number, string, string][]>([])
+    const [movesHeight, setMovesHeight] = useState(0)
 
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [animation, setAnimation] = useContext(AnalyzeContext).animation
     const [forward, setForward] = useContext(AnalyzeContext).forward
 
+    const componentRef = useRef<HTMLDivElement>(null)
+    const commentsRef = useRef<HTMLDivElement>(null)
     const moveListRef = useRef<HTMLUListElement>(null)
+    const gameChartRef = useRef<HTMLDivElement>(null)
     const currentMoveRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -65,12 +69,35 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
         })
 
         if (moveNumber === 0) {
+            void moveListRef.current?.offsetHeight
+
             moveListRef.current?.scrollTo({
                 behavior: "smooth",
                 top: 0,
             })
         }
     }, [moveNumber])
+
+    useEffect(() => {
+        function resizeMoves() {
+            if (!componentRef.current || !commentsRef.current || !moveListRef.current || !gameChartRef.current) return
+
+            const totalHeight = componentRef.current.offsetHeight
+
+            const commentsHeight = commentsRef.current.offsetHeight
+            const gameChartHeight = gameChartRef.current.offsetHeight
+
+            const newMovesHeight = totalHeight - (commentsHeight + gameChartHeight)
+
+            setMovesHeight(newMovesHeight)
+        }
+
+        resizeMoves()
+
+        window.addEventListener('resize', resizeMoves)
+
+        return () => window.removeEventListener('resize', resizeMoves)
+    }, [])
 
     function handleMoveClick(number: number) {
         setMoveNumber(number)
@@ -89,9 +116,11 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
     }
 
     return (
-        <div className="flex flex-col gap-3 items-center">
-            <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
-            <ul ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden h-72 w-[85%] select-none flex flex-col">
+        <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">
+            <div ref={commentsRef} className="w-full flex flex-col items-center">
+                <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
+            </div>
+            <ul style={{height: movesHeight + 'px'}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {
                     const currentMoveNumber = (i * 2) + 1
                     return (
@@ -126,7 +155,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
                     )
                 })}
             </ul>
-            <div>
+            <div ref={gameChartRef}>
                 {gameChart}
             </div>
         </div>
