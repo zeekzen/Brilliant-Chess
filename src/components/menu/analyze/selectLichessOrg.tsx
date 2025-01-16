@@ -3,40 +3,7 @@ import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
 
-interface Game {
-    url: string
-    pgn: string
-    time_control: string
-    end_time: number
-    rated: boolean
-    accuracies: {
-        white: number
-        black: number
-    }
-    tcn: string
-    uuid: string
-    initial_setup: string
-    fen: string
-    time_class: string
-    rules: string
-    white: {
-        rating: number
-        result: string
-        "@id": string
-        username: string
-        uuid: string
-    }
-    black: {
-        rating: number
-        result: string
-        "@id": string
-        username: string
-        uuid: string
-    }
-    eco: string
-}
-
-export const PLAYER_URL = 'https://www.chess.com/member/'
+const PLAYER_URL = 'https://lichess.org/@/'
 
 function getMonthName(month: number) {
     switch (month) {
@@ -128,7 +95,7 @@ function SimpleLoading(props: {whatIsLoading: string}) {
 function Games(props: { url: string, username: string, depth: number }) {
     const { url, username, depth } = props
 
-    const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number }[]>([])
+    const [gamesInfo, setGamesInfo] = useState<{ whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, pgn: string }[]>([])
     const [loading, setLoading] = useState(true)
 
     const [data, setData] = useContext(AnalyzeContext).data
@@ -137,29 +104,33 @@ function Games(props: { url: string, username: string, depth: number }) {
         (async () => {
             try {
                 setLoading(true)
-                const res = await fetch(url)
+                const res = await fetch(url, { headers: { Accept: "application/x-ndjson" } })
                 if (!res.ok) throw new Error('Error fetching games')
 
-                const json: { games: Game[] } = await res.json()
-                const games = json.games
+                const text = await res.text()
+                
+                const jsonArr: { players: { black: { user: { name: string }, rating: number }, white: { user: { name: string }, rating: number } }, winner: "white"|"black", createdAt: number, pgn: string }[] = text.split("\n").map(text => {
+                    try {
+                        return JSON.parse(text)
+                    } catch {
+                        return null
+                    }
+                }).filter(obj => obj)
 
-                const newGamesInfo = games.toReversed().map(game => {
-                    const { pgn, black, white, end_time } = game
+                const newGamesInfo: typeof gamesInfo = jsonArr.map(json => {
+                    const whiteName = json.players.white.user.name
+                    const whiteElo = json.players.white.rating
 
-                    const whiteName = white.username
-                    const blackName = black.username
+                    const blackName = json.players.black.user.name
+                    const blackElo = json.players.black.rating
+                    
+                    const result = json.winner
 
-                    const whiteElo = white.rating
-                    const blackElo = black.rating
+                    const timestamp = json.createdAt
 
-                    const timestamp = end_time * 1000
+                    const pgn = json.pgn
 
-                    let result: 'white' | 'black' | 'draw'
-                    if (white.result === 'win') result = 'white'
-                    else if (black.result === 'win') result = 'black'
-                    else result = 'draw'
-
-                    return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp }
+                    return { whiteElo, whiteName, blackElo, blackName, result, timestamp, pgn }
                 })
 
                 setLoading(false)
@@ -189,19 +160,19 @@ function Games(props: { url: string, username: string, depth: number }) {
                 </thead>
                 <tbody>
                     {gamesInfo.map((gameInfo, i) => {
-                        const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp } = gameInfo
+                        const { whiteName, blackName, whiteElo, blackElo, result, timestamp, pgn } = gameInfo
 
                         const whiteWon = result === 'white'
                         const blackWon = result === 'black'
                         const draw = result === 'draw'
 
-                        const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
-                        const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
+                        const isWin = (whiteWon && whiteName.toUpperCase() === username.toUpperCase()) || (blackWon && blackName.toUpperCase() === username.toUpperCase())
+                        const isLoss = (whiteWon && whiteName.toUpperCase() !== username.toUpperCase()) || (blackWon && blackName !== username)
 
                         const date = new Date(timestamp)
 
                         return (
-                            <tr onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                            <tr onClick={() => setData({ format: 'pgn', string: pgn, depth })} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
                                 <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
@@ -224,10 +195,10 @@ function Games(props: { url: string, username: string, depth: number }) {
     )
 }
 
-export default function SelectChessComGame(props: { username: string, stopSelecting: () => void, depth: number }) {
+export default function SelectLichessOrgGame(props: { username: string, stopSelecting: () => void, depth: number }) {
     const { username, stopSelecting, depth } = props
 
-    const [dates, setDates] = useState<{ month: string, year: string, url: string }[]>([])
+    const [dates, setDates] = useState<{ month: number, year: number, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
@@ -240,19 +211,34 @@ export default function SelectChessComGame(props: { username: string, stopSelect
         (async () => {
             try {
                 setLoading(true)
-                const res = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
-                if (!res.ok) throw new Error('Error fetching archives')
+                const resFirstGame = await fetch(`https://lichess.org/api/games/user/${username}?sort=dateAsc&max=1`, { headers: { Accept: "application/x-ndjson" } })
+                if (!resFirstGame.ok) throw new Error('Error fetching archives')
+                
+                const jsonFirstGame: { createdAt: number } = await resFirstGame.json()
+                const dateFirstGame = new Date(jsonFirstGame.createdAt)
 
-                const json: { archives: string[] } = await res.json()
-                const archives = json.archives
+                const resLastGame = await fetch(`https://lichess.org/api/games/user/${username}?sort=dateDesc&max=1`, { headers: { Accept: "application/x-ndjson" } })
+                if (!resLastGame.ok) throw new Error('Error fetching archives')
+                
+                const jsonLastGame: { createdAt: number } = await resLastGame.json()
+                const dateLastGame = new Date(jsonLastGame.createdAt)
 
-                const newDates = archives.toReversed().map(url => {
-                    const [year, month] = url.split('/').slice(-2)
-                    return { year, month, url }
-                })
+                const currentDate = new Date(dateFirstGame)
+                const newDates: typeof dates = []
+                while (currentDate <= dateLastGame) {
+                    const sinceDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1, 0, 0, 0, 0)
+                    const untilDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1, 0, 0, 0, 0)
+                    untilDate.setMilliseconds(untilDate.getMilliseconds() - 1)
+
+                    const month = currentDate.getMonth()
+                    const year = currentDate.getFullYear()
+
+                    newDates.push({month: month + 1, year, url: `https://lichess.org/api/games/user/${username}?since=${sinceDate.getTime()}&until=${untilDate.getTime()}&pgnInJson=true`})
+                    currentDate.setMonth(currentDate.getMonth() + 1)
+                }
 
                 setLoading(false)
-                setDates(newDates)
+                setDates(newDates.toReversed())
             } catch (e) {
                 console.error(e)
             }
@@ -261,7 +247,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
 
     return (
         <div className={"overflow-x-hidden overflow-y-auto" + loading ? " flex flex-col justify-center flex-grow" : ''}>
-            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a href={`${PLAYER_URL}${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>'s games</h1>
+            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a href={`${PLAYER_URL}${username}`} className="hover:underline text-foregroundHighlighted text-3xl font-bold">{username}</a>'s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
                 {loading ? <Loading whatIsLoading="Archives" /> : null}
@@ -269,7 +255,7 @@ export default function SelectChessComGame(props: { username: string, stopSelect
                     return (
                         <div key={i}>
                             <button onClick={() => toggleSelected(i)} onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(NaN)} type="button" className={`${hovered === i || selected === i ? 'text-foregroundHighlighted' : 'text-foregroundGrey'} hover:bg-backgroundBoxHover w-full tracking-wide transition-colors text-2xl px-8 py-4 flex flex-row justify-between items-center`}>
-                                <span><b>{date.year}</b> {getMonthName(Number(date.month))}</span>
+                                <span><b>{date.year}</b> {getMonthName(date.month)}</span>
                                 <div style={{ opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})` }} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
                             </button>
                             {selected === i ?

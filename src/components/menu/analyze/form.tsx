@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import Image from "next/image"
 import { Data } from "@/context/analyze"
+import { platform } from "../menu"
 
 export const FORMATS = [
     ["Chess.com", "/images/chesscom.svg", "platform"],
@@ -16,7 +17,7 @@ export const TYPES = [
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
-export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
+export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
     const { setData, selectGame } = props
 
     const [isSelecting, setSelecting] = useState(false)
@@ -60,10 +61,11 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         switch (FORMATS[selected][0]) {
             case "Chess.com":
                 localStorage.setItem("chesscom", value)
-                selectGame(value)
+                selectGame(value, "chessCom")
                 break
             case "Lichess.org":
                 localStorage.setItem("lichessorg", value)
+                selectGame(value, "lichessOrg")
                 break
             case "PGN":
                 const depth = TYPES[type][2]

@@ -14,9 +14,11 @@ export interface Data {
     depth: number,
 }
 
+type pageState = 'default' | 'loading' | 'analyze'
+
 export const AnalyzeContext = createContext<{
     data: [Data, Dispatch<SetStateAction<Data>>],
-    pageState: [string, Dispatch<SetStateAction<pageState>>],
+    pageState: [pageState, Dispatch<SetStateAction<pageState>>],
     game: [move[], Dispatch<SetStateAction<move[]>>],
     players: [players, Dispatch<SetStateAction<players>>],
     moveNumber: [number, Dispatch<SetStateAction<number>>],
@@ -29,7 +31,7 @@ export const AnalyzeContext = createContext<{
     result: [result, Dispatch<SetStateAction<result>>],
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
-    pageState: ['', () => { }],
+    pageState: ["analyze", () => { }],
     game: [[], () => { }],
     players: [[], () => { }],
     moveNumber: [0, () => { }],
@@ -41,8 +43,6 @@ export const AnalyzeContext = createContext<{
     materialAdvantage: [0, () => { }],
     result: ['1/2-1/2', () => { }],
 })
-
-type pageState = 'default' | 'loading' | 'analyze'
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
     const [data, setData] = useState<Data>({format: "fen", string: "", depth: 18})

@@ -16,6 +16,9 @@ import Summary from "./analysis/summary/summary"
 import Moves from "./analysis/moves/moves"
 import GameChart from "./analysis/gameChart"
 import getOverallGameComment from "./analysis/moves/overallGameComment"
+import SelectLichessOrgGame from "./analyze/selectLichessOrg"
+
+export type platform = "chessCom" | "lichessOrg"
 
 export default function Menu() {
     const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
@@ -23,7 +26,7 @@ export default function Menu() {
     const [gameChart, setGameChart] = useState<JSX.Element>(<></>)
     const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
 
-    const [username, setUsername] = useState('')
+    const [username, setUsername] = useState<{platform: platform, username: string}>({platform: "chessCom", username: ""})
 
     const [type, setType] = useState(1)
     const [selected, select] = useState(0)
@@ -45,7 +48,8 @@ export default function Menu() {
     }, [pageState])
 
     useEffect(() => {
-        if (username) {
+        if (pageState !== "default") return
+        if (username.username) {
             setTab('selectGame')
         } else {
             setTab('analyze')
@@ -70,6 +74,10 @@ export default function Menu() {
         setOverallGameComment(getOverallGameComment(playerNames, result))
     }, [players, result])
 
+    function stopSelecting() {
+        setUsername({platform: 'chessCom', username: ''})
+    }
+
     interface Tab {
         label: string,
         state: typeof tab,
@@ -79,7 +87,7 @@ export default function Menu() {
     }
 
     const tabs: Tab[] = [
-        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "", depth: 18 }); if (tab === 'selectGame') setUsername('') } },
+        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "", depth: 18 }); if (tab === 'selectGame') stopSelecting() } },
         { label: "Choose Game", state: "selectGame", icon: (className: string) => <Pawn class={className} size={20} />, show: tab === 'selectGame', onClick: () => { } },
         { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
         { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
@@ -96,8 +104,9 @@ export default function Menu() {
                 })}
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string) => { setUsername(username) }} type={[type, setType]} selected={[selected, select]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' ? <SelectChessComGame username={username} stopSelecting={() => setUsername('')} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string, platform: platform) => { setUsername({platform, username}) }} type={[type, setType]} selected={[selected, select]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" ? <SelectChessComGame username={username.username} stopSelecting={stopSelecting} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" ? <SelectLichessOrgGame username={username.username} stopSelecting={stopSelecting} depth={TYPES[type][2]} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
