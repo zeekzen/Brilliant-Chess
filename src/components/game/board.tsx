@@ -146,9 +146,15 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
             y: (squareSize * move[0].row) + 'px',
         }
 
+        let rounded: string = ''
+        if (move[0].row === 0 && move[0].col === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
+        if (move[0].row === 7 && move[0].col === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
+        if (move[0].row === 0 && move[0].col === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
+        if (move[0].row === 7 && move[0].col === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
+
         const size = squareSize + 'px'
 
-        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-[20] ${props.class}`} />
+        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-[20] ${props.class} ${rounded}`} />
     }
 
     const [from, to] = move
@@ -397,18 +403,6 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 }
                             }
 
-                            let highlighted, highlightedIcon
-                            move.forEach((square, i) => {
-                                const highlightedSquare = adaptSquare(square)
-                                if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
-                                    highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor}`} />
-                                    if (i === 1) {
-                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
-                                    }
-                                    return
-                                }
-                            })
-
                             let squareNumGuide, squareLetterGuide
                             if (rowNumber === (white ? 7 : 0)) {
                                 squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
@@ -417,11 +411,23 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
                             }
 
-                            let rounded
+                            let rounded: string = ''
                             if (rowNumber === 0 && columnNumber === 0) rounded = white ? 'rounded-tl-borderRoundness' : 'rounded-br-borderRoundness'
                             if (rowNumber === 7 && columnNumber === 0) rounded = white ? 'rounded-bl-borderRoundness' : 'rounded-tr-borderRoundness'
                             if (rowNumber === 0 && columnNumber === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
                             if (rowNumber === 7 && columnNumber === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
+
+                            let highlighted, highlightedIcon
+                            move.forEach((square, i) => {
+                                const highlightedSquare = adaptSquare(square)
+                                if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
+                                    highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor} ${rounded}`} />
+                                    if (i === 1) {
+                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
+                                    }
+                                    return
+                                }
+                            })
 
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
                             const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare) : { col: NaN, row: NaN }
@@ -438,7 +444,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
-                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded ?? ''}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {
