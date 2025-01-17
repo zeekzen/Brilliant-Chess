@@ -1,5 +1,4 @@
 import { result } from "@/server/analyze"
-import { PLAYER_URL } from "../../analyze/selectChessCom"
 
 const COMMENTS = {
     win: [
@@ -28,12 +27,9 @@ export default function getOverallGameComment(playerNames: [string, string], res
     const [ white, black ] = playerNames
 
     const getComment = (commentList: string[], winner: string, loser: string) => {
-        const getTag = (player: string) => [`<a href="${PLAYER_URL}${player}" class="font-extrabold hover:underline" style="color: var(--foregroundBlackDark);">`, `</a>`]
+        const tab = [`<span class="font-extrabold" style="color: var(--foregroundBlackDark);">`, `</span>`]
 
-        const winnerTab = getTag(winner)
-        const loserTab = getTag(loser)
-
-        return commentList[Math.floor(Math.random() * commentList.length)].replace('__WINNER__', winnerTab[0] + winner + winnerTab[1]).replace('__LOSER__', loserTab[0] + loser + loserTab[1])
+        return commentList[Math.floor(Math.random() * commentList.length)].replace(/__WINNER__/g, tab[0] + winner + tab[1]).replace(/__LOSER__/g, tab[0] + loser + tab[1])
     }
 
     let comment: string
