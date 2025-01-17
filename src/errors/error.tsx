@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react"
 import { AnalyzeContext, PageErrorProps } from "@/context/analyze"
 
@@ -71,13 +70,13 @@ export default function PageErrors() {
     }
 
     return (
-        <div className="absolute w-fit flex m-5 gap-2" style={{top: y === "t" ? 0 : '', bottom: y === "b" ? 0 : '', right: x === "r" ? 0 : '', left: x === "l" ? 0 : '', flexDirection: y === "b" ? "column" : "column-reverse"}}>
+        <div className="absolute w-fit flex m-5 gap-2" style={{top: y === "t" ? 0 : '', bottom: y === "b" ? 0 : '', right: x === "r" ? 0 : '', left: x === "l" ? 0 : '', flexDirection: y === "b" ? "column" : "column-reverse", alignItems: x === 'r' ? 'flex-end' : 'flex-start'}}>
             {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} y={y} />)}
         </div>
     )
 }
 
-export function pushPageError(setErrors: Dispatch<SetStateAction<PageErrorProps[]>>, title: string, description?: string) {
+export async function pushPageError(setErrors: Dispatch<SetStateAction<PageErrorProps[]>>, title: string, description?: string) {
     errorKey++
     setErrors(prev => [...prev, {title, description, errorKey}])
 }
