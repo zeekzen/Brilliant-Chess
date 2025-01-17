@@ -1,0 +1,83 @@
+"use client"
+
+import Image from "next/image"
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react"
+import { AnalyzeContext, PageErrorProps } from "@/context/analyze"
+
+const TIME_IN_SCREEN = 3000
+
+export type Corner = "tl" | "tr" | "bl" | "br"
+
+const CORNER: Corner = "br"
+
+function PageError(props: { title: string, description?: string, errorKey: number, removeError: (errorKey: number) => void, newErrorKey: number }) {
+    const { title, description, errorKey, removeError, newErrorKey } = props
+
+    const [hided, setHided] = useState(true)
+
+    const errorRef = useRef<HTMLDivElement>(null)
+
+    function removeCurrentError() {
+        setHided(true)
+        setTimeout(() => removeError(errorKey), 150)
+    }
+
+    useEffect(() => {
+        setTimeout(() => {
+            removeCurrentError()
+        }, TIME_IN_SCREEN)
+            
+        setHided(false)
+    }, [])
+
+    useEffect(() => {
+        if (newErrorKey === errorKey) return
+
+        const newErrorElement = document.querySelector(`[data-errorkey="${newErrorKey}"]`) as HTMLDivElement
+
+        if (!newErrorElement || !errorRef.current) return
+
+
+        const newErrorHeight = newErrorElement.offsetHeight
+
+        errorRef.current.animate([
+            {transform: `translateY(${newErrorHeight}px)`},
+            {transform: 'translateY(0px)'},
+        ],{
+            duration: 50,
+        })
+    }, [newErrorKey])
+
+    return (
+        <div ref={errorRef} data-errorkey={errorKey} style={{opacity: hided ? 0 : 100}} className="bg-highlightBlunder p-3 text-xl select-text z-[999] text-foregroundHighlighted font-bold rounded-borderRoundness hover:scale-105 will-change-transform transition-all max-w-96">
+            { title }
+            <div style={{display: description ? '' : 'none'}} className="text-base opacity-85">
+                { description }
+            </div>
+        </div>
+    )
+}
+
+let errorKey = 0
+
+export default function PageErrors() {
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
+
+    const x = CORNER.substring(1, 2)
+    const y = CORNER.substring(0, 1)
+
+    const removeError = (errorKey: number) => {
+        setErrors(prev => prev.filter(error => error.errorKey !== errorKey))
+    }
+
+    return (
+        <div className="absolute w-fit flex m-5 gap-2" style={{top: y === "t" ? 0 : '', bottom: y === "b" ? 0 : '', right: x === "r" ? 0 : '', left: x === "l" ? 0 : '', flexDirection: y === "b" ? "column" : "column-reverse"}}>
+            {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} />)}
+        </div>
+    )
+}
+
+export function pushPageError(setErrors: Dispatch<SetStateAction<PageErrorProps[]>>, title: string, description?: string) {
+    errorKey++
+    setErrors(prev => [...prev, {title, description, errorKey}])
+}

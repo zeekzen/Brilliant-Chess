@@ -16,6 +16,12 @@ export interface Data {
 
 type pageState = 'default' | 'loading' | 'analyze'
 
+export interface PageErrorProps {
+    title: string
+    description?: string
+    errorKey: number
+}
+
 export const AnalyzeContext = createContext<{
     data: [Data, Dispatch<SetStateAction<Data>>],
     pageState: [pageState, Dispatch<SetStateAction<pageState>>],
@@ -29,6 +35,7 @@ export const AnalyzeContext = createContext<{
     time: [number, Dispatch<SetStateAction<number>>],
     materialAdvantage: [number, Dispatch<SetStateAction<number>>],
     result: [result, Dispatch<SetStateAction<result>>],
+    errors: [PageErrorProps[], Dispatch<SetStateAction<PageErrorProps[]>>],
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ["analyze", () => { }],
@@ -42,6 +49,7 @@ export const AnalyzeContext = createContext<{
     time: [0, () => { }],
     materialAdvantage: [0, () => { }],
     result: ['1/2-1/2', () => { }],
+    errors: [[], () => { }],
 })
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
@@ -57,9 +65,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [time, setTime] = useState(0)
     const [materialAdvantage, setMaterialAdvantage] = useState(0)
     const [result, setResult] = useState<result>('1/2-1/2')
+    const [errors, setErrors] = useState<PageErrorProps[]>([])
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], errors: [errors, setErrors] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )
