@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
+import { pushPageError } from "@/errors/error"
 
 const PLAYER_URL = 'https://lichess.org/@/'
 
@@ -195,13 +196,15 @@ function Games(props: { url: string, username: string, depth: number }) {
     )
 }
 
-export default function SelectLichessOrgGame(props: { username: string, depth: number }) {
-    const { username, depth } = props
+export default function SelectLichessOrgGame(props: { username: string, depth: number, stopSelecting: () => void }) {
+    const { username, depth, stopSelecting } = props
 
     const [dates, setDates] = useState<{ month: number, year: number, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
+
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)
@@ -240,7 +243,8 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                 setLoading(false)
                 setDates(newDates.toReversed())
             } catch (e) {
-                console.error(e)
+                pushPageError(setErrors, "Error fetching Lichess.org user.", "Check your spelling and your internet connection.")
+                stopSelecting()
             }
         })()
     }, [username])

@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
+import { pushPageError } from "@/errors/error"
 
 interface Game {
     url: string
@@ -224,13 +225,15 @@ function Games(props: { url: string, username: string, depth: number }) {
     )
 }
 
-export default function SelectChessComGame(props: { username: string, depth: number }) {
-    const { username, depth } = props
+export default function SelectChessComGame(props: { username: string, depth: number, stopSelecting: () => void }) {
+    const { username, depth, stopSelecting } = props
 
     const [dates, setDates] = useState<{ month: string, year: string, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
+
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)
@@ -254,7 +257,8 @@ export default function SelectChessComGame(props: { username: string, depth: num
                 setLoading(false)
                 setDates(newDates)
             } catch (e) {
-                console.error(e)
+                pushPageError(setErrors, "Error fetching Chess.com user.", "Check your spelling and your internet connection.")
+                stopSelecting()
             }
         })()
     }, [username])

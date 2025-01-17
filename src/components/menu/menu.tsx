@@ -105,8 +105,8 @@ export default function Menu() {
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
                 {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string, platform: platform) => { setUsername({platform, username}) }} type={[type, setType]} selected={[selected, select]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" ? <SelectChessComGame username={username.username} depth={TYPES[type][2]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" ? <SelectLichessOrgGame username={username.username} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" && username.username ? <SelectChessComGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" && username.username ? <SelectLichessOrgGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
