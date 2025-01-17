@@ -103,7 +103,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                     <div className={`absolute h-full right-6 top-0 flex flex-row items-center ${isSelecting ? "" : "rotate-180"}`}><Arrow class="fill-foregroundGrey" /></div>
                 </button>
                 <div className="flex flex-col gap-2" style={{ display: isSelecting ? "" : "none" }}>
-                    <h6 className="mt-2 font-bold flex flex-row gap-1"><Image alt="depth" src="/images/formats.svg" width={18} height={0} />Game Formats</h6>
+                    <h6 className="mt-2 font-bold flex flex-row gap-1"><Image alt="depth" src="/images/formats.svg" width={18} height={18} />Game Formats</h6>
                     <ul className="grid grid-cols-2 gap-3">
                         {FORMATS.map((format, i) => {
                             return (
