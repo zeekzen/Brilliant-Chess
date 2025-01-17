@@ -10,8 +10,8 @@ export type Corner = "tl" | "tr" | "bl" | "br"
 
 const CORNER: Corner = "br"
 
-function PageError(props: { title: string, description?: string, errorKey: number, removeError: (errorKey: number) => void, newErrorKey: number }) {
-    const { title, description, errorKey, removeError, newErrorKey } = props
+function PageError(props: { title: string, description?: string, errorKey: number, removeError: (errorKey: number) => void, newErrorKey: number, y: string }) {
+    const { title, description, errorKey, removeError, newErrorKey, y } = props
 
     const [hided, setHided] = useState(true)
 
@@ -41,7 +41,7 @@ function PageError(props: { title: string, description?: string, errorKey: numbe
         const newErrorHeight = newErrorElement.offsetHeight
 
         errorRef.current.animate([
-            {transform: `translateY(${newErrorHeight}px)`},
+            {transform: `translateY(${newErrorHeight * (y === 't' ? -1 : 1)}px)`},
             {transform: 'translateY(0px)'},
         ],{
             duration: 50,
@@ -72,7 +72,7 @@ export default function PageErrors() {
 
     return (
         <div className="absolute w-fit flex m-5 gap-2" style={{top: y === "t" ? 0 : '', bottom: y === "b" ? 0 : '', right: x === "r" ? 0 : '', left: x === "l" ? 0 : '', flexDirection: y === "b" ? "column" : "column-reverse"}}>
-            {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} />)}
+            {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} y={y} />)}
         </div>
     )
 }
