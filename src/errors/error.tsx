@@ -3,7 +3,7 @@
 import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react"
 import { AnalyzeContext, PageErrorProps } from "@/context/analyze"
 
-const TIME_IN_SCREEN = 3000
+const TIME_IN_SCREEN = 5000
 
 export type Corner = "tl" | "tr" | "bl" | "br"
 

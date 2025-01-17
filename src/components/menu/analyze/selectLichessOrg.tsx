@@ -93,13 +93,14 @@ function SimpleLoading(props: {whatIsLoading: string}) {
     )
 }
 
-function Games(props: { url: string, username: string, depth: number }) {
-    const { url, username, depth } = props
+function Games(props: { url: string, username: string, depth: number, unSelect: () => void }) {
+    const { url, username, depth, unSelect } = props
 
     const [gamesInfo, setGamesInfo] = useState<{ whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, pgn: string }[]>([])
     const [loading, setLoading] = useState(true)
 
     const [data, setData] = useContext(AnalyzeContext).data
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
 
     useEffect(() => {
         (async () => {
@@ -137,7 +138,8 @@ function Games(props: { url: string, username: string, depth: number }) {
                 setLoading(false)
                 setGamesInfo(newGamesInfo)
             } catch (e) {
-                console.error(e)
+                unSelect()
+                await pushPageError(setErrors, "Error fetching games.", "Slow down your requests and try again in a few seconds.")
             }
         })()
     }, [])
@@ -243,8 +245,8 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                 setLoading(false)
                 setDates(newDates.toReversed())
             } catch (e) {
-                pushPageError(setErrors, "Error fetching Lichess.org user.", "Check your spelling and your internet connection.")
                 stopSelecting()
+                await pushPageError(setErrors, "Error fetching Lichess.org user.", "Check your spelling and your internet connection.")
             }
         })()
     }, [username])
@@ -263,7 +265,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                                 <div style={{ opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})` }} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
                             </button>
                             {selected === i ?
-                                <Games url={date.url} username={username} depth={depth} />
+                                <Games url={date.url} username={username} depth={depth} unSelect={() => setSelected(NaN)} />
                                 : ''}
                         </div>
                     )

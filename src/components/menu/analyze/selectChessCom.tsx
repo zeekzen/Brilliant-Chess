@@ -126,11 +126,13 @@ function SimpleLoading(props: {whatIsLoading: string}) {
     )
 }
 
-function Games(props: { url: string, username: string, depth: number }) {
-    const { url, username, depth } = props
+function Games(props: { url: string, username: string, depth: number, unSelect: () => void }) {
+    const { url, username, depth, unSelect } = props
 
     const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number }[]>([])
     const [loading, setLoading] = useState(true)
+
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
 
     const [data, setData] = useContext(AnalyzeContext).data
 
@@ -166,7 +168,8 @@ function Games(props: { url: string, username: string, depth: number }) {
                 setLoading(false)
                 setGamesInfo(newGamesInfo)
             } catch (e) {
-                console.error(e)
+                unSelect()
+                await pushPageError(setErrors, "Error fetching games.")
             }
         })()
     }, [])
@@ -257,8 +260,8 @@ export default function SelectChessComGame(props: { username: string, depth: num
                 setLoading(false)
                 setDates(newDates)
             } catch (e) {
-                pushPageError(setErrors, "Error fetching Chess.com user.", "Check your spelling and your internet connection.")
                 stopSelecting()
+                await pushPageError(setErrors, "Error fetching Chess.com user.", "Check your spelling and your internet connection.")
             }
         })()
     }, [username])
@@ -277,7 +280,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
                                 <div style={{ opacity: hovered === i || selected === i ? '100' : '0', transform: `rotate(${selected !== i ? '180deg' : '0'})` }} className="transition-opacity"><Arrow class="fill-foregroundHighlighted" /></div>
                             </button>
                             {selected === i ?
-                                <Games url={date.url} username={username} depth={depth} />
+                                <Games url={date.url} username={username} depth={depth} unSelect={() => setSelected(NaN)} />
                                 : ''}
                         </div>
                     )
