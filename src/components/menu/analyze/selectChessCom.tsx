@@ -36,7 +36,7 @@ interface Game {
     eco: string
 }
 
-const PLAYER_URL = 'https://www.chess.com/member/'
+export const PLAYER_URL = 'https://www.chess.com/member/'
 
 function getMonthName(month: number) {
     switch (month) {
