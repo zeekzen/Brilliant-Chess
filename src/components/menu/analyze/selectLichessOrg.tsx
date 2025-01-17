@@ -195,8 +195,8 @@ function Games(props: { url: string, username: string, depth: number }) {
     )
 }
 
-export default function SelectLichessOrgGame(props: { username: string, stopSelecting: () => void, depth: number }) {
-    const { username, stopSelecting, depth } = props
+export default function SelectLichessOrgGame(props: { username: string, depth: number }) {
+    const { username, depth } = props
 
     const [dates, setDates] = useState<{ month: number, year: number, url: string }[]>([])
     const [hovered, setHovered] = useState<number>(NaN)
