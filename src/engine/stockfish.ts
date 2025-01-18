@@ -116,6 +116,38 @@ const COMMENTS = {
     ]
 }
 
+async function setHashValue(stockfish: Worker, hash: number) {
+    let lastHash = hash
+
+    setTimeout(() => {
+        stockfish.removeEventListener("error", reduceHash)
+    }, 2000)
+
+    function reduceHash() {
+        const hash = lastHash - 50
+
+        stockfish.postMessage(`setoption name Hash value ${hash}`)
+
+        lastHash = hash
+
+        if (lastHash - 50 < 0) {
+            stockfish.removeEventListener("error", reduceHash)
+        }
+    }
+
+    stockfish.addEventListener("error", reduceHash)
+
+    stockfish.postMessage(`setoption name Hash value ${hash}`)
+}
+
+export async function prepareStockfish(stockfish: Worker, threads: number, hash: number) {
+    await waitTillReady(stockfish)
+
+    stockfish.postMessage("uci")
+    stockfish.postMessage(`setoption name Threads value ${threads}`)
+    await setHashValue(stockfish, hash)
+}
+
 function invertColor(color: Color): Color {
     return color === 'w' ? 'b' : 'w'
 }

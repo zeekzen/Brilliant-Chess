@@ -7,9 +7,9 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN } from "@/engine/stockfish"
+import { parsePGN, prepareStockfish } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
-import { wasmThreadsSupported } from "@/engine/wasmChecks"
+import { getAproxMemory, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError } from "@/errors/error"
 
 const GAP = 10
@@ -44,11 +44,19 @@ export default function Game() {
     const engineWorkerRef = useRef<Worker | null>(null)
 
     useEffect(() => {
-        engineWorkerRef.current = new window.Worker('/engine/stockfish.js')
-    }, [])
+        if (!wasmThreadsSupported()) {
+            pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+            return
+        }
 
-    useEffect(() => {
-        if (!wasmThreadsSupported()) pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+        engineWorkerRef.current = new window.Worker('/engine/stockfish.js')
+
+        const stockfish = engineWorkerRef.current
+
+        const threads = navigator.hardwareConcurrency ?? 1
+        const hash = Math.floor(getAproxMemory() / 4)
+
+        prepareStockfish(stockfish, threads, hash)
     }, [])
 
     useEffect(() => {
@@ -146,14 +154,14 @@ export default function Game() {
     async function handlePGN(pgn: string, depth: number) {
         setPageState('loading')
 
-        const stockfish = engineWorkerRef.current
-        if (!stockfish) return
-
         if (!wasmThreadsSupported()) {
             pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
             setPageState('default')
             return
         }
+
+        const stockfish = engineWorkerRef.current
+        if (!stockfish) return
 
         const { metadata, moves } = await parsePGN(stockfish, pgn, depth) ?? {}
 

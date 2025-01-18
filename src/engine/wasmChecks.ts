@@ -36,3 +36,37 @@ export function wasmThreadsSupported() {
 
     return true;
 }
+
+export function getAproxMemory() {
+    const userAgent = navigator.userAgent;
+
+    if (/android/i.test(userAgent)) {
+        return 1 * 1024
+    }
+
+    if (/iphone|ipad|ipod/i.test(userAgent)) {
+        return 2 * 1024
+    }
+
+    if (/windows|mac|linux/i.test(userAgent)) {
+        return 4 * 1024
+    }
+
+    if (/cros/i.test(userAgent)) {
+        return 2 * 1024
+    }
+
+    if (/kaios/i.test(userAgent)) {
+        return 0.5 * 1024
+    }
+
+    if (/blackberry|bb10/i.test(userAgent)) {
+        return 0.5 * 1024
+    }
+
+    if (/tizen/i.test(userAgent)) {
+        return 1 * 1024
+    }
+
+    return 0.5 * 1024
+}
