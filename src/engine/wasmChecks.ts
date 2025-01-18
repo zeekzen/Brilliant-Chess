@@ -22,7 +22,7 @@ export function wasmThreadsSupported() {
     try {
         window.postMessage(mem, "*");
     } catch (e) {
-        console.log(`Browser Error ${e}`);
+        // console.log(`Browser Error ${e}`);
         return false;
     }
 
@@ -30,7 +30,7 @@ export function wasmThreadsSupported() {
     try {
         mem.grow(8);
     } catch (e) {
-        console.log(`Browser Error ${e}`);
+        // console.log(`Browser Error ${e}`);
         return false;
     }
 
