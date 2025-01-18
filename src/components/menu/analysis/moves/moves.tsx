@@ -52,9 +52,6 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
     useEffect(() => {
         const realMoves = moves.slice(1)
 
-        console.log(moves)
-        console.log(realMoves)
-
         const newTurns: typeof turns = []
         for (let i = 0; i < realMoves.length; i += 2) {
             const turn = realMoves.slice(i, i + 2) as [move, move]
