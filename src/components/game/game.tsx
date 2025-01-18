@@ -9,8 +9,12 @@ import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
+import { wasmThreadsSupported } from "@/engine/wasmChecks"
+import { pushPageError } from "@/errors/error"
 
 const GAP = 10
+
+const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported.', 'Update or switch your browser in order to run this app.']
 
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
@@ -28,6 +32,7 @@ export default function Game() {
     const [playing, setPlaying] = useContext(AnalyzeContext).playing
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
     const [result, setResult] = useContext(AnalyzeContext).result
+    const [errors, setErrors] = useContext(AnalyzeContext).errors
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -35,6 +40,16 @@ export default function Game() {
     const intervalRef = useRef<NodeJS.Timeout>()
     const moveNumberRef = useRef(moveNumber)
     const gameLengthRef = useRef(game.length)
+
+    const engineWorkerRef = useRef<Worker | null>(null)
+
+    useEffect(() => {
+        engineWorkerRef.current = new window.Worker('/engine/stockfish.js')
+    }, [])
+
+    useEffect(() => {
+        if (!wasmThreadsSupported()) pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+    }, [])
 
     useEffect(() => {
         gameLengthRef.current = game.length
@@ -131,7 +146,16 @@ export default function Game() {
     async function handlePGN(pgn: string, depth: number) {
         setPageState('loading')
 
-        const { metadata, moves } = await parsePGN(pgn, depth) ?? {}
+        const stockfish = engineWorkerRef.current
+        if (!stockfish) return
+
+        if (!wasmThreadsSupported()) {
+            pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+            setPageState('default')
+            return
+        }
+
+        const { metadata, moves } = await parsePGN(stockfish, pgn, depth) ?? {}
 
         if (!metadata || !moves) {
             console.error('ERROR PARSING PGN')

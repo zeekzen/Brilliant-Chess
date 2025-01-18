@@ -449,6 +449,11 @@ function isForced(move: Move) {
     return chess.moves().length === 1
 }
 
+function cleanStockfish(stockfish: Worker) {
+    stockfish.postMessage("stop")
+    stockfish.postMessage("ucinewgame")
+}
+
 async function waitTillReady(engine: Worker) {
     return new Promise((resolve, reject) => {
         function isReadyOk(e: MessageEvent) {
@@ -463,7 +468,7 @@ async function waitTillReady(engine: Worker) {
     })
 }
 
-export async function parsePGN(pgn: string, depth: number) {
+export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
     const chess = new Chess()
@@ -479,8 +484,7 @@ export async function parsePGN(pgn: string, depth: number) {
 
     const moves: move[] = []
 
-    const stockfish = new window.Worker('/engine/stockfish.js')
-
+    cleanStockfish(stockfish)
     await waitTillReady(stockfish)
 
     let moveNumber = 0, previousBestMove, previousSacrice = false
