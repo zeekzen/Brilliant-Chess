@@ -36,7 +36,7 @@ function getRatingStyle(rating: moveRating | undefined, prevRating: moveRating |
 export default function Moves(props: { gameChart: JSX.Element, moves: move[], overallGameComment: string }) {
     const { gameChart, moves, overallGameComment } = props
 
-    const [turns, setTurns] = useState<[number, string, string][]>([])
+    const [turns, setTurns] = useState<[number, string, string | undefined][]>([])
     const [movesHeight, setMovesHeight] = useState(0)
 
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
@@ -52,11 +52,19 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
     useEffect(() => {
         const realMoves = moves.slice(1)
 
-        const newTurns: [number, string, string][] = []
+        console.log(moves)
+        console.log(realMoves)
+
+        const newTurns: typeof turns = []
         for (let i = 0; i < realMoves.length; i += 2) {
             const turn = realMoves.slice(i, i + 2) as [move, move]
             const turnNumber = (i + 2) / 2
-            newTurns.push([turnNumber, turn[0].san ?? '', turn[1].san ?? ''])
+
+            if (turn[1]) {
+                newTurns.push([turnNumber, turn[0].san ?? '', turn[1].san ?? ''])
+            } else {
+                newTurns.push([turnNumber, turn[0].san ?? '', undefined])
+            }
         }
 
         setTurns(newTurns)
@@ -128,6 +136,8 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
                             <span className="font-bold w-[33px]">{turn[0]}.</span>
                             <div className="flex flex-row text-lg font-extrabold">
                                 {turn.slice(1).map((move, j) => {
+                                    if (!move) return null
+
                                     const isWhite = j === 0
                                     let adjustedMoveNumber = currentMoveNumber
                                     if (!isWhite) adjustedMoveNumber++

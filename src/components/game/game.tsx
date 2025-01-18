@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN } from "@/server/analyze"
+import { parsePGN } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
 
 const GAP = 10
