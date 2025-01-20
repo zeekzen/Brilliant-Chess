@@ -23,7 +23,6 @@ export type platform = "chessCom" | "lichessOrg"
 export default function Menu() {
     const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
 
-    const [gameChart, setGameChart] = useState<JSX.Element>(<></>)
     const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
 
     const [username, setUsername] = useState<{platform: platform, username: string}>({platform: "chessCom", username: ""})
@@ -62,10 +61,6 @@ export default function Menu() {
 
         setGameChartSize({ width, height: 96 })
     }, [])
-
-    useEffect(() => {
-        setGameChart(GameChart({ moves: game, size: gameChartSize }))
-    }, [gameChartSize, game])
 
     const { format } = data
 
@@ -110,8 +105,8 @@ export default function Menu() {
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
 
-                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} gameChart={gameChart} /> : ''}
-                {pageState === 'analyze' && tab === 'moves' ? <Moves gameChart={gameChart} moves={game} overallGameComment={overallGameComment} /> : ''}
+                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} chartSize={gameChartSize} /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves chartSize={gameChartSize} moves={game} overallGameComment={overallGameComment} /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex flex-col gap-1 pb-1 items-center">

@@ -4,6 +4,7 @@ import Image from "next/image"
 import { useContext, useEffect, useRef, useState } from "react"
 import Comments from "./comments"
 import { WHITE } from "chess.js"
+import GameChart from "../gameChart"
 
 export const RATING_STYLE = {
     forced: { color: "text-highlightBoard", icon: "forced.svg" },
@@ -33,8 +34,8 @@ function getRatingStyle(rating: moveRating | undefined, prevRating: moveRating |
     return
 }
 
-export default function Moves(props: { gameChart: JSX.Element, moves: move[], overallGameComment: string }) {
-    const { gameChart, moves, overallGameComment } = props
+export default function Moves(props: { moves: move[], overallGameComment: string, chartSize: {width: number, height: number} }) {
+    const { moves, overallGameComment, chartSize } = props
 
     const [turns, setTurns] = useState<[number, string, string | undefined][]>([])
     const [movesHeight, setMovesHeight] = useState(0)
@@ -163,7 +164,7 @@ export default function Moves(props: { gameChart: JSX.Element, moves: move[], ov
                 })}
             </ul>
             <div ref={gameChartRef}>
-                {gameChart}
+                <GameChart size={chartSize} moves={moves} />
             </div>
         </div>
     )

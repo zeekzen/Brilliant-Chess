@@ -1,7 +1,21 @@
+import { AnalyzeContext } from "@/context/analyze"
 import { move } from "@/server/analyze"
+import { useContext, useEffect, useState } from "react"
 
 export default function GameChart(props: { moves: move[], size: { width: number, height: number } }) {
     const { moves, size } = props
+
+    const [currentMoveX, setCurrentMoveX] = useState(0)
+
+    const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
+
+    const totalMoves = moves.length - 1
+
+    useEffect(() => {
+        const xRelation = getMoveX(moveNumber, totalMoves)
+        const x = xRelation * size.width
+        setCurrentMoveX(x)
+    }, [moveNumber])
 
     function getMoveY(move: move, moveNumber: number) {
         const OLD_PERCENTS = [-400, 400]
@@ -31,8 +45,6 @@ export default function GameChart(props: { moves: move[], size: { width: number,
         return moveNumber / maxNumber
     }
 
-    const totalMoves = moves.length - 1
-
     return (
         <svg width={size.width} height={size.height} className="bg-evaluationBarBlack rounded-borderRoundness">
             <path fill="#ffffff"
@@ -48,6 +60,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
                     } L ${size.width} ${size.height} L 0 ${size.height}`}
             />
             <line x1={0} y1={size.height / 2} x2={size.width} y2={size.height / 2} className="stroke-neutral-500 opacity-75 stroke-2" />
+            <line style={{display: !moveNumber ? 'none' : ''}} x1={currentMoveX} y1={size.height} x2={currentMoveX} y2={0} className="stroke-neutral-500 opacity-75 stroke-[3px]" />
         </svg>
     )
 }

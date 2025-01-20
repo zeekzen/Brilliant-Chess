@@ -5,9 +5,10 @@ import PlayersAccuracy from "./playersAccuracy";
 import GameRating from "./gameRating";
 import { accuracyPhases } from "./playersAccuracy";
 import { move } from "@/server/analyze";
+import GameChart from "../gameChart";
 
-export default function Summary(props: { moves: move[], gameChart: JSX.Element }) {
-    const { moves, gameChart } = props
+export default function Summary(props: { moves: move[], chartSize: {width: number, height: number} }) {
+    const { moves, chartSize } = props
 
     const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
     const [accuracyPhases, setAccuracyPhases] = useState<accuracyPhases>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
@@ -16,7 +17,7 @@ export default function Summary(props: { moves: move[], gameChart: JSX.Element }
 
     return (
         <div className="flex flex-col gap-3 items-center">
-            {gameChart}
+            <GameChart moves={moves} size={chartSize} />
             <PlayersAccuracy setAccuracyPhases={setAccuracyPhases} accuracy={[accuracy, setAccuracy]} players={players} moves={moves} />
             <hr className="border-neutral-600 w-[85%]" />
             <RatingCount moves={moves} />
