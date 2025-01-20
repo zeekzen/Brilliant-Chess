@@ -6,10 +6,8 @@ import { TYPES } from "../analyze/form"
 
 export default function Loading(props: { format: string }) {
     const [ellipsis, setEllipsis] = useState('')
-    const [progress, setProgress] = useState(0)
-    const [transition, setTransition] = useState(300)
 
-    const [data, setData] = useContext(AnalyzeContext).data
+    const [progress, setProgress] = useContext(AnalyzeContext).progress
 
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)
@@ -40,32 +38,6 @@ export default function Loading(props: { format: string }) {
         progressRef.current = progress
     }, [progress])
 
-    useEffect(() => {
-        const type = TYPES.filter(type => type[2] === data.depth)[0][0] ?? "Standard"
-
-        let intervalTime = 300
-        switch (type) {
-            case "Quick":
-                intervalTime = 100
-                break
-            case "Standard":
-                intervalTime = 300
-                break
-            case "Deep":
-                intervalTime = 1100
-                break
-        }
-
-        setTransition(intervalTime)
-
-        const interval = setInterval(() => {
-            const newProgress = progressRef.current + (((100 - progressRef.current) / 3) * Math.random())
-            setProgress(newProgress)
-        }, intervalTime)
-
-        return () => clearInterval(interval)
-    }, [])
-
     return (
         <div className="flex flex-col flex-grow">
             <div className="text-lg font-bold text-foregroundGrey px-5 pb-5 w-full">Analyzing{ellipsis}</div>
@@ -78,7 +50,7 @@ export default function Loading(props: { format: string }) {
                         <span className="w-full">Analyzing Game{ellipsis}</span>
                     </div>
                     <button className="hover:text-foreground transition-colors" type="button">Cancel</button>
-                    <LoadingBar progress={progress} transitionTime={transition} />
+                    <LoadingBar progress={progress} transitionTime={100} />
                 </div>
             </div>
         </div>

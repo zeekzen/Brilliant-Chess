@@ -1,6 +1,7 @@
 import { PageErrorProps } from "@/context/analyze";
 import { pushPageError } from "@/errors/error";
 import { Chess, Color, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
+import { SetStateAction } from "react";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'
 
@@ -502,7 +503,7 @@ async function waitTillReady(engine: Worker) {
     })
 }
 
-export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
+export async function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>) {
     if (!checkDepth(depth)) return
 
     const chess = new Chess()
@@ -519,6 +520,11 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
     const time = getTime(headers)
     const result = getResult(chess)
 
+    const history = chess.history({ verbose: true })
+
+    const totalMoves = history.length
+    let progress = 0
+
     const metadata = { players, time, result }
 
     const moves: move[] = []
@@ -528,7 +534,7 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
 
     let moveNumber = 0, previousBestMove, previousSacrice = false
     const previousStaticEvals: string[][] = []
-    for (const move of chess.history({ verbose: true })) {
+    for (const move of history) {
         const movement: square[] = [move.from, move.to].map(square => {
             const { col, row } = formatSquare(square)
 
@@ -587,6 +593,9 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
         previousStaticEvals.push(staticEval)
         moveNumber++
         previousSacrice = sacrifice
+
+        progress++
+        setProgress((progress / totalMoves) * 100)
     }
 
     return { metadata, moves }

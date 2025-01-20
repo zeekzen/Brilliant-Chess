@@ -36,6 +36,7 @@ export const AnalyzeContext = createContext<{
     materialAdvantage: [number, Dispatch<SetStateAction<number>>],
     result: [result, Dispatch<SetStateAction<result>>],
     errors: [PageErrorProps[], Dispatch<SetStateAction<PageErrorProps[]>>],
+    progress: [number, Dispatch<SetStateAction<number>>],
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ["analyze", () => { }],
@@ -50,6 +51,7 @@ export const AnalyzeContext = createContext<{
     materialAdvantage: [0, () => { }],
     result: ['1/2-1/2', () => { }],
     errors: [[], () => { }],
+    progress: [0, () => { }],
 })
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
@@ -66,9 +68,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [materialAdvantage, setMaterialAdvantage] = useState(0)
     const [result, setResult] = useState<result>('1/2-1/2')
     const [errors, setErrors] = useState<PageErrorProps[]>([])
+    const [progress, setProgress] = useState(0)
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], errors: [errors, setErrors] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], errors: [errors, setErrors], progress: [progress, setProgress] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

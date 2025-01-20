@@ -33,6 +33,7 @@ export default function Game() {
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
     const [result, setResult] = useContext(AnalyzeContext).result
     const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const [progress, setProgress] = useContext(AnalyzeContext).progress
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -163,7 +164,7 @@ export default function Game() {
         const stockfish = engineWorkerRef.current
         if (!stockfish) return
 
-        const { metadata, moves } = await parsePGN(stockfish, pgn, depth) ?? {}
+        const { metadata, moves } = await parsePGN(stockfish, pgn, depth, setProgress) ?? {}
 
         if (!metadata || !moves) {
             pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
@@ -176,6 +177,7 @@ export default function Game() {
         setPlayers(metadata.players)
         setGame(moves)
         setResult(metadata.result)
+        setProgress(0)
 
         setTimeout(() => gameStartSound.play(), 100)
         setPageState('analyze')
@@ -200,6 +202,7 @@ export default function Game() {
             setPlaying(false)
             setMoveNumber(0)
             setResult('1/2-1/2')
+            setProgress(0)
 
             setPageState('default')
         }
