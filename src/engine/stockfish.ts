@@ -574,7 +574,12 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number, se
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var forced = isForced(move)
         }
+
         const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+
+        if (chess.isGameOver()) {
+            bestMove = []
+        }
 
         moves.push({
             fen,
