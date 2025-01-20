@@ -52,7 +52,7 @@ function Loading(props: {whatIsLoading: string}) {
                     <div className="flex-grow flex flex-col justify-center items-center">
                         <div className="w-[70%] bg-backgroundBox relative overflow-hidden rounded-borderExtraRoundness text-lg text-foregroundGrey flex flex-col gap-14 pb-4 pt-14 items-center">
                             <div className="w-40 flex flex-col items-center gap-4">
-                                <Image className="animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] scale-x-[-1] fill-backgroundBoxBoxHighlighted" width={60} height={60} src='/images/files.svg' alt="files" />
+                                <Image priority className="animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] scale-x-[-1] fill-backgroundBoxBoxHighlighted" width={60} height={60} src='/images/files.svg' alt="files" />
                                 <span className="text-xl text-foreground font-bold">{props.whatIsLoading}</span>
                                 <span className="w-full ml-14">Fetching api{ellipsis}</span>
                             </div>
