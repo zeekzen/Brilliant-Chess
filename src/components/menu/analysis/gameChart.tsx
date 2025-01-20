@@ -5,17 +5,45 @@ import { useContext, useEffect, useState } from "react"
 export default function GameChart(props: { moves: move[], size: { width: number, height: number } }) {
     const { moves, size } = props
 
-    const [currentMoveX, setCurrentMoveX] = useState(0)
+    const [hoveredMove, setHoveredMove] = useState(NaN)
 
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
+    const [animation, setAnimation] = useContext(AnalyzeContext).animation
+    const [forward, setForward] = useContext(AnalyzeContext).forward
 
     const totalMoves = moves.length - 1
+    const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width
+    const moveNumberX = getMoveX(moveNumber, totalMoves) * size.width
 
-    useEffect(() => {
-        const xRelation = getMoveX(moveNumber, totalMoves)
-        const x = xRelation * size.width
-        setCurrentMoveX(x)
-    }, [moveNumber])
+    function hoverMove(e: React.MouseEvent) {
+        const svg = e.currentTarget as SVGAElement
+        const svgPosition = svg.getBoundingClientRect().x
+
+        const mousePosition = e.clientX
+
+        const mouseInSvgPosition = mousePosition - svgPosition
+
+        const moveSize = size.width / totalMoves
+        const move = Math.round(mouseInSvgPosition / moveSize)
+
+       setHoveredMove(move)
+    }
+
+    function changeMoveNumber() {
+        if (hoveredMove === moveNumber) return
+
+        if (Math.abs(moveNumber - hoveredMove) === 1) {
+            setAnimation(true)
+        } else {
+            setAnimation(false)
+        }
+        if (hoveredMove > moveNumber) {
+            setForward(true)
+        } else {
+            setForward(false)
+        }
+        setMoveNumber(hoveredMove)
+    }
 
     function getMoveY(move: move, moveNumber: number) {
         const OLD_PERCENTS = [-400, 400]
@@ -46,7 +74,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
     }
 
     return (
-        <svg width={size.width} height={size.height} className="bg-evaluationBarBlack rounded-borderRoundness">
+        <svg onClick={changeMoveNumber} onMouseMove={hoverMove} onMouseLeave={() => setHoveredMove(NaN)} width={size.width} height={size.height} className="bg-evaluationBarBlack rounded-borderRoundness">
             <path fill="#ffffff"
                 d={`M 0 ${size.height * 0.5} ${moves.map((move, moveNumber) => {
                     const xRelation = getMoveX(moveNumber, totalMoves)
@@ -60,7 +88,8 @@ export default function GameChart(props: { moves: move[], size: { width: number,
                     } L ${size.width} ${size.height} L 0 ${size.height}`}
             />
             <line x1={0} y1={size.height / 2} x2={size.width} y2={size.height / 2} className="stroke-neutral-500 opacity-75 stroke-2" />
-            <line style={{display: !moveNumber ? 'none' : ''}} x1={currentMoveX} y1={size.height} x2={currentMoveX} y2={0} className="stroke-neutral-500 opacity-75 stroke-[3px]" />
+            <line style={{display: !moveNumber ? 'none' : ''}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="stroke-neutral-500 opacity-75 stroke-[3px]" />
+            { isNaN(hoveredMoveX) ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-neutral-500 opacity-50 stroke-2" /> }
         </svg>
     )
 }
