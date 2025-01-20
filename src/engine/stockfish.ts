@@ -1,3 +1,5 @@
+import { PageErrorProps } from "@/context/analyze";
+import { pushPageError } from "@/errors/error";
 import { Chess, Color, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'
@@ -504,7 +506,12 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number) {
     if (!checkDepth(depth)) return
 
     const chess = new Chess()
-    chess.loadPgn(pgn)
+
+    try {
+        chess.loadPgn(pgn)
+    } catch {
+        return
+    }
 
     const headers = chess.header()
 

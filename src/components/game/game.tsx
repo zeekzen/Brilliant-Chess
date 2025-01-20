@@ -166,7 +166,7 @@ export default function Game() {
         const { metadata, moves } = await parsePGN(stockfish, pgn, depth) ?? {}
 
         if (!metadata || !moves) {
-            console.error('ERROR PARSING PGN')
+            pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
             setPageState('default')
             return
         }
