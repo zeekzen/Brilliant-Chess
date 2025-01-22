@@ -1,11 +1,26 @@
 import { AnalyzeContext } from "@/context/analyze"
-import { move } from "@/server/analyze"
+import { move, moveRating } from "@/server/analyze"
 import { useContext, useEffect, useState } from "react"
+
+function isImportantMove(rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined): string | undefined {
+    if (!rating) return
+
+    if (rating === 'book' && nextRating !== 'book') return 'highlightBook'
+    if (rating === 'best' && prevRating === 'inaccuracy') return 'highlightBest'
+    if (rating === 'blunder') return 'highlightBlunder'
+    if (rating === 'mistake') return 'highlightMistake'
+    if (rating === 'miss') return 'highlightMiss'
+    if (rating === 'great') return 'highlightGreat'
+    if (rating === 'brilliant') return 'highlightBrilliant'
+
+    return
+}
 
 export default function GameChart(props: { moves: move[], size: { width: number, height: number } }) {
     const { moves, size } = props
 
     const [hoveredMove, setHoveredMove] = useState(NaN)
+    const [importantMoves, setImportantMoves] = useState<{color: (string|undefined), move: move}[]>([])
 
     const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
     const [animation, setAnimation] = useContext(AnalyzeContext).animation
@@ -14,6 +29,18 @@ export default function GameChart(props: { moves: move[], size: { width: number,
     const totalMoves = moves.length - 1
     const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width
     const moveNumberX = getMoveX(moveNumber, totalMoves) * size.width
+
+    useEffect(() => {
+        const newImportantMoves = moves.map((move, i) => {
+            const rating = move.moveRating
+            const previousRating = moves[i - 1]?.moveRating
+            const nextRating = moves[i + 1]?.moveRating
+
+            return {color: isImportantMove(rating, previousRating, nextRating), move: move}
+        })
+
+        setImportantMoves(newImportantMoves)
+    }, [moves])
 
     function hoverMove(e: React.MouseEvent) {
         const svg = e.currentTarget as SVGAElement
@@ -92,8 +119,19 @@ export default function GameChart(props: { moves: move[], size: { width: number,
                     } L ${size.width} ${size.height} L 0 ${size.height}`}
             />
             <line x1={0} y1={size.height / 2} x2={size.width} y2={size.height / 2} className="stroke-foregroundGrey opacity-75 stroke-2" />
-            <line style={{display: !moveNumber ? 'none' : '', stroke: `var(--${strokeColor})`}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="opacity-75 stroke-[4px]" />
-            { isNaN(hoveredMoveX) || hoveredMove === moveNumber ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-foregroundGrey opacity-50 stroke-2" /> }
+            { isNaN(hoveredMoveX) ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-foregroundGrey opacity-50 stroke-2" /> }
+            <line style={{display: !moveNumber ? 'none' : '', stroke: `var(--${strokeColor})`}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="stroke-[4px]" />
+            { importantMoves.map((move, i) => {
+                if (!move.color && i !== moveNumber) return
+
+                const xRelation = getMoveX(i, totalMoves)
+                const yRelation = 1 - getMoveY(move.move, i)
+
+                const x = size.width * xRelation
+                const y = size.height * yRelation
+
+                return <circle style={{fill: `var(--${move.color ?? strokeColor})`}} cx={x} cy={y} r={5} />
+            }) }
         </svg>
     )
 }
