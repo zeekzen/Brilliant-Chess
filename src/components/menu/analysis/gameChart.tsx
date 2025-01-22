@@ -26,7 +26,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
         const moveSize = size.width / totalMoves
         const move = Math.round(mouseInSvgPosition / moveSize)
 
-       setHoveredMove(move)
+        setHoveredMove(move)
     }
 
     function changeMoveNumber() {
@@ -73,6 +73,10 @@ export default function GameChart(props: { moves: move[], size: { width: number,
         return moveNumber / maxNumber
     }
 
+    const upperFirstLetter = (str: string) => str[0]?.toUpperCase() + str.substring(1)
+    
+    const strokeColor = moves[moveNumber].moveRating !== 'forced' ? `highlight${upperFirstLetter(moves[moveNumber].moveRating ?? '')}` : 'foregroundGrey'
+
     return (
         <svg onClick={changeMoveNumber} onMouseMove={hoverMove} onMouseLeave={() => setHoveredMove(NaN)} width={size.width} height={size.height} className="bg-evaluationBarBlack rounded-borderRoundness">
             <path fill="#ffffff"
@@ -87,9 +91,9 @@ export default function GameChart(props: { moves: move[], size: { width: number,
                 }).join(" ")
                     } L ${size.width} ${size.height} L 0 ${size.height}`}
             />
-            <line x1={0} y1={size.height / 2} x2={size.width} y2={size.height / 2} className="stroke-neutral-500 opacity-75 stroke-2" />
-            <line style={{display: !moveNumber ? 'none' : ''}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="stroke-neutral-500 opacity-75 stroke-[3px]" />
-            { isNaN(hoveredMoveX) ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-neutral-500 opacity-50 stroke-2" /> }
+            <line x1={0} y1={size.height / 2} x2={size.width} y2={size.height / 2} className="stroke-foregroundGrey opacity-75 stroke-2" />
+            <line style={{display: !moveNumber ? 'none' : '', stroke: `var(--${strokeColor})`}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="opacity-75 stroke-[4px]" />
+            { isNaN(hoveredMoveX) || hoveredMove === moveNumber ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-foregroundGrey opacity-50 stroke-2" /> }
         </svg>
     )
 }
