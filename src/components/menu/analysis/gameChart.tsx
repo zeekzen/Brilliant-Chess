@@ -130,7 +130,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
                 const x = size.width * xRelation
                 const y = size.height * yRelation
 
-                return <circle style={{fill: `var(--${move.color ?? strokeColor})`}} cx={x} cy={y} r={5} />
+                return <circle key={i} style={{fill: `var(--${move.color ?? strokeColor})`}} cx={x} cy={y} r={5} />
             }) }
         </svg>
     )
