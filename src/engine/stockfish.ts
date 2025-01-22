@@ -1,4 +1,4 @@
-import { Chess, Color, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
+import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 import { SetStateAction } from "react";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'
@@ -456,6 +456,12 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
 function isSacrifice(move: Move) {
     const chess = new Chess(move.after)
 
+    const sacrifying: {
+        square: Square,
+        type: PieceSymbol,
+        color: Color,
+    }[] = []
+
     const board = chess.board()
     for (const row of board) {
         for (const square of row) {
@@ -464,11 +470,13 @@ function isSacrifice(move: Move) {
 
             const { attackers, defenders } = getAttackersDefenders(chess, move.color, square.square)
 
-            if (!defenders.length && attackers.length && (!move.captured || move.captured === PAWN)) return true
-            if (square.type === ROOK && attackers.length && (move.captured !== ROOK && move.captured !== QUEEN) && !(attackers.length === 1 && (attackers.pieces[0]?.type === QUEEN || attackers.pieces[0]?.type === ROOK) && defenders.length)) return true
-            if (square.type === QUEEN && attackers.length && move.captured !== QUEEN && !(attackers.length === 1 && attackers.pieces[0]?.type === QUEEN && defenders.length) && !(attackers.length === 1 && attackers.pieces[0]?.type === ROOK && move.captured === ROOK && defenders.length)) return true
+            if (!defenders.length && attackers.length && (!move.captured || move.captured === PAWN)) sacrifying.push(square)
+            if (square.type === ROOK && attackers.length && (move.captured !== ROOK && move.captured !== QUEEN) && !(attackers.length === 1 && (attackers.pieces[0]?.type === QUEEN || attackers.pieces[0]?.type === ROOK) && defenders.length) && !(defenders.length && (move.captured === KNIGHT || move.captured === BISHOP))) sacrifying.push(square)
+            if (square.type === QUEEN && attackers.length && move.captured !== QUEEN && !(attackers.length === 1 && attackers.pieces[0]?.type === QUEEN && defenders.length) && !(attackers.length === 1 && attackers.pieces[0]?.type === ROOK && move.captured === ROOK && defenders.length)) sacrifying.push(square)
         }
     }
+
+    if (sacrifying.length) return true
 
     return false
 }
@@ -568,7 +576,7 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number, se
             var bestMove: square[] = []
             var forced = false
         } else {
-            var sacrifice = isSacrifice(move)
+            var sacrifice = move.promotion ? false : isSacrifice(move)
             var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
             var forced = isForced(move)
         }
