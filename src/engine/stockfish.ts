@@ -32,7 +32,7 @@ export interface move {
 const COMMENTS = {
     brilliant: [
         'You found a brilliant way to sacrifice a piece.',
-        'This move showcases a deep understanding of the position.',
+        'This sacrifice showcases a deep understanding of the position.',
         'A bold and exceptional sacrifice to gain a strategic edge.',
     ],
     great: [
