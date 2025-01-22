@@ -236,7 +236,7 @@ async function getBestMove(program: Worker, depth: number): Promise<{ bestMove: 
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean): { comment: string, moveRating: moveRating } {
+function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: any): { comment: string, moveRating: moveRating } {
     const reversePreviousStaticEvals = previousStaticEvals.toReversed()
 
     if (reversePreviousStaticEvals[0] === undefined) reversePreviousStaticEvals[0] = []
@@ -312,9 +312,6 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
 
     // book
-    // const openingsFile = readFileSync(path.join(process.cwd(), 'openings/openings.json'), 'utf-8')
-    const openings = JSON.parse('{}')
-
     const openingName = openings[fen]
     if (openingName) return { moveRating: 'book', comment: openingName }
 
@@ -514,6 +511,9 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number, se
         return
     }
 
+    const openingsRes = await fetch('/openings/openings.json')
+    const openings = await openingsRes.json()
+
     const headers = chess.header()
 
     const players = getPlayers(headers)
@@ -575,7 +575,7 @@ export async function parsePGN(stockfish: Worker, pgn: string, depth: number, se
             var forced = isForced(move)
         }
 
-        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice)
+        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice, openings)
 
         if (chess.isGameOver()) {
             bestMove = []
