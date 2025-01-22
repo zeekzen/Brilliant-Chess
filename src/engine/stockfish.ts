@@ -1,5 +1,3 @@
-import { PageErrorProps } from "@/context/analyze";
-import { pushPageError } from "@/errors/error";
 import { Chess, Color, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 import { SetStateAction } from "react";
 
