@@ -122,7 +122,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
             { isNaN(hoveredMoveX) ? '' : <line x1={hoveredMoveX} y1={size.height} x2={hoveredMoveX} y2={0} className="stroke-foregroundGrey opacity-50 stroke-2" /> }
             <line style={{display: !moveNumber ? 'none' : '', stroke: `var(--${strokeColor})`}} x1={moveNumberX} y1={size.height} x2={moveNumberX} y2={0} className="stroke-[4px]" />
             { importantMoves.map((move, i) => {
-                if (!move.color && i !== moveNumber) return
+                if (!(move.color || (i === moveNumber && moveNumber))) return
 
                 const xRelation = getMoveX(i, totalMoves)
                 const yRelation = 1 - getMoveY(move.move, i)
