@@ -325,7 +325,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // brilliant - sacrifice
     const previousBrilliant = wasNotMateRelated && previousSacrice && getPreviousStandardRating(0) === 'excellent'
-    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
+    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || (!(getPreviousStandardRating(1) === 'inaccuracy' || getPreviousStandardRating(1) === 'blunder') && (getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')))) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - start mate
     if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
@@ -453,8 +453,24 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
     return { attackers: { squares: legalAttackers, pieces: legalAttackersPieces, length: legalAttackers.length }, defenders: { squares: legalDefenders, pieces: legalDefendersPieces, length: legalDefenders.length } }
 }
 
+function couldBeSaved(chess: Chess, square: Square, color: Color) {
+    if (!chess.attackers(square, color).length) {
+        if (chess.moves({ verbose: true }).filter(move => move.from !== square).length) return true
+    } else {
+        const savingMoves = chess.moves({ verbose: true, square: square }).filter(move => {
+            const testChess = new Chess(move.after)
+            if (!testChess.attackers(move.to, color).length) return true
+        })
+
+        if (savingMoves.length) return true
+    }
+
+    return false
+}
+
 function isSacrifice(move: Move) {
     const chess = new Chess(move.after)
+    const chessBefore = new Chess(move.before)
 
     const sacrifying: {
         square: Square,
@@ -476,7 +492,9 @@ function isSacrifice(move: Move) {
         }
     }
 
-    if (sacrifying.length) return true
+    for (const square of sacrifying) {
+        if (couldBeSaved(chessBefore, square.square, invertColor(move.color))) return true
+    }
 
     return false
 }
