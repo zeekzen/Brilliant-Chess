@@ -455,14 +455,14 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
 
 function couldBeSaved(chess: Chess, square: Square, color: Color) {
     if (!chess.attackers(square, color).length) {
-        if (chess.moves({ verbose: true }).filter(move => move.from !== square).length) return true
+        for (const move of chess.moves({ verbose: true })) {
+            if (move.from !== square) return true
+        }
     } else {
-        const savingMoves = chess.moves({ verbose: true, square: square }).filter(move => {
+        for (const move of chess.moves({ verbose: true, square: square })) {
             const testChess = new Chess(move.after)
             if (!testChess.attackers(move.to, color).length) return true
-        })
-
-        if (savingMoves.length) return true
+        }
     }
 
     return false
@@ -486,14 +486,29 @@ function isSacrifice(move: Move) {
 
             const { attackers, defenders } = getAttackersDefenders(chess, move.color, square.square)
 
-            if (!defenders.length && attackers.length && (!move.captured || move.captured === PAWN)) sacrifying.push(square)
-            if (square.type === ROOK && attackers.length && (move.captured !== ROOK && move.captured !== QUEEN) && !(attackers.length === 1 && (attackers.pieces[0]?.type === QUEEN || attackers.pieces[0]?.type === ROOK) && defenders.length) && !(defenders.length && (move.captured === KNIGHT || move.captured === BISHOP))) sacrifying.push(square)
-            if (square.type === QUEEN && attackers.length && move.captured !== QUEEN && !(attackers.length === 1 && attackers.pieces[0]?.type === QUEEN && defenders.length) && !(attackers.length === 1 && attackers.pieces[0]?.type === ROOK && move.captured === ROOK && defenders.length)) sacrifying.push(square)
+            if (!defenders.length && attackers.length && (!move.captured || move.captured === PAWN)) {
+                sacrifying.push(square)
+                continue
+            }
+            if ((square.type === KNIGHT || square.type === BISHOP) && !move.captured && attackers.pieces.findIndex(piece => piece?.type === PAWN) !== -1) {
+                sacrifying.push(square)
+                continue
+            }
+            if (square.type === ROOK && attackers.length && (move.captured !== ROOK && move.captured !== QUEEN) && !(attackers.length === 1 && (attackers.pieces[0]?.type === QUEEN || attackers.pieces[0]?.type === ROOK) && defenders.length) && !(defenders.length && (move.captured === KNIGHT || move.captured === BISHOP))) {
+                sacrifying.push(square)
+                continue
+            }
+            if (square.type === QUEEN && attackers.length && move.captured !== QUEEN && !(attackers.length === 1 && attackers.pieces[0]?.type === QUEEN && defenders.length) && !(attackers.length === 1 && attackers.pieces[0]?.type === ROOK && move.captured === ROOK && defenders.length)) {
+                sacrifying.push(square)
+                continue
+            }
         }
     }
 
     for (const square of sacrifying) {
-        if (couldBeSaved(chessBefore, square.square, invertColor(move.color))) return true
+        const beforeSquare = chessBefore.get(square.square)?.color === chess.get(square.square)?.color && chessBefore.get(square.square)?.type === chess.get(square.square)?.type ? square.square : move.from
+
+        if (couldBeSaved(chessBefore, beforeSquare, invertColor(move.color))) return true
     }
 
     return false
