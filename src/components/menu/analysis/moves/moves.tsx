@@ -124,8 +124,6 @@ export default function Moves(props: { moves: move[], overallGameComment: string
         } else if (numberDiff === -1) {
             setAnimation(true)
             setForward(true)
-        } else {
-            setAnimation(false)
         }
     }
 

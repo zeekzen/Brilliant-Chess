@@ -21,8 +21,6 @@ import SelectLichessOrgGame from "./analyze/selectLichessOrg"
 export type platform = "chessCom" | "lichessOrg"
 
 export default function Menu() {
-    const [tab, setTab] = useState<'analyze' | 'selectGame' | 'summary' | 'moves'>('analyze')
-
     const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
 
     const [username, setUsername] = useState<{platform: platform, username: string}>({platform: "chessCom", username: ""})
@@ -32,6 +30,7 @@ export default function Menu() {
 
     const [overallGameComment, setOverallGameComment] = useState("")
 
+    const [tab, setTab] = useContext(AnalyzeContext).tab
     const [pageState, setPageState] = useContext(AnalyzeContext).pageState
     const [data, setData] = useContext(AnalyzeContext).data
     const [game, setGame] = useContext(AnalyzeContext).game

@@ -33,12 +33,10 @@ export default function GameButtons() {
     }
 
     function firstMove() {
-        setAnimation(false)
         setMoveNumber(0)
     }
 
     function lastMove() {
-        setAnimation(false)
         setMoveNumber(game.length - 1)
     }
 

@@ -62,8 +62,6 @@ export default function GameChart(props: { moves: move[], size: { width: number,
 
         if (Math.abs(moveNumber - hoveredMove) === 1) {
             setAnimation(true)
-        } else {
-            setAnimation(false)
         }
         if (hoveredMove > moveNumber) {
             setForward(true)

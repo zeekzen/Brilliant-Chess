@@ -34,6 +34,7 @@ export default function Game() {
     const [result, setResult] = useContext(AnalyzeContext).result
     const [errors, setErrors] = useContext(AnalyzeContext).errors
     const [progress, setProgress] = useContext(AnalyzeContext).progress
+    const [tab, setTab] = useContext(AnalyzeContext).tab
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -41,6 +42,7 @@ export default function Game() {
     const intervalRef = useRef<NodeJS.Timeout>()
     const moveNumberRef = useRef(moveNumber)
     const gameLengthRef = useRef(game.length)
+    const tabRef = useRef(tab)
 
     const engineWorkerRef = useRef<Worker | null>(null)
 
@@ -61,12 +63,20 @@ export default function Game() {
     }, [])
 
     useEffect(() => {
+        setAnimation(false)
+    }, [moveNumber])
+
+    useEffect(() => {
         gameLengthRef.current = game.length
     }, [game])
 
     useEffect(() => {
         moveNumberRef.current = moveNumber
     }, [moveNumber])
+
+    useEffect(() => {
+        tabRef.current = tab
+    }, [tab])
 
     useEffect(() => {
         if (playing) {
@@ -123,7 +133,6 @@ export default function Game() {
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
 
-                    setAnimation(false)
                     setMoveNumber(0)
 
                     lastPressed = new Date().getTime()
@@ -132,7 +141,6 @@ export default function Game() {
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
 
-                    setAnimation(false)
                     setMoveNumber(gameLengthRef.current - 1)
 
                     lastPressed = new Date().getTime()
@@ -144,6 +152,16 @@ export default function Game() {
                     setPlaying(prev => !prev)
 
                     lastPressed = new Date().getTime()
+                    break
+                case 'Tab':
+                    e.preventDefault()
+                    if (now - lastPressed < minPressInterval) return
+
+                    const tab = tabRef.current
+
+                    if (tab === 'summary') setTab('moves')
+                    else if (tab === 'moves') setTab('summary')
+
                     break
             }
         }
