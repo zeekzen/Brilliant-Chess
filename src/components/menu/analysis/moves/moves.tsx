@@ -136,7 +136,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
             <div ref={commentsRef} className="w-full flex flex-col items-center">
                 <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
             </div>
-            <ul style={{height: movesHeight + 'px'}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">
+            <ul style={{height: (movesHeight || '100%')}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {
                     const currentMoveNumber = (i * 2) + 1
                     return (
