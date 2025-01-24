@@ -305,9 +305,11 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
 
-    const isNotMateRelated = staticEval[0] !== 'mate' && reversePreviousStaticEvals[0][0] !== 'mate'
-    const wasNotMateRelated = reversePreviousStaticEvals[0][0] !== 'mate' && reversePreviousStaticEvals[1][0] !== 'mate'
+    function getWasNotMateRelated(number: number) {
+        return reversePreviousStaticEvals[number][0] !== 'mate' && reversePreviousStaticEvals[number + 1][0] !== 'mate'
+    }
 
+    const isNotMateRelated = staticEval[0] !== 'mate' && reversePreviousStaticEvals[0][0] !== 'mate'
 
     // book
     const openingName = openings[fen]
@@ -315,16 +317,33 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // standard
     function getPreviousStandardRating(number: number) {
+        return getStandardRating(getPreviousEvaluationDiff(number))
+    }
+
+    function getPreviousEvaluationDiff(number: number) {
         const checkColor = number % 2 === 0 ? 'b' : 'w'
-        const evaluationDiff = color === checkColor ? getPreviousStaticEvalAmount(number + 1) - getPreviousStaticEvalAmount(number) : getPreviousStaticEvalAmount(number) - getPreviousStaticEvalAmount(number + 1)
-        return getStandardRating(evaluationDiff)
+        return color === checkColor ? getPreviousStaticEvalAmount(number + 1) - getPreviousStaticEvalAmount(number) : getPreviousStaticEvalAmount(number) - getPreviousStaticEvalAmount(number + 1)
     }
 
     const evaluationDiff = color === "w" ? getPreviousStaticEvalAmount(0) - staticEvalAmount : staticEvalAmount - getPreviousStaticEvalAmount(0)
     const standardRating = getStandardRating(evaluationDiff)
 
+    const previousMistake = getWasNotMateRelated(0) && getPreviousStandardRating(0) === "inaccuracy" && getPreviousEvaluationDiff(0) >= 1.2 && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor))
+    const previousPreviousMistake = getWasNotMateRelated(1) && getPreviousStandardRating(1) === "inaccuracy" && getPreviousEvaluationDiff(1) >= 1.2 && (losingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color) || givingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color))
+
+    const previousMiss =
+    (
+        getWasNotMateRelated(0)
+        &&
+        (previousPreviousMistake || getPreviousStandardRating(1) === "blunder")
+        &&
+        (getPreviousStandardRating(0) === "blunder" || getPreviousStandardRating(0) === "inaccuracy")
+        &&
+        (getPreviousEvaluationDiff(0) <= getPreviousEvaluationDiff(1) + 0.5)
+    )
+
     // brilliant - sacrifice
-    const previousBrilliant = wasNotMateRelated && previousSacrice && getPreviousStandardRating(0) === 'excellent'
+    const previousBrilliant = getWasNotMateRelated(0) && previousSacrice && getPreviousStandardRating(0) === 'excellent'
     if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || (!(getPreviousStandardRating(1) === 'inaccuracy' || getPreviousStandardRating(1) === 'blunder') && (getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')))) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - start mate
@@ -335,17 +354,15 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // great - gaining advantage
     if (
-        wasNotMateRelated
+        !previousMiss
+        &&
+        getWasNotMateRelated(0)
         &&
         isNotMateRelated
         &&
         standardRating === 'excellent'
         &&
-        (
-            (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder')
-            &&
-            (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor))
-        )
+        previousMistake || getPreviousStandardRating(0) === 'blunder'
     ) return { moveRating: 'great', comment: COMMENTS.great[commentNumber] }
 
     // best
@@ -371,6 +388,22 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     // good - advance mate
     if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: COMMENTS.advanceMate[commentNumber] }
 
+    // miss - mate
+    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate[commentNumber] }
+
+    // miss - gain advantage
+    if (
+        !previousMiss
+        &&
+        isNotMateRelated
+        &&
+        (previousMistake || getPreviousStandardRating(0) === 'blunder')
+        &&
+        (standardRating === "blunder" || standardRating === "inaccuracy")
+        &&
+        (evaluationDiff <= getPreviousEvaluationDiff(0) + 0.5)
+    ) return { moveRating: 'miss', comment: COMMENTS.missAdvantage[commentNumber] }
+
     // mistake - lose advantage
     if (isNotMateRelated && standardRating === "inaccuracy" && evaluationDiff >= 1.2 && losingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.loseAdvantage[commentNumber] }
 
@@ -379,40 +412,6 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // mistake - mate
     if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
-
-    // miss - mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate[commentNumber] }
-
-    // miss - gain advantage
-    const previousMiss =
-    !(wasNotMateRelated && getPreviousStandardRating(0) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor)))
-    &&
-    (
-        wasNotMateRelated
-        &&
-        (
-            (getPreviousStandardRating(1) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color) || givingGeatAdvantage(getPreviousStaticEvalAmount(1), getPreviousStaticEvalAmount(2), color)))
-            ||
-            getPreviousStandardRating(1) === "blunder"
-        )
-        &&
-        (getPreviousStandardRating(0) === "blunder" || getPreviousStandardRating(0) === "inaccuracy")
-    )
-
-    if (
-        !previousMiss
-        &&
-        isNotMateRelated
-        &&
-        (
-            (getPreviousStandardRating(0) === "inaccuracy" && (losingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor) || givingGeatAdvantage(getPreviousStaticEvalAmount(0), getPreviousStaticEvalAmount(1), previousColor)))
-            ||
-            getPreviousStandardRating(0) === "blunder"
-        )
-        &&
-        (standardRating === "blunder" || standardRating === "inaccuracy")
-    ) return { moveRating: 'miss', comment: COMMENTS.missAdvantage[commentNumber] }
-
 
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
