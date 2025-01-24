@@ -3,6 +3,7 @@ import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
 import { pushPageError } from "@/errors/error"
+import { Chess } from "chess.js"
 
 interface Game {
     url: string
@@ -163,6 +164,15 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                     else result = 'draw'
 
                     return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp }
+                }).filter(gameInfo => {
+                    try {
+                        const chess = new Chess()
+                        chess.loadPgn(gameInfo.pgn)
+                    } catch {
+                        return false
+                    }
+
+                    return true
                 })
 
                 setLoading(false)

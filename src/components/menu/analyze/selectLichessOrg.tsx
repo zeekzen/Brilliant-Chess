@@ -3,6 +3,7 @@ import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
 import { pushPageError } from "@/errors/error"
+import { Chess } from "chess.js"
 
 const PLAYER_URL = 'https://lichess.org/@/'
 
@@ -133,6 +134,15 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                     const pgn = json.pgn
 
                     return { whiteElo, whiteName, blackElo, blackName, result, timestamp, pgn }
+                }).filter(gameInfo => {
+                    try {
+                        const chess = new Chess()
+                        chess.loadPgn(gameInfo.pgn)
+                    } catch {
+                        return false
+                    }
+
+                    return true
                 })
 
                 setLoading(false)
