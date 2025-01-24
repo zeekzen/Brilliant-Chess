@@ -178,6 +178,7 @@ export default function Game() {
         setGame(moves)
         setResult(metadata.result)
         setProgress(0)
+        setAnimation(false)
 
         setTimeout(() => gameStartSound.play(), 100)
         setPageState('analyze')
