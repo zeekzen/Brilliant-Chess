@@ -93,6 +93,24 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     }, [moveNumber])
 
     useEffect(() => {
+        setTimeout(() => {
+            currentMoveRef.current?.scrollIntoView({
+                behavior: 'instant',
+                block: 'start',
+            })
+    
+            if (moveNumber === 0) {
+                void moveListRef.current?.offsetHeight
+    
+                moveListRef.current?.scrollTo({
+                    behavior: "instant",
+                    top: 0,
+                })
+            }
+        }, 0)
+    }, [])
+
+    useEffect(() => {
         function resizeMoves() {
             if (!componentRef.current || !commentsRef.current || !moveListRef.current || !gameChartRef.current) return
 
