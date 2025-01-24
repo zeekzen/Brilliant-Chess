@@ -344,7 +344,25 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     // brilliant - sacrifice
     const previousBrilliant = getWasNotMateRelated(0) && previousSacrice && getPreviousStandardRating(0) === 'excellent'
-    if (!previousBrilliant && isNotMateRelated && standardRating === 'excellent' && sacrifice && (getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder' || (!(getPreviousStandardRating(1) === 'inaccuracy' || getPreviousStandardRating(1) === 'blunder') && (getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')))) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
+    if (
+        !previousBrilliant
+        &&
+        isNotMateRelated
+        &&
+        standardRating === 'excellent'
+        &&
+        sacrifice
+        &&
+        (
+            getPreviousStandardRating(0) === 'inaccuracy' || getPreviousStandardRating(0) === 'blunder'
+            ||
+            (
+                !(getPreviousStandardRating(1) === 'inaccuracy' || getPreviousStandardRating(1) === 'blunder')
+                &&
+                (getPreviousStandardRating(2) === 'inaccuracy' || getPreviousStandardRating(2) === 'blunder')
+            )
+        )
+    ) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - start mate
     if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
