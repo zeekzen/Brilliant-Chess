@@ -20,18 +20,26 @@ export const RATING_STYLE = {
     blunder: { color: "text-highlightBlunder", icon: "blunder.svg" },
 }
 
-function getRatingStyle(rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined): { src: string, textClass: string } | undefined {
+function getRatingStyle(moveNumber: number, rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined, lastBookMove: number): { src: string, textClass: string } | undefined {
     if (!rating) return
 
     const path = '/images/rating/'
 
-    if (rating === 'book' && nextRating !== 'book') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
+    if (moveNumber === lastBookMove) return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
 
     if (rating === 'best' && prevRating === 'inaccuracy') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
 
     if (rating === 'blunder' || rating === 'mistake' || rating === 'miss' || rating === 'great' || rating === 'brilliant') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
 
     return
+}
+
+export function getLastBookMove(moves: move[]) {
+    for (let i = moves.length - 1; i >= 0; i--) {
+        if (moves[i].moveRating === 'book') return i
+    }
+
+    return -1
 }
 
 export default function Moves(props: { moves: move[], overallGameComment: string, chartSize: {width: number, height: number} }) {
@@ -121,6 +129,8 @@ export default function Moves(props: { moves: move[], overallGameComment: string
         }
     }
 
+    const lastBookMove = getLastBookMove(moves)
+
     return (
         <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">
             <div ref={commentsRef} className="w-full flex flex-col items-center">
@@ -147,7 +157,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
                                     const prevRating = moves[adjustedMoveNumber - 1]?.moveRating
                                     const nextRating = moves[adjustedMoveNumber + 1]?.moveRating
 
-                                    const ratingStyle = getRatingStyle(rating, prevRating, nextRating)
+                                    const ratingStyle = getRatingStyle(adjustedMoveNumber, rating, prevRating, nextRating, lastBookMove)
 
                                     const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 

@@ -1,11 +1,12 @@
 import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/server/analyze"
 import { useContext, useEffect, useState } from "react"
+import { getLastBookMove } from "./moves/moves"
 
-function isImportantMove(rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined): string | undefined {
+function isImportantMove(moveNumber: number, rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined, lastBookMove: number): string | undefined {
     if (!rating) return
 
-    if (rating === 'book' && nextRating !== 'book') return 'highlightBook'
+    if (moveNumber === lastBookMove) return 'highlightBook'
     if (rating === 'best' && prevRating === 'inaccuracy') return 'highlightBest'
     if (rating === 'blunder') return 'highlightBlunder'
     if (rating === 'mistake') return 'highlightMistake'
@@ -36,7 +37,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
             const previousRating = moves[i - 1]?.moveRating
             const nextRating = moves[i + 1]?.moveRating
 
-            return {color: isImportantMove(rating, previousRating, nextRating), move: move}
+            return {color: isImportantMove(i, rating, previousRating, nextRating, lastBookMove), move: move}
         })
 
         setImportantMoves(newImportantMoves)
@@ -102,6 +103,7 @@ export default function GameChart(props: { moves: move[], size: { width: number,
 
     const upperFirstLetter = (str: string) => str[0]?.toUpperCase() + str.substring(1)
     
+    const lastBookMove = getLastBookMove(moves)
     const strokeColor = moves[moveNumber].moveRating !== 'forced' ? `highlight${upperFirstLetter(moves[moveNumber].moveRating ?? '')}` : 'foregroundGrey'
 
     return (
