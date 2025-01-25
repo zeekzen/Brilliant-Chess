@@ -40,7 +40,7 @@ interface Game {
 
 const PLAYER_URL = 'https://www.chess.com/member/'
 
-function getMonthName(month: number) {
+export function getMonthName(month: number) {
     switch (month) {
         case 1: return 'January'
         case 2: return 'February'
@@ -56,6 +56,10 @@ function getMonthName(month: number) {
         case 12: return 'December'
         default: return ''
     }
+}
+
+export function capitalizeFirst(string: string) {
+    return string[0].toUpperCase() + string.substring(1).toLowerCase()
 }
 
 function Loading(props: {whatIsLoading: string}) {
@@ -130,7 +134,7 @@ function SimpleLoading(props: {whatIsLoading: string}) {
 function Games(props: { url: string, username: string, depth: number, unSelect: () => void }) {
     const { url, username, depth, unSelect } = props
 
-    const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number }[]>([])
+    const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, timeClass: string }[]>([])
     const [loading, setLoading] = useState(true)
 
     const [errors, setErrors] = useContext(AnalyzeContext).errors
@@ -163,7 +167,9 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                     else if (black.result === 'win') result = 'black'
                     else result = 'draw'
 
-                    return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp }
+                    const timeClass = game.time_class
+
+                    return { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp, timeClass }
                 }).filter(gameInfo => {
                     try {
                         const chess = new Chess()
@@ -203,7 +209,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                 </thead>
                 <tbody>
                     {gamesInfo.map((gameInfo, i) => {
-                        const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp } = gameInfo
+                        const { pgn, whiteName, blackName, whiteElo, blackElo, result, timestamp, timeClass } = gameInfo
 
                         const whiteWon = result === 'white'
                         const blackWon = result === 'black'
@@ -215,7 +221,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                         const date = new Date(timestamp)
 
                         return (
-                            <tr onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                            <tr title={`Time Class: ${capitalizeFirst(timeClass)}`} onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
                                 <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>

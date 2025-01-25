@@ -4,26 +4,48 @@ import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
 import { pushPageError } from "@/errors/error"
 import { Chess } from "chess.js"
+import { capitalizeFirst, getMonthName } from "./selectChessCom"
+
+interface Game {
+    id: string;
+    rated: boolean;
+    variant: string;
+    speed: string;
+    perf: string;
+    createdAt: number;
+    lastMoveAt: number;
+    status: string;
+    source: string;
+    players: {
+        white: {
+            user: {
+                name: string;
+                id: string;
+            };
+            rating: number;
+            ratingDiff: number;
+            provisional?: boolean;
+        };
+        black: {
+            user: {
+                name: string;
+                id: string;
+            };
+            rating: number;
+            ratingDiff: number;
+        };
+    };
+    winner: "white" | "black";
+    moves: string;
+    pgn: string;
+    clock: {
+        initial: number;
+        increment: number;
+        totalTime: number;
+    };
+}
 
 const PLAYER_URL = 'https://lichess.org/@/'
-
-function getMonthName(month: number) {
-    switch (month) {
-        case 1: return 'January'
-        case 2: return 'February'
-        case 3: return 'March'
-        case 4: return 'April'
-        case 5: return 'May'
-        case 6: return 'June'
-        case 7: return 'July'
-        case 8: return 'August'
-        case 9: return 'September'
-        case 10: return 'October'
-        case 11: return 'November'
-        case 12: return 'December'
-        default: return ''
-    }
-}
 
 function Loading(props: {whatIsLoading: string}) {
     const [ellipsis, setEllipsis] = useState('')
@@ -97,7 +119,7 @@ function SimpleLoading(props: {whatIsLoading: string}) {
 function Games(props: { url: string, username: string, depth: number, unSelect: () => void }) {
     const { url, username, depth, unSelect } = props
 
-    const [gamesInfo, setGamesInfo] = useState<{ whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, pgn: string }[]>([])
+    const [gamesInfo, setGamesInfo] = useState<{ whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, pgn: string, timeClass: string }[]>([])
     const [loading, setLoading] = useState(true)
 
     const [data, setData] = useContext(AnalyzeContext).data
@@ -112,7 +134,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
 
                 const text = await res.text()
                 
-                const jsonArr: { players: { black: { user: { name: string }, rating: number }, white: { user: { name: string }, rating: number } }, winner: "white"|"black", createdAt: number, pgn: string }[] = text.split("\n").map(text => {
+                const jsonArr: Game[] = text.split("\n").map(text => {
                     try {
                         return JSON.parse(text)
                     } catch {
@@ -133,7 +155,9 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
 
                     const pgn = json.pgn
 
-                    return { whiteElo, whiteName, blackElo, blackName, result, timestamp, pgn }
+                    const timeClass = json.speed
+
+                    return { whiteElo, whiteName, blackElo, blackName, result, timestamp, pgn, timeClass }
                 }).filter(gameInfo => {
                     try {
                         const chess = new Chess()
@@ -173,7 +197,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                 </thead>
                 <tbody>
                     {gamesInfo.map((gameInfo, i) => {
-                        const { whiteName, blackName, whiteElo, blackElo, result, timestamp, pgn } = gameInfo
+                        const { whiteName, blackName, whiteElo, blackElo, result, timestamp, pgn, timeClass } = gameInfo
 
                         const whiteWon = result === 'white'
                         const blackWon = result === 'black'
@@ -185,7 +209,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                         const date = new Date(timestamp)
 
                         return (
-                            <tr onClick={() => setData({ format: 'pgn', string: pgn, depth })} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                            <tr title={`Time Class: ${capitalizeFirst(timeClass)}`} onClick={() => setData({ format: 'pgn', string: pgn, depth })} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
                                 <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
                                     <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
@@ -249,6 +273,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                     const year = currentDate.getFullYear()
 
                     newDates.push({month: month + 1, year, url: `https://lichess.org/api/games/user/${username}?since=${sinceDate.getTime()}&until=${untilDate.getTime()}&pgnInJson=true`})
+                    console.log(newDates[0].url)
                     currentDate.setMonth(currentDate.getMonth() + 1)
                 }
 
