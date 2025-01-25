@@ -26,12 +26,12 @@ export default function Themes() {
 
     useEffect(() => {
         const boardTheme = Number(localStorage.getItem('boardTheme'))
-        if (isNaN(boardTheme)) {
+        if (boardThemes[boardTheme] != null) {
+            setBoardTheme(boardTheme)
+        } else {
             localStorage.setItem('boardTheme', '0')
             setBoardTheme(0)
-            return
         }
-        setBoardTheme(boardTheme)
     }, [])
 
     function changeBoardTheme(boardThemeIndex: number) {

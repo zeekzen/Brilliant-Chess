@@ -26,12 +26,24 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     const [selected, select] = props.selected
 
     useEffect(() => {
-        const previousSelected = Number(localStorage.getItem('format')) ?? 0
-        const previousType = Number(localStorage.getItem('type')) ?? 1
+        const previousSelected = Number(localStorage.getItem('format'))
+        const previousType = Number(localStorage.getItem('type'))
+
+        if (FORMATS[previousSelected] != null) {
+            select(previousSelected)
+        } else {
+            select(0)
+            localStorage.setItem('format', String(0))
+        }
+
+        if (TYPES[previousType] != null) {
+            setType(previousType)
+        } else {
+            setType(1)
+            localStorage.setItem('type', String(1))
+        }
 
         setSelecting(false)
-        select(previousSelected)
-        setType(previousType)
         setValue("")
     }, [])
 
