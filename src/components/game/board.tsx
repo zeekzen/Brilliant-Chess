@@ -100,15 +100,7 @@ function adaptSquare(square: square): square {
 
 function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean, position: position): square | undefined {
     if (!castle) return
-    if (whiteMoving) {
-        const row = castle === 'k' ? position[7] : position[7].toReversed()
-        const col = row.findIndex(square => square?.type === 'r' && square?.color === 'w')
-        return { col: castle === 'k' ? 7 - col : col, row: 7 }
-    } else {
-        const row = castle === 'k' ? position[0] : position[0].toReversed()
-        const col = row.findIndex(square => square?.type === 'r' && square?.color === 'b')
-        return { col: castle === 'k' ? 7 - col : col, row: 0 }
-    }
+    return { col: castle === 'k' ? 7 : 0, row: whiteMoving ? 7 : 0 }
 }
 
 function getCastleRookToSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean): square | undefined {
