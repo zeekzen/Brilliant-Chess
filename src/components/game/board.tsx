@@ -4,6 +4,8 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Chess, PieceSymbol, WHITE } from "chess.js";
 import { Howl } from "howler";
 import { AnalyzeContext } from "@/context/analyze";
+import { ConfigContext } from "@/context/config";
+import { boardThemes } from "../nav/themes";
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -190,6 +192,11 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
 
 export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
     const [arrows, setArrows] = useState<square[][]>([])
+    const [boardColors, setBoardColors] = useState<[string, string]>(["", ""])
+
+    const configContext = useContext(ConfigContext)
+
+    const [boardTheme, setBoardTheme] = configContext.boardTheme
 
     const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
 
@@ -218,10 +225,6 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
 
-    // text-whiteBoard / text-blackBoard
-    // bg-whiteBoard / bg-blackBoard
-    const BOARD_COLORS = ["whiteBoard", "blackBoard"]
-
     const highlightColor = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.color ?? "bg-highlightBoard"
     const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
 
@@ -230,6 +233,14 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const soundCastleInstance = forward ? castle : nextCastle
 
     const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
+
+    useEffect(() => {
+        const theme = boardThemes.filter(theme => theme.label === boardTheme)[0]
+        const white = theme.white
+        const black = theme.black
+
+        setBoardColors([white, black])
+    }, [boardTheme])
 
     useEffect(() => {
         if (!props.fen) return
@@ -379,28 +390,28 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             let bgColor, guideColor
                             if (isEven(rowNumber)) {
                                 if (isEven(columnNumber)) {
-                                    bgColor = BOARD_COLORS[0]
-                                    guideColor = BOARD_COLORS[1]
+                                    bgColor = boardColors[0]
+                                    guideColor = boardColors[1]
                                 } else {
-                                    bgColor = BOARD_COLORS[1]
-                                    guideColor = BOARD_COLORS[0]
+                                    bgColor = boardColors[1]
+                                    guideColor = boardColors[0]
                                 }
                             } else {
                                 if (isEven(columnNumber)) {
-                                    bgColor = BOARD_COLORS[1]
-                                    guideColor = BOARD_COLORS[0]
+                                    bgColor = boardColors[1]
+                                    guideColor = boardColors[0]
                                 } else {
-                                    bgColor = BOARD_COLORS[0]
-                                    guideColor = BOARD_COLORS[1]
+                                    bgColor = boardColors[0]
+                                    guideColor = boardColors[1]
                                 }
                             }
 
                             let squareNumGuide, squareLetterGuide
                             if (rowNumber === (white ? 7 : 0)) {
-                                squareLetterGuide = <span style={{ right: rightSize }} className={`absolute bottom-0 text-${guideColor}`}>{squareId[0]}</span>
+                                squareLetterGuide = <span style={{ right: rightSize, color: guideColor }} className={`absolute bottom-0`}>{squareId[0]}</span>
                             }
                             if (columnNumber === (white ? 0 : 7)) {
-                                squareNumGuide = <span style={{ left: leftSize }} className={`absolute top-0 text-${guideColor}`}>{squareId[1]}</span>
+                                squareNumGuide = <span style={{ left: leftSize, color: guideColor }} className={`absolute top-0`}>{squareId[1]}</span>
                             }
 
                             let rounded: string = ''
@@ -436,7 +447,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
-                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize }} className={`bg-${bgColor} font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {

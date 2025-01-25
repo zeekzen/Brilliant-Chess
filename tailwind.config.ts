@@ -21,6 +21,7 @@ export default {
         placeholder: "var(--placeholder)",
 
         backgroundBox: "var(--backgroundBox)",
+        backgroundBoxDarker: "var(--backgroundBoxDarker)",
         backgroundBoxHover: "var(--backgroundBoxHover)",
         backgroundBoxBox: "var(--backgroundBoxBox)",
         backgroundBoxBoxDisabled: "var(--backgroundBoxBoxDisabled)",

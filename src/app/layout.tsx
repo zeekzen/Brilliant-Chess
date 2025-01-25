@@ -1,8 +1,6 @@
 import type { Metadata } from "next"
 import "./globals.css"
 
-import Nav from "@/components/nav"
-
 import { Roboto } from 'next/font/google'
 
 const roboto = Roboto({
@@ -19,9 +17,6 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <body className={`flex flex-row items-center justify-between h-screen ${roboto.className}`}>
-        <header>
-          <Nav />
-        </header>
         {children}
       </body>
     </html>
