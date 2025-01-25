@@ -1,7 +1,7 @@
 import { ConfigContext } from "@/context/config"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 
-export type boardThemeLabel = "Green" | "Brown" | "Blue" | "Gray" | "Red" | "Purple" | "Orange"
+type boardThemeLabel = "Green" | "Brown" | "Blue" | "Gray" | "Red" | "Purple" | "Orange"
 
 interface boardTheme {
     label: boardThemeLabel,
@@ -24,12 +24,27 @@ export default function Themes() {
 
     const [boardTheme, setBoardTheme] = configContext.boardTheme
 
+    useEffect(() => {
+        const boardTheme = Number(localStorage.getItem('boardTheme'))
+        if (isNaN(boardTheme)) {
+            localStorage.setItem('boardTheme', '0')
+            setBoardTheme(0)
+            return
+        }
+        setBoardTheme(boardTheme)
+    }, [])
+
+    function changeBoardTheme(boardThemeIndex: number) {
+        setBoardTheme(boardThemeIndex)
+        localStorage.setItem('boardTheme', String(boardThemeIndex))
+    }
+
     return (
         <section>
             <h1 className="block bg-backgroundBoxBox font-bold text-nowrap p-3 text-foreground">Board Theme</h1>
             {boardThemes.map((theme, i) => {
                 return (
-                    <button onClick={() => setBoardTheme(theme.label)} type="button" key={i} className="flex flex-row gap-2 items-center hover:bg-black transition-colors w-full relative">
+                    <button onClick={() => changeBoardTheme(i)} type="button" key={i} className="flex flex-row gap-2 items-center hover:bg-black transition-colors w-full relative">
                         <div className="grid grid-cols-2 w-fit py-3 px-2">
                             {Array.from({ length: 4 }).map((_, i) => {
                                 const isEvenCol = i % 2 === 0
@@ -41,7 +56,7 @@ export default function Themes() {
                             })}
                         </div>
                         <span className="font-bold text-lg">{theme.label}</span>
-                        <div style={{backgroundColor: theme.black, display: boardTheme === theme.label ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
+                        <div style={{backgroundColor: theme.black, display: boardTheme === i ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
                     </button>
                 )
             })}

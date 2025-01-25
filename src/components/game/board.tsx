@@ -192,7 +192,6 @@ function Arrow(props: { move: square[], squareSize: number, class: string, white
 
 export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
     const [arrows, setArrows] = useState<square[][]>([])
-    const [boardColors, setBoardColors] = useState<[string, string]>(["", ""])
 
     const configContext = useContext(ConfigContext)
     const analyzeContext = useContext(AnalyzeContext)
@@ -234,14 +233,6 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const soundCastleInstance = forward ? castle : nextCastle
 
     const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
-
-    useEffect(() => {
-        const theme = boardThemes.filter(theme => theme.label === boardTheme)[0]
-        const white = theme.white
-        const black = theme.black
-
-        setBoardColors([white, black])
-    }, [boardTheme])
 
     useEffect(() => {
         if (!props.fen) return
@@ -375,6 +366,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
         animation.finished.then(resetElements).catch(resetElements)
         animation.oncancel = resetElements
     }
+
+    const boardColors = [boardThemes[boardTheme].white, boardThemes[boardTheme].black]
 
     return (
         <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)` }}>

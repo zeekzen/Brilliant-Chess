@@ -52,7 +52,7 @@ export default function Nav() {
                 </div>
             </div>
             <div style={{display: openedMenu ? '' : 'none'}} className="h-full z-[500] p-2 bg-backgroundBoxDarker absolute left-full select-none min-w-[300px]">
-                {openedMenu === 'settings' ? <Settings /> : null}
+                <Settings hidden={openedMenu !== 'settings'} />
             </div>
         </nav>
     )

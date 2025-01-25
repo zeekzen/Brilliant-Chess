@@ -1,16 +1,15 @@
 "use client"
 
-import { boardThemeLabel } from '@/components/nav/themes'
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
 export const ConfigContext = createContext<{
-    boardTheme: [boardThemeLabel, Dispatch<SetStateAction<boardThemeLabel>>],
+    boardTheme: [number, Dispatch<SetStateAction<number>>],
 }>({
-    boardTheme: ["Green", () => { }],
+    boardTheme: [0, () => { }],
 })
 
 export default function ConfigContextProvider(props: { children: React.ReactNode }) {
-    const [boardTheme, setBoardTheme] = useState<boardThemeLabel>("Green")
+    const [boardTheme, setBoardTheme] = useState<number>(0)
 
     return (
         <ConfigContext.Provider value={{boardTheme: [boardTheme, setBoardTheme]}}>
