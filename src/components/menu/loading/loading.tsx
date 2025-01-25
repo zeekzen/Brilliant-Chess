@@ -7,7 +7,9 @@ import { TYPES } from "../analyze/form"
 export default function Loading(props: { format: string }) {
     const [ellipsis, setEllipsis] = useState('')
 
-    const [progress, setProgress] = useContext(AnalyzeContext).progress
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [progress, setProgress] = analyzeContext.progress
 
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)

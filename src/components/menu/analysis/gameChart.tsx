@@ -23,9 +23,11 @@ export default function GameChart(props: { moves: move[], size: { width: number,
     const [hoveredMove, setHoveredMove] = useState(NaN)
     const [importantMoves, setImportantMoves] = useState<{color: (string|undefined), move: move}[]>([])
 
-    const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
-    const [animation, setAnimation] = useContext(AnalyzeContext).animation
-    const [forward, setForward] = useContext(AnalyzeContext).forward
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
+    const [animation, setAnimation] = analyzeContext.animation
+    const [forward, setForward] = analyzeContext.forward
 
     const totalMoves = moves.length - 1
     const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width

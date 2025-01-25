@@ -137,9 +137,10 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
     const [gamesInfo, setGamesInfo] = useState<{ pgn: string, whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, timeClass: string }[]>([])
     const [loading, setLoading] = useState(true)
 
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const analyzeContext = useContext(AnalyzeContext)
 
-    const [data, setData] = useContext(AnalyzeContext).data
+    const [errors, setErrors] = analyzeContext.errors
+    const [data, setData] = analyzeContext.data
 
     useEffect(() => {
         (async () => {
@@ -252,7 +253,9 @@ export default function SelectChessComGame(props: { username: string, depth: num
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
 
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [errors, setErrors] = analyzeContext.errors
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)

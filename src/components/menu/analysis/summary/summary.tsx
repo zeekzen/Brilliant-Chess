@@ -13,7 +13,9 @@ export default function Summary(props: { moves: move[], chartSize: {width: numbe
     const [accuracy, setAccuracy] = useState({ w: NaN, b: NaN })
     const [accuracyPhases, setAccuracyPhases] = useState<accuracyPhases>({ opening: { w: [], b: [] }, middlegame: { w: [], b: [] }, endgame: { w: [], b: [] } })
 
-    const [players, setPlayers] = useContext(AnalyzeContext).players
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [players, setPlayers] = analyzeContext.players
 
     return (
         <div className="flex flex-col gap-3 items-center">

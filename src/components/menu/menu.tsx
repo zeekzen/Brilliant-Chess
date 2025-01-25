@@ -30,12 +30,14 @@ export default function Menu() {
 
     const [overallGameComment, setOverallGameComment] = useState("")
 
-    const [tab, setTab] = useContext(AnalyzeContext).tab
-    const [pageState, setPageState] = useContext(AnalyzeContext).pageState
-    const [data, setData] = useContext(AnalyzeContext).data
-    const [game, setGame] = useContext(AnalyzeContext).game
-    const [players, setPlayers] = useContext(AnalyzeContext).players
-    const [result, setResult] = useContext(AnalyzeContext).result
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [tab, setTab] = analyzeContext.tab
+    const [pageState, setPageState] = analyzeContext.pageState
+    const [data, setData] = analyzeContext.data
+    const [game, setGame] = analyzeContext.game
+    const [players, setPlayers] = analyzeContext.players
+    const [result, setResult] = analyzeContext.result
 
     const menuRef = useRef<HTMLDivElement>(null)
 

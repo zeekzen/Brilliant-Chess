@@ -20,21 +20,23 @@ export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
 
-    const [players, setPlayers] = useContext(AnalyzeContext).players
-    const [time, setTime] = useContext(AnalyzeContext).time
-    const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
-    const [game, setGame] = useContext(AnalyzeContext).game
-    const [data, setData] = useContext(AnalyzeContext).data
-    const [pageState, setPageState] = useContext(AnalyzeContext).pageState
-    const [forward, setForward] = useContext(AnalyzeContext).forward
-    const [animation, setAnimation] = useContext(AnalyzeContext).animation
-    const [white, setWhite] = useContext(AnalyzeContext).white
-    const [playing, setPlaying] = useContext(AnalyzeContext).playing
-    const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
-    const [result, setResult] = useContext(AnalyzeContext).result
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
-    const [progress, setProgress] = useContext(AnalyzeContext).progress
-    const [tab, setTab] = useContext(AnalyzeContext).tab
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [players, setPlayers] = analyzeContext.players
+    const [time, setTime] = analyzeContext.time
+    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
+    const [game, setGame] = analyzeContext.game
+    const [data, setData] = analyzeContext.data
+    const [pageState, setPageState] = analyzeContext.pageState
+    const [forward, setForward] = analyzeContext.forward
+    const [animation, setAnimation] = analyzeContext.animation
+    const [white, setWhite] = analyzeContext.white
+    const [playing, setPlaying] = analyzeContext.playing
+    const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
+    const [result, setResult] = analyzeContext.result
+    const [errors, setErrors] = analyzeContext.errors
+    const [progress, setProgress] = analyzeContext.progress
+    const [tab, setTab] = analyzeContext.tab
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)

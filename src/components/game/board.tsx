@@ -195,10 +195,11 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const [boardColors, setBoardColors] = useState<[string, string]>(["", ""])
 
     const configContext = useContext(ConfigContext)
+    const analyzeContext = useContext(AnalyzeContext)
 
     const [boardTheme, setBoardTheme] = configContext.boardTheme
 
-    const [materialAdvantage, setMaterialAdvantage] = useContext(AnalyzeContext).materialAdvantage
+    const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)

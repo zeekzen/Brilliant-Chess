@@ -122,8 +122,10 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
     const [gamesInfo, setGamesInfo] = useState<{ whiteName: string, blackName: string, whiteElo: number, blackElo: number, result: 'white' | 'black' | 'draw', timestamp: number, pgn: string, timeClass: string }[]>([])
     const [loading, setLoading] = useState(true)
 
-    const [data, setData] = useContext(AnalyzeContext).data
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [data, setData] = analyzeContext.data
+    const [errors, setErrors] = analyzeContext.errors
 
     useEffect(() => {
         (async () => {
@@ -240,7 +242,9 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
 
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [errors, setErrors] = analyzeContext.errors
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)

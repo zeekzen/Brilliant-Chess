@@ -8,11 +8,13 @@ import { AnalyzeContext } from "@/context/analyze";
 export default function GameButtons() {
     const [playPauseHover, setPlayPauseHover] = useState(false)
 
-    const [playing, setPlaying] = useContext(AnalyzeContext).playing
-    const [moveNumber, setMoveNumber] = useContext(AnalyzeContext).moveNumber
-    const [game, setGame] = useContext(AnalyzeContext).game
-    const [forward, setForward] = useContext(AnalyzeContext).forward
-    const [animation, setAnimation] = useContext(AnalyzeContext).animation
+    const analyzeContext = useContext(AnalyzeContext)
+
+    const [playing, setPlaying] = analyzeContext.playing
+    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
+    const [game, setGame] = analyzeContext.game
+    const [forward, setForward] = analyzeContext.forward
+    const [animation, setAnimation] = analyzeContext.animation
 
     const moveNumberRef = useRef(moveNumber)
 
