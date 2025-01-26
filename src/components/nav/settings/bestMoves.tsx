@@ -1,5 +1,5 @@
 import { ConfigContext } from "@/context/config"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { boardThemes } from "./themes"
 import { Arrow } from "@/components/game/board"
 import Image from "next/image"
@@ -10,8 +10,22 @@ export default function BestMoves() {
     const [boardTheme, setBoardTheme] = configContext.boardTheme
     const [showArrows, setShowArrows] = configContext.showArrows
 
+    useEffect(() => {
+        const showArrows = localStorage.getItem('showArrows')
+        if (!showArrows) return
+        const numberShowArrows = Number(showArrows)
+        if (!isNaN(numberShowArrows)) {
+            setShowArrows(Boolean(numberShowArrows))
+        } else {
+            localStorage.setItem('showArrows', '1')
+            setShowArrows(true)
+        }
+    }, [])
+
     function toggleShowArrows() {
         const newShowArrows = !showArrows
+
+        localStorage.setItem('showArrows', String(Number(newShowArrows)))
 
         setShowArrows(newShowArrows)
     }
