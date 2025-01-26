@@ -202,6 +202,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const [boardTheme, setBoardTheme] = configContext.boardTheme
     const [usedRatings, setUsedRatings] = configContext.usedRatings
+    const [highlightByRating, setHighlightByRating] = configContext.highlightByRating
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
@@ -232,7 +233,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_STYLE)
 
-    const highlightColor = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? "bg-highlightBoard"
+    const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? "bg-highlightBoard" : "bg-highlightBoard"
     const highlightIcon = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.icon
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
