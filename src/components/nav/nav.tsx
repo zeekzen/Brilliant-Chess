@@ -23,15 +23,17 @@ export default function Nav() {
 
     interface Link {
         label: string,
-        click: () => any,
-        hover: () => void,
-        unHover: () => void,
+        click?: () => any,
+        hover?: () => void,
+        unHover?: () => void,
         icon: { src: string, alt: string },
         role: "button"|"link",
     }
 
     const topLinks: Link[] = [
-        { label: "Settings", click: toggleSettings, hover: openSettings, unHover: () => { }, icon: { src: "/images/setting.svg", alt: "Settings" }, role: "button" }
+        { label: "Settings", click: toggleSettings, hover: openSettings, icon: { src: "/images/setting.svg", alt: "Settings" }, role: "button" },
+        { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: { src: "/images/megaphone.svg", alt: "Contact Us" }, role: "link" },
+        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open("https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", "_blank", "noopener,noreferrer"), icon: { src: "/images/donate.svg", alt: "Donate" }, role: "link" },
     ]
 
     function toggleSettings() {
@@ -59,7 +61,7 @@ export default function Nav() {
             }
         }
 
-        document.addEventListener('click', handleClick)
+        document.addEventListener('mousedown', handleClick)
     }, [])
 
     return (
@@ -72,7 +74,7 @@ export default function Nav() {
                     </a>
                     {topLinks.map((link, i) => {
                         return (
-                            <button onClick={link.click} onMouseEnter={link.hover} type="button" key={i} className="text-lg font-bold px-3 py-2 hover:bg-backgroundBoxHover hover:text-foregroundHighlighted transition-colors flex flex-row gap-2">
+                            <button onClick={link?.click} onMouseEnter={link?.hover} onMouseLeave={link?.unHover} type="button" key={i} className="text-lg font-bold px-3 py-2 hover:bg-backgroundBoxHover hover:text-foregroundHighlighted transition-colors flex flex-row gap-2">
                                 <Image height={28} width={28} alt={link.icon.alt} src={link.icon.src} className="transition-colors" />
                                 <div className="h-fit w-fit">{link.label}</div>
                             </button>
