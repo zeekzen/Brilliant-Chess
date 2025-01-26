@@ -194,7 +194,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
+export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const configContext = useContext(ConfigContext)
@@ -204,13 +204,14 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const [usedRatings, setUsedRatings] = configContext.usedRatings
     const [highlightByRating, setHighlightByRating] = configContext.highlightByRating
     const [showArrows, setShowArrows] = configContext.showArrows
+    const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardSize, bestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation } = props
+    const { boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -487,10 +488,13 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             {
                 (() => {
                     if (!showArrows) return
-                    const adaptedBestMove = bestMove?.map(square => {
+
+                    const move = arrowAfterMove ? previousBestMove : bestMove
+                    const adaptedMove = move?.map(square => {
                         return adaptSquare(square)
                     })
-                    return adaptedBestMove ? <Arrow move={adaptedBestMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" white={white} /> : ''
+
+                    return adaptedMove ? <Arrow move={adaptedMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" white={white} /> : ''
                 })()
             }
         </div>
