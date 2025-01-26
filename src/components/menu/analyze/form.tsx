@@ -25,6 +25,11 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     const [type, setType] = props.type
     const [selected, select] = props.selected
 
+    const formRef = useRef<HTMLFormElement>(null)
+    const inputRef = useRef<HTMLTextAreaElement>(null)
+
+    const shiftPressed = useRef(false)
+
     useEffect(() => {
         const previousType = localStorage.getItem('type')
         if (!previousType) return
@@ -73,8 +78,6 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         }
     }, [selected])
 
-    const inputRef = useRef<HTMLInputElement>(null)
-
     function analyze(e: React.FormEvent) {
         e.preventDefault()
 
@@ -109,6 +112,22 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         localStorage.setItem('type', String(i))
     }
 
+    function handleKeyDown(e: React.KeyboardEvent) {
+        if (e.key === 'Enter' && !shiftPressed.current) {
+            e.preventDefault()
+            formRef.current?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }))
+        }
+        if (e.key === 'Shift') {
+            shiftPressed.current = true
+        }
+    }
+
+    function handleKeyUp(e: React.KeyboardEvent) {
+        if (e.key === 'Shift') {
+            shiftPressed.current = false
+        }
+    }
+
     function isAPlatform(i: number) {
         return FORMATS[i][2] === "platform"
     }
@@ -122,8 +141,8 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         "Analyze"
 
     return (
-        <form onSubmit={analyze} className="flex flex-col items-center gap-4">
-            <input type="text" value={value} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e?.currentTarget.value)} ref={inputRef} placeholder={inputPlaceholder} className="w-[85%] h-14 p-2 transition-colors text-xl font-bold rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none placeholder:text-placeholder placeholder:font-normal" />
+        <form ref={formRef} onSubmit={analyze} className="flex flex-col items-center gap-4">
+            <textarea rows={1} value={value} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e?.currentTarget.value)} ref={inputRef} placeholder={inputPlaceholder} className="w-[85%] px-2 py-[13px] flex items-center transition-colors text-xl font-bold rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none placeholder:text-placeholder placeholder:font-normal resize-none" />
             <div className="w-[85%] flex flex-col gap-2">
                 <button type="button" className="flex flex-row gap-1 items-center justify-center w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => { e.preventDefault(); setSelecting(isSelecting => !isSelecting) }}>
                     <img src={FORMATS[selected][1]} className="h-7" />
