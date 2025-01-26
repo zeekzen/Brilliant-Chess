@@ -1,4 +1,5 @@
 import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
+import { resolve } from "path";
 import { SetStateAction } from "react";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'
@@ -147,6 +148,8 @@ export async function prepareStockfish(stockfish: Worker, threads: number, hash:
     stockfish.postMessage("uci")
     stockfish.postMessage(`setoption name Threads value ${threads}`)
     await setHashValue(stockfish, hash)
+
+    await new Promise(resolve => setTimeout(() => resolve(true), 10000))
 }
 
 function invertColor(color: Color): Color {
