@@ -5,7 +5,7 @@ import GitHub from "../svg/github"
 import { useContext, useEffect, useRef, useState } from "react"
 import Heart from "../svg/heart"
 import Licenses from "../svg/license"
-import Settings from "./settings"
+import Settings from "./settings/settings"
 import { ConfigContext, menu } from "@/context/config"
 
 export default function Nav() {
@@ -84,7 +84,7 @@ export default function Nav() {
                     <a target="_blank" href="/licenses" onMouseEnter={() => setLicensesHover(true)} onMouseLeave={() => setLicensesHover(false)} className="flex flex-row gap-2"><Licenses class={`${licensesHover ? "fill-foregroundHighlighted" : "fill-foregroundGrey"} transition-colors`} />Licenses</a>
                 </div>
             </div>
-            <div ref={menuRef} style={{display: openedMenu ? '' : 'none'}} className="h-full z-[500] p-2 bg-backgroundBoxDarker absolute left-full select-none min-w-[300px]">
+            <div ref={menuRef} style={{display: openedMenu ? '' : 'none'}} className="h-full z-[500] p-2 bg-backgroundBoxDarker absolute left-full select-none min-w-[300px] overflow-y-auto">
                 <Settings hidden={openedMenu !== 'settings'} />
             </div>
         </nav>

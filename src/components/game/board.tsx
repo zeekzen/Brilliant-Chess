@@ -5,7 +5,11 @@ import { Chess, PieceSymbol, WHITE } from "chess.js";
 import { Howl } from "howler";
 import { AnalyzeContext } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
-import { boardThemes } from "../nav/themes";
+import { boardThemes } from "../nav/settings/themes";
+
+interface filteredHighlightStyle {
+    [key: string]: { color: string, icon: string }
+}
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
@@ -117,10 +121,10 @@ function flipBoard(board: position) {
     board.reverse()
 }
 
-function PreloadRatingImages() {
+function PreloadRatingImages({ highlightedStyle }: { highlightedStyle: filteredHighlightStyle }) {
     const preloaders = []
-    for (const rating in HIGHLIGHT_STYLE) {
-        const url = '/images/rating/' + HIGHLIGHT_STYLE[rating as keyof typeof HIGHLIGHT_STYLE].icon
+    for (const rating in highlightedStyle) {
+        const url = '/images/rating/' + highlightedStyle[rating as keyof typeof highlightedStyle].icon
 
         preloaders.push(
             <Image key={rating} alt={"preload " + rating} src={url} priority hidden width={1} height={0} />
@@ -197,6 +201,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const analyzeContext = useContext(AnalyzeContext)
 
     const [boardTheme, setBoardTheme] = configContext.boardTheme
+    const [usedRatings, setUsedRatings] = configContext.usedRatings
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
@@ -225,8 +230,10 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
 
-    const highlightColor = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.color ?? "bg-highlightBoard"
-    const highlightIcon = HIGHLIGHT_STYLE[moveRating as keyof typeof HIGHLIGHT_STYLE]?.icon
+    const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_STYLE)
+
+    const highlightColor = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? "bg-highlightBoard"
+    const highlightIcon = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.icon
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
     const soundCaptureInstance = forward ? capture : nextCapture
@@ -297,6 +304,16 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
         if (!currentArrow[0] || !currentArrow[1]) return
 
         pushArrow(currentArrow)
+    }
+
+    function filterHighlightStyle(highlightStyle: typeof HIGHLIGHT_STYLE) {
+        const filteredHighlightStyle: filteredHighlightStyle = {}
+        for (const key in highlightStyle) {
+            const rating = key as keyof typeof usedRatings
+            if (usedRatings[rating]) filteredHighlightStyle[rating as keyof typeof filteredHighlightStyle] = HIGHLIGHT_STYLE[rating]
+        }
+
+        return filteredHighlightStyle
     }
 
     function restartArrows() {
@@ -371,7 +388,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     return (
         <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)` }}>
-            <PreloadRatingImages />
+            <PreloadRatingImages highlightedStyle={filteredHighlightStyle} />
             {
                 (() => {
                     const squares: JSX.Element[] = []

@@ -44,8 +44,8 @@ export default function Themes() {
             <h1 className="block bg-backgroundBoxBox font-bold text-nowrap p-3 text-foreground">Board Theme</h1>
             {boardThemes.map((theme, i) => {
                 return (
-                    <button onClick={() => changeBoardTheme(i)} type="button" key={i} className="flex flex-row gap-2 items-center hover:bg-black transition-colors w-full relative">
-                        <div className="grid grid-cols-2 w-fit py-3 px-2">
+                    <button onClick={() => changeBoardTheme(i)} type="button" key={i} className="flex flex-row gap-2 items-center hover:bg-black transition-colors hover:text-foregroundHighlighted w-full relative p-2">
+                        <div className="grid grid-cols-2 w-fit">
                             {Array.from({ length: 4 }).map((_, i) => {
                                 const isEvenCol = i % 2 === 0
                                 const isEvenRow = Math.floor(i / 2) % 2 === 0
