@@ -60,8 +60,22 @@ export default function Ratings() {
         }
     }, [])
 
+    useEffect(() => {
+        const highlightByRating = localStorage.getItem('highlightByRating')
+        if (!highlightByRating) return
+        const numberHighlightByRating = Number(highlightByRating)
+        if (!isNaN(numberHighlightByRating)) {
+            setHighlightByRating(Boolean(numberHighlightByRating))
+        } else {
+            localStorage.setItem('highlightByRating', '1')
+            setHighlightByRating(true)
+        }
+    }, [])
+
     function toggleHighlightByRating() {
         const newHighlightByRating = !highlightByRating
+
+        localStorage.setItem('highlightByRating', String(Number(newHighlightByRating)))
 
         setHighlightByRating(newHighlightByRating)
     }
