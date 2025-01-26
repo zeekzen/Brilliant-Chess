@@ -26,25 +26,36 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     const [selected, select] = props.selected
 
     useEffect(() => {
-        const previousSelected = Number(localStorage.getItem('format'))
-        const previousType = Number(localStorage.getItem('type'))
+        const previousType = localStorage.getItem('type')
+        if (!previousType) return
 
-        if (FORMATS[previousSelected] != null) {
-            select(previousSelected)
-        } else {
-            select(0)
-            localStorage.setItem('format', String(0))
-        }
+        const previousTypeNumber = Number(previousType)
 
-        if (TYPES[previousType] != null) {
-            setType(previousType)
+        if (TYPES[previousTypeNumber] != null) {
+            setType(previousTypeNumber)
         } else {
             setType(1)
             localStorage.setItem('type', String(1))
         }
+    }, [])
 
-        setSelecting(false)
+    useEffect(() => {
+        const previousSelected = localStorage.getItem('format')
+        if (!previousSelected) return
+
+        const previousSelectedNumber = Number(previousSelected)
+
+        if (FORMATS[previousSelectedNumber] != null) {
+            select(previousSelectedNumber)
+        } else {
+            select(0)
+            localStorage.setItem('format', String(0))
+        }
+    }, [])
+    
+    useEffect(() => {
         setValue("")
+        setSelecting(false)
     }, [])
 
     useEffect(() => {
@@ -61,9 +72,6 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                 setValue("")
         }
     }, [selected])
-
-    useEffect(() => localStorage.setItem('format', String(selected)), [selected])
-    useEffect(() => localStorage.setItem('type', String(type)), [type])
 
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -89,8 +97,16 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         select(i)
         setSelecting(false)
 
+        localStorage.setItem('format', String(i))
+
         const input = inputRef.current
         input?.focus()
+    }
+
+    function changeType(i: number) {
+        setType(i)
+
+        localStorage.setItem('type', String(i))
     }
 
     function isAPlatform(i: number) {
@@ -133,7 +149,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                         {TYPES.map((depth, i) => {
                             return (
                                 <li key={i}>
-                                    <button title={depth[3]} type="button" onClick={() => setType(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
+                                    <button title={depth[3]} type="button" onClick={() => changeType(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
                                         <Image alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
                                         {depth[0]}
                                     </button>
