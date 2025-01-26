@@ -4,7 +4,7 @@ import { createContext, useState, Dispatch, SetStateAction, useRef } from 'react
 
 export type menu = "settings" | null
 
-interface usedRatings {
+export interface usedRatings {
     brilliant: boolean,
     great: boolean,
     best: boolean,
@@ -18,7 +18,7 @@ interface usedRatings {
     forced: boolean,
 }
 
-const defaultUsedRatings: usedRatings = {
+export const defaultUsedRatings: usedRatings = {
     brilliant: true,
     great: true,
     best: true,

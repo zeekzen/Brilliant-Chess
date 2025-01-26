@@ -1,7 +1,7 @@
 import { capitalizeFirst } from "@/components/menu/analyze/selectChessCom"
-import { ConfigContext } from "@/context/config"
+import { ConfigContext, defaultUsedRatings, usedRatings } from "@/context/config"
 import Image from "next/image"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 
 const ratings = [
     "brilliant",
@@ -17,10 +17,45 @@ const ratings = [
     "forced",
 ]
 
+function serializeRatings(usedRatings: usedRatings) {
+    const serializedRatings: (0|1)[] = []
+    for (const rating of ratings) {
+        if (usedRatings[rating as keyof typeof usedRatings]) serializedRatings.push(1)
+        else serializedRatings.push(0)
+    }
+    return serializedRatings.join('')
+}
+
+function unserializeRatings(serializedUsedRatings: string) {
+    const unserializedRatings: usedRatings = {...defaultUsedRatings}
+    const serializedRatings = serializedUsedRatings.split('').map(Number)
+    if (serializedRatings.length !== ratings.length) throw new Error('Invalid serialized ratings')
+
+    for (const [i, rating] of ratings.entries()) {
+        if (isNaN(serializedRatings[i])) throw new Error('Invalid serialized ratings')
+
+        if (serializedRatings[i]) unserializedRatings[rating as keyof typeof unserializedRatings] = true
+        else unserializedRatings[rating as keyof typeof unserializedRatings] = false
+    }
+    return unserializedRatings
+}
+
 export default function Ratings() {
     const configContext = useContext(ConfigContext)
-
+    
     const [usedRatings, setUsedRatings] = configContext.usedRatings
+
+    useEffect(() => {
+        const serializedUsedRatings = localStorage.getItem('usedRatings')
+        if (!serializedUsedRatings) return
+        try {
+            const usedRatings = unserializeRatings(serializedUsedRatings)
+            setUsedRatings(usedRatings)
+        } catch {
+            localStorage.setItem('usedRatings', serializeRatings(defaultUsedRatings))
+            setUsedRatings(defaultUsedRatings)
+        }
+    }, [])
 
     return (
         <section>
@@ -30,10 +65,12 @@ export default function Ratings() {
                 const color = rating === 'forced' ? 'var(--highlightGood)' : `var(--highlight${capitalizeFirst(rating)})`
 
                 function toggleRating() {
-                    setUsedRatings({
+                    const newUsedRatings = {
                         ...usedRatings,
                         [rating]: !usedRatings[rating as keyof typeof usedRatings]
-                    })
+                    }
+                    setUsedRatings(newUsedRatings)
+                    localStorage.setItem('usedRatings', serializeRatings(newUsedRatings))
                 }
 
                 return (
