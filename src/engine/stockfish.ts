@@ -148,8 +148,6 @@ export async function prepareStockfish(stockfish: Worker, threads: number, hash:
     stockfish.postMessage("uci")
     stockfish.postMessage(`setoption name Threads value ${threads}`)
     await setHashValue(stockfish, hash)
-
-    await new Promise(resolve => setTimeout(() => resolve(true), 10000))
 }
 
 function invertColor(color: Color): Color {
