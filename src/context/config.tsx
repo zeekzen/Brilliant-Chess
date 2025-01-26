@@ -36,7 +36,8 @@ export const ConfigContext = createContext<{
     openedMenu: [menu, Dispatch<SetStateAction<menu>>],
     boardTheme: [number, Dispatch<SetStateAction<number>>],
     usedRatings: [usedRatings, Dispatch<SetStateAction<usedRatings>>],
-    highlightByRating: [boolean, Dispatch<SetStateAction<boolean>>]
+    highlightByRating: [boolean, Dispatch<SetStateAction<boolean>>],
+    showArrows: [boolean, Dispatch<SetStateAction<boolean>>],
 
     boardMenuSettingsRef: React.MutableRefObject<HTMLButtonElement | null>,
 }>({
@@ -44,6 +45,7 @@ export const ConfigContext = createContext<{
     boardTheme: [0, () => { }],
     usedRatings: [defaultUsedRatings, () => { }],
     highlightByRating: [true, () => { }],
+    showArrows: [true, () => { }],
 
     boardMenuSettingsRef: { current: null },
 })
@@ -53,11 +55,12 @@ export default function ConfigContextProvider(props: { children: React.ReactNode
     const [boardTheme, setBoardTheme] = useState<number>(0)
     const [usedRatings, setUsedRatings] = useState<usedRatings>(defaultUsedRatings)
     const [highlightByRating, setHighlightByRating] = useState<boolean>(true)
+    const [showArrows, setShowArrows] = useState<boolean>(true)
 
     const boardMenuSettingsRef = useRef<HTMLButtonElement>(null)
 
     return (
-        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], boardMenuSettingsRef: boardMenuSettingsRef, highlightByRating: [highlightByRating, setHighlightByRating] }}>
+        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], highlightByRating: [highlightByRating, setHighlightByRating], showArrows: [showArrows, setShowArrows], boardMenuSettingsRef: boardMenuSettingsRef }}>
             {props.children}
         </ConfigContext.Provider>
     )

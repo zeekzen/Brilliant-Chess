@@ -134,7 +134,7 @@ function PreloadRatingImages({ highlightedStyle }: { highlightedStyle: filteredH
     return preloaders
 }
 
-function Arrow(props: { move: square[], squareSize: number, class: string, white: boolean }) {
+export function Arrow(props: { move: square[], squareSize: number, class: string, white: boolean }) {
 
     const { move, squareSize, white } = props
 
@@ -203,6 +203,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const [boardTheme, setBoardTheme] = configContext.boardTheme
     const [usedRatings, setUsedRatings] = configContext.usedRatings
     const [highlightByRating, setHighlightByRating] = configContext.highlightByRating
+    const [showArrows, setShowArrows] = configContext.showArrows
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
@@ -485,6 +486,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
             }
             {
                 (() => {
+                    if (!showArrows) return
                     const adaptedBestMove = bestMove?.map(square => {
                         return adaptSquare(square)
                     })
