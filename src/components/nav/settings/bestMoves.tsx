@@ -68,7 +68,7 @@ export default function BestMoves() {
                             </div>
                         )
                     })}
-                    <Arrow move={[{ col: 0, row: 1 }, { col: 1, row: 1 }]} squareSize={20} white class="fill-bestArrow stroke-bestArrow" />
+                    {showArrows ? <Arrow move={[{ col: 0, row: 1 }, { col: 1, row: 1 }]} squareSize={20} white class="fill-bestArrow stroke-bestArrow" /> : null}
                 </div>
                 <span className="font-bold text-lg">Show arrows</span>
                 <div style={{ backgroundColor: "var(--foreground)", display: showArrows ? '' : 'none' }} className="w-3 h-3 rounded-full absolute right-3" />
