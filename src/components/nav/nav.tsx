@@ -2,17 +2,13 @@
 
 import Image from "next/image"
 import GitHub from "../svg/github"
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef } from "react"
 import Heart from "../svg/heart"
 import Licenses from "../svg/license"
 import Settings from "./settings/settings"
-import { ConfigContext, menu } from "@/context/config"
+import { ConfigContext } from "@/context/config"
 
 export default function Nav() {
-    const [srcHover, setSrcHover] = useState(false)
-    const [supportHover, setSupportHover] = useState(false)
-    const [licensesHover, setLicensesHover] = useState(false)
-
     const configContext = useContext(ConfigContext)
 
     const [openedMenu, setOpenedMenu] = configContext.openedMenu
@@ -21,19 +17,31 @@ export default function Nav() {
     const topLinksRef = useRef<HTMLDivElement>(null)
     const menuRef = useRef<HTMLDivElement>(null)
 
-    interface Link {
+    interface TopLink {
         label: string,
         click?: () => any,
         hover?: () => void,
         unHover?: () => void,
-        icon: { src: string, alt: string },
+        icon: string,
         role: "button"|"link",
     }
 
-    const topLinks: Link[] = [
-        { label: "Settings", click: toggleSettings, hover: openSettings, icon: { src: "/images/setting.svg", alt: "Settings" }, role: "button" },
-        { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: { src: "/images/megaphone.svg", alt: "Contact Us" }, role: "link" },
-        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open("https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", "_blank", "noopener,noreferrer"), icon: { src: "/images/donate.svg", alt: "Donate" }, role: "link" },
+    const topLinks: TopLink[] = [
+        { label: "Settings", click: toggleSettings, hover: openSettings, icon: "/images/setting.svg", role: "button" },
+        { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: "/images/megaphone.svg", role: "link" },
+        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open("https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", "_blank", "noopener,noreferrer"), icon: "/images/donate.svg", role: "link" },
+    ]
+
+    interface BotLinks {
+        label: string,
+        href: string,
+        icon: (props: {className: string}) => React.ReactNode,
+    }
+
+    const botLinks: BotLinks[] = [
+        { label: "Author", href: "https://github.com/wdeloo", icon: (props: {className: string}) => <GitHub class={props.className} /> },
+        { label: "Support Me", href: "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", icon: (props: {className: string}) => <Heart class={props.className} /> },
+        { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
     ]
 
     function toggleSettings() {
@@ -75,16 +83,21 @@ export default function Nav() {
                     {topLinks.map((link, i) => {
                         return (
                             <button onClick={link?.click} onMouseEnter={link?.hover} onMouseLeave={link?.unHover} type="button" key={i} className="text-lg font-bold px-3 py-2 hover:bg-backgroundBoxHover hover:text-foregroundHighlighted transition-colors flex flex-row gap-2">
-                                <Image height={28} width={28} alt={link.icon.alt} src={link.icon.src} className="transition-colors" />
+                                <Image height={28} width={28} alt={link.label} src={link.icon} className="transition-colors" />
                                 <div className="h-fit w-fit">{link.label}</div>
                             </button>
                         )
                     })}
                 </div>
-                <div className="flex flex-col *:px-3 *:py-2 *:transition-colors hover:*:bg-backgroundBoxHover text-sm *:text-foregroundGrey hover:*:text-foregroundHighlighted font-bold">
-                    <a target="_blank" href="https://github.com/wdeloo" onMouseEnter={() => setSrcHover(true)} onMouseLeave={() => setSrcHover(false)} className="flex flex-row gap-2"><GitHub class={`${srcHover ? "fill-foregroundHighlighted" : "fill-foregroundGrey"} transition-colors`} />Author</a>
-                    <a target="_blank" href="https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW" onMouseEnter={() => setSupportHover(true)} onMouseLeave={() => setSupportHover(false)} className="flex flex-row gap-2"><Heart class={`${supportHover ? "fill-foregroundHighlighted" : "fill-foregroundGrey"} transition-colors`} />Support Me</a>
-                    <a target="_blank" href="/licenses" onMouseEnter={() => setLicensesHover(true)} onMouseLeave={() => setLicensesHover(false)} className="flex flex-row gap-2"><Licenses class={`${licensesHover ? "fill-foregroundHighlighted" : "fill-foregroundGrey"} transition-colors`} />Licenses</a>
+                <div className="flex flex-col text-sm font-bold">
+                    {botLinks.map((link, i) => {
+                        return (
+                            <a key={i} target="_blank" href={link.href} className="flex flex-row gap-2 px-3 py-2 group hover:bg-backgroundBoxHover text-foregroundGrey hover:text-foregroundHighlighted transition-colors">
+                                <link.icon className="fill-foregroundGrey transition-colors group-hover:fill-foregroundHighlighted" />
+                                <span>{link.label}</span>
+                            </a>
+                        )
+                    })}
                 </div>
             </div>
             <div ref={menuRef} style={{display: openedMenu ? '' : 'none'}} className="h-full z-[500] p-2 bg-backgroundBoxDarker absolute left-full select-none min-w-[300px] overflow-y-auto">
