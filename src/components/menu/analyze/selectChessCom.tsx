@@ -62,7 +62,7 @@ export function capitalizeFirst(string: string) {
     return string[0].toUpperCase() + string.substring(1).toLowerCase()
 }
 
-function Loading(props: {whatIsLoading: string}) {
+export function Loading(props: {whatIsLoading: string}) {
     const [ellipsis, setEllipsis] = useState('')
 
     const ellipsisRef = useRef(ellipsis)
@@ -101,7 +101,7 @@ function Loading(props: {whatIsLoading: string}) {
     )
 }
 
-function SimpleLoading(props: {whatIsLoading: string}) {
+export function SimpleLoading(props: {whatIsLoading: string}) {
     const [ellipsis, setEllipsis] = useState('')
 
     const ellipsisRef = useRef(ellipsis)

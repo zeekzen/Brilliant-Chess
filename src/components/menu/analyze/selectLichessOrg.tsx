@@ -4,7 +4,7 @@ import { AnalyzeContext } from "@/context/analyze"
 import Image from "next/image"
 import { pushPageError } from "@/errors/error"
 import { Chess } from "chess.js"
-import { capitalizeFirst, getMonthName } from "./selectChessCom"
+import { capitalizeFirst, getMonthName, Loading, SimpleLoading } from "./selectChessCom"
 
 interface Game {
     id: string;
@@ -46,75 +46,6 @@ interface Game {
 }
 
 const PLAYER_URL = 'https://lichess.org/@/'
-
-function Loading(props: {whatIsLoading: string}) {
-    const [ellipsis, setEllipsis] = useState('')
-
-    const ellipsisRef = useRef(ellipsis)
-
-    useEffect(() => {ellipsisRef.current = ellipsis}, [ellipsis])
-
-    useEffect(() => {
-        function animateEllipsis() {
-            const ellipsis = ellipsisRef.current
-
-            if (ellipsis.length >= 3) {
-                setEllipsis('')
-            } else {
-                setEllipsis(ellipsis + '.')
-            }
-        }
-
-        const ellipsisInterval = setInterval(animateEllipsis, 300)
-
-        return () => clearInterval(ellipsisInterval)
-    }, [])
-
-    return (
-                <div className="flex flex-col flex-grow">
-                    <div className="flex-grow flex flex-col justify-center items-center">
-                        <div className="w-[70%] bg-backgroundBox relative overflow-hidden rounded-borderExtraRoundness text-lg text-foregroundGrey flex flex-col gap-14 pb-4 pt-14 items-center">
-                            <div className="w-40 flex flex-col items-center gap-4">
-                                <Image priority className="animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] scale-x-[-1] fill-backgroundBoxBoxHighlighted" width={60} height={60} src='/images/files.svg' alt="files" />
-                                <span className="text-xl text-foreground font-bold">{props.whatIsLoading}</span>
-                                <span className="w-full ml-14">Fetching api{ellipsis}</span>
-                            </div>
-                            <button className="hover:text-foreground transition-colors" type="button">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-    )
-}
-
-function SimpleLoading(props: {whatIsLoading: string}) {
-    const [ellipsis, setEllipsis] = useState('')
-
-    const ellipsisRef = useRef(ellipsis)
-
-    useEffect(() => {ellipsisRef.current = ellipsis}, [ellipsis])
-
-    useEffect(() => {
-        function animateEllipsis() {
-            const ellipsis = ellipsisRef.current
-
-            if (ellipsis.length >= 3) {
-                setEllipsis('')
-            } else {
-                setEllipsis(ellipsis + '.')
-            }
-        }
-
-        const ellipsisInterval = setInterval(animateEllipsis, 300)
-
-        return () => clearInterval(ellipsisInterval)
-    }, [])
-
-    return (
-        <div className="font-extrabold text-2xl animate-[pulse_1.25s_cubic-bezier(0.4,_0,_0.6,_1)_infinite;] w-48 my-4 m-auto">
-            Loading {props.whatIsLoading}{ellipsis}
-        </div>
-    )
-}
 
 function Games(props: { url: string, username: string, depth: number, unSelect: () => void }) {
     const { url, username, depth, unSelect } = props
