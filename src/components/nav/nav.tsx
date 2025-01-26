@@ -27,10 +27,11 @@ export default function Nav() {
         hover: () => void,
         unHover: () => void,
         icon: { src: string, alt: string },
+        role: "button"|"link",
     }
 
     const topLinks: Link[] = [
-        { label: "Settings", click: toggleSettings, hover: openSettings, unHover: () => { }, icon: { src: "/images/setting.svg", alt: "Settings" } }
+        { label: "Settings", click: toggleSettings, hover: openSettings, unHover: () => { }, icon: { src: "/images/setting.svg", alt: "Settings" }, role: "button" }
     ]
 
     function toggleSettings() {

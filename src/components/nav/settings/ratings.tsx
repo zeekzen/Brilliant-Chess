@@ -83,7 +83,7 @@ export default function Ratings() {
     return (
         <section>
             <h1 className="block bg-backgroundBoxBox font-bold text-nowrap p-3 text-foreground">Ratings</h1>
-            <button onClick={toggleHighlightByRating} type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+            <button role="switch" onClick={toggleHighlightByRating} type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
                 <div className="grid grid-cols-2 w-fit">
                     {Array.from({ length: 4 }).map((_, i) => {
                         const isEvenCol = i % 2 === 0
@@ -121,7 +121,7 @@ export default function Ratings() {
                 }
 
                 return (
-                    <button onClick={toggleRating} type="button" key={i} className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+                    <button role="switch" onClick={toggleRating} type="button" key={i} className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
                         <Image alt={rating} src={src} height={35} width={35} className="w-10 h-10 p-[2.5px]" />
                         <span className="font-bold text-lg">{capitalizeFirst(rating)}</span>
                         <div style={{backgroundColor: color, display: usedRatings[rating as keyof typeof usedRatings] ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
