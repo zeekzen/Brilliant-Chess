@@ -27,7 +27,7 @@ export default function Nav() {
     }
 
     const topLinks: TopLink[] = [
-        { label: "Settings", click: toggleSettings, hover: openSettings, icon: "/images/setting.svg", role: "button" },
+        { label: "Settings", hover: openSettings, icon: "/images/setting.svg", role: "button" },
         { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: "/images/megaphone.svg", role: "link" },
         { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open("https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", "_blank", "noopener,noreferrer"), icon: "/images/donate.svg", role: "link" },
     ]
@@ -43,10 +43,6 @@ export default function Nav() {
         { label: "Support Me", href: "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", icon: (props: {className: string}) => <Heart class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
     ]
-
-    function toggleSettings() {
-        setOpenedMenu(prev => prev === "settings" ? null : "settings")
-    }
 
     function openSettings() {
         setOpenedMenu("settings")
@@ -74,9 +70,9 @@ export default function Nav() {
 
     return (
         <nav className="flex flex-row h-screen relative">
-            <div className="pt-1 pb-6 h-full w-fit bg-backgroundBox flex flex-col justify-between">
+            <div className="pt-1 pb-6 h-full w-fit bg-backgroundBox flex flex-col justify-between select-none">
                 <div ref={topLinksRef} className="flex flex-col">
-                    <a href="/" className="flex flex-row gap-1 font-extrabold text-xl p-3 transition-colors hover:bg-backgroundBoxHover hover:text-foregroundHighlighted">
+                    <a onMouseEnter={() => setOpenedMenu(null)} href="/" className="flex flex-row gap-1 font-extrabold text-xl p-3 transition-colors hover:bg-backgroundBoxHover hover:text-foregroundHighlighted">
                         <Image height={30} width={30} alt="logo" src="images/logo.svg" className="mt-[-2px]" />
                         <div className="h-fit w-fit">Brilliant<span className="text-sm font-light">Chess</span></div>
                     </a>
