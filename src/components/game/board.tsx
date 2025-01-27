@@ -1,4 +1,4 @@
-import { moveRating, position, square } from "@/server/analyze";
+import { moveRating, position, square } from "@/engine/stockfish";
 import Image from "next/image";
 import { useContext, useEffect, useRef, useState } from "react";
 import { Chess, PieceSymbol, WHITE } from "chess.js";

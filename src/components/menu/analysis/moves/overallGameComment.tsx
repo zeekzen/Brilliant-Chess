@@ -1,4 +1,4 @@
-import { result } from "@/server/analyze"
+import { result } from "@/engine/stockfish"
 
 const COMMENTS = {
     win: [

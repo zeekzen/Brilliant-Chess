@@ -1,4 +1,4 @@
-import { moveRating } from "@/server/analyze"
+import { moveRating } from "@/engine/stockfish"
 import { avg } from "./playersAccuracy"
 import RatingBox from "./ratingBox"
 import Image from "next/image"

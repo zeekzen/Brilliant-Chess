@@ -1,5 +1,5 @@
 import { AnalyzeContext } from "@/context/analyze"
-import { move, moveRating } from "@/server/analyze"
+import { move, moveRating } from "@/engine/stockfish"
 import { useContext, useEffect, useState } from "react"
 import { getLastBookMove } from "./moves/moves"
 

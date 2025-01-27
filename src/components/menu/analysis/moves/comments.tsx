@@ -1,6 +1,6 @@
 import Image from "next/image"
 import { RATING_STYLE } from "./moves"
-import { moveRating } from "@/server/analyze"
+import { moveRating } from "@/engine/stockfish"
 
 const RATING_FORMATS_GUIDE = {
     _isA_Move: 'is a _ move',

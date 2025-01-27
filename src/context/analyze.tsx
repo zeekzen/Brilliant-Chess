@@ -1,6 +1,6 @@
 "use client"
 
-import { move, result } from '@/server/analyze'
+import { move, result } from "@/engine/stockfish"
 import { createContext, useState, Dispatch, SetStateAction } from 'react'
 
 export type players = {

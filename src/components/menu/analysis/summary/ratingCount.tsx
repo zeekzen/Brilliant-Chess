@@ -1,4 +1,4 @@
-import { move } from "@/server/analyze";
+import { move } from "@/engine/stockfish";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 

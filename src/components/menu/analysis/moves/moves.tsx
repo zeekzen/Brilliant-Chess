@@ -1,5 +1,5 @@
 import { AnalyzeContext } from "@/context/analyze"
-import { move, moveRating } from "@/server/analyze"
+import { move, moveRating } from "@/engine/stockfish"
 import Image from "next/image"
 import { useContext, useEffect, useRef, useState } from "react"
 import Comments from "./comments"

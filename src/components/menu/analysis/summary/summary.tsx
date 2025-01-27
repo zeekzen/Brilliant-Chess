@@ -4,7 +4,7 @@ import RatingCount from "./ratingCount";
 import PlayersAccuracy from "./playersAccuracy";
 import GameRating from "./gameRating";
 import { accuracyPhases } from "./playersAccuracy";
-import { move } from "@/server/analyze";
+import { move } from "@/engine/stockfish";
 import GameChart from "../gameChart";
 
 export default function Summary(props: { moves: move[], chartSize: {width: number, height: number} }) {
