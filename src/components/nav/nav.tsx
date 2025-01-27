@@ -7,6 +7,7 @@ import Heart from "../svg/heart"
 import Licenses from "../svg/license"
 import Settings from "./settings/settings"
 import { ConfigContext } from "@/context/config"
+import Bug from "../svg/bug"
 
 export default function Nav() {
     const configContext = useContext(ConfigContext)
@@ -40,6 +41,7 @@ export default function Nav() {
 
     const botLinks: BotLinks[] = [
         { label: "Author", href: "https://github.com/wdeloo", icon: (props: {className: string}) => <GitHub class={props.className} /> },
+        { label: "Report a Bug", href: "/feedback", icon: (props: {className: string}) => <Bug class={props.className} /> },
         { label: "Support Me", href: "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", icon: (props: {className: string}) => <Heart class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
     ]
