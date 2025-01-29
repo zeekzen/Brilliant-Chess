@@ -1,5 +1,6 @@
 "use server"
 
+import { redirect } from "next/navigation"
 import { blacklistIp, getClientIp } from "../utils/security"
 import { headers } from "next/headers"
 
@@ -18,10 +19,27 @@ function getFormDataError(formData: FormData, maxLengths: { [key: string]: numbe
     return false
 }
 
+export type ssError = "unknown" | "userLimit" | "globalLimit"
+
+function getErrorUrlParams(formData: FormData, error: ssError) {
+    const name = formData.get('name') as string
+    const email = formData.get('email') as string
+    const description = formData.get('description') as string
+    const game = formData.get('game') as string
+
+    const params = new URLSearchParams()
+    params.append('error', error)
+    params.append('name', name)
+    params.append('email', email)
+    params.append('description', description)
+    // params.append('game', game)
+
+    return params.toString()
+}
+
 export async function sendFeedback(formData: FormData, maxLengths: { [key: string]: number }) {
     if (getFormDataError(formData, maxLengths)) {
-        console.warn('error en el formulario')
-        return
+        redirect('/feedback?' + 'error=unknown')
     }
 
     const clientIp = await getClientIp(headers()) ?? 'unknown'
@@ -29,9 +47,10 @@ export async function sendFeedback(formData: FormData, maxLengths: { [key: strin
     try {
         blacklistIp(clientIp)
     } catch (e: any) {
-        if (e.message === 'LimitReached') console.warn('limite alcanzado')
-        if (e.message === 'AlreadyBlacklisted') console.warn('ya esta blacklisteada')
-
-        return
+        if (e.message === 'LimitReached') redirect('/feedback?' + getErrorUrlParams(formData, 'globalLimit'))
+        if (e.message === 'AlreadyBlacklisted') redirect('/feedback?' + getErrorUrlParams(formData, 'userLimit'))
+        redirect('/feedback?' + getErrorUrlParams(formData, 'unknown'))
     }
+
+    redirect('/feedback/done')
 }

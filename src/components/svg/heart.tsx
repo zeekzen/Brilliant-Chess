@@ -1,7 +1,8 @@
+import { LegacyRef } from "react";
 
-export default function Heart(props: { class: string }) {
+export default function Heart(props: { class: string, ref: LegacyRef<SVGSVGElement> }) {
 	return (
-		<svg className={props.class} version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+		<svg ref={props.ref} className={props.class} version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
 			width="18px" height="18px" viewBox="0 0 544.582 544.582">
 			<g>
 				<path d="M448.069,57.839c-72.675-23.562-150.781,15.759-175.721,87.898C247.41,73.522,169.303,34.277,96.628,57.839

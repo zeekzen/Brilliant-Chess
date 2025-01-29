@@ -1,8 +1,8 @@
 "use client"
 
 import Chats from "@/components/svg/chats"
-import { sendFeedback } from "@/server/feedback"
-import { useState } from "react"
+import { sendFeedback, ssError } from "@/server/feedback"
+import { useEffect, useRef, useState } from "react"
 
 function Required({ spaceLeft, color }: {spaceLeft: number, color: string}) {
     return (
@@ -62,6 +62,25 @@ const maxLengths = {
 export default function Feedback() {
     const [descriptionLength, setDescriptionLength] = useState(0)
     const [errors, setErrors] = useState<errorFormData[]>([])
+    const [serverError, setServerError] = useState<ssError | undefined>(undefined)
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+
+        if (!nameRef.current || !emailRef.current || !descriptionRef.current || !gameRef.current) return
+
+        nameRef.current.value = params.get('name') ?? ''
+        emailRef.current.value = params.get('email') ?? ''
+        descriptionRef.current.value = params.get('description') ?? ''
+        gameRef.current.value = params.get('game') ?? ''
+
+        setServerError(params.get('error') as ssError)
+    }, [])
+
+    const nameRef = useRef<HTMLInputElement>(null)
+    const emailRef = useRef<HTMLInputElement>(null)
+    const descriptionRef = useRef<HTMLTextAreaElement>(null)
+    const gameRef = useRef<HTMLTextAreaElement>(null)
 
     function handleSubmit(e: React.FormEvent) {
         const formData = new FormData(e.currentTarget as HTMLFormElement)
@@ -88,36 +107,42 @@ export default function Feedback() {
                             <div>
                                 <label className="font-bold text-lg" htmlFor="text">Full Name<Required spaceLeft={2} color="aqua" /></label>
                                 <div className="flex flex-row items-center">
-                                    <input style={{borderColor: errors?.includes('nameLength') ? 'FireBrick' : ''}} name="name" className="flex h-7 max-w-[25ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" id="text" type="text" />
-                                    <span style={{display: errors?.includes('nameLength') ? '' : 'none'}} className="text-red-700 ml-2 font-bold">Name must be shorter</span>
+                                    <input ref={nameRef} style={{borderColor: errors?.includes('nameLength') ? 'FireBrick' : ''}} name="name" className="flex h-7 max-w-[25ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" id="text" type="text" />
+                                    <span style={{display: errors?.includes('nameLength') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 ml-2 font-bold">Name must be shorter</span>
                                 </div>
                             </div>
                             <div>
                                 <label className="font-bold text-lg" htmlFor="email">Email Address<Required spaceLeft={2} color="aqua" /></label>
                                 <div className="flex flex-row items-center">
-                                    <input style={{borderColor: errors?.includes('emailLength') ? 'FireBrick' : ''}} name="email" className="flex h-7 max-w-[30ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" id="email" type="email" />
-                                    <span style={{display: errors?.includes('emailLength') ? '' : 'none'}} className="text-red-700 ml-2 font-bold">Email must be shorter</span>
+                                    <input ref={emailRef} style={{borderColor: errors?.includes('emailLength') ? 'FireBrick' : ''}} name="email" className="flex h-7 max-w-[30ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none" id="email" type="email" />
+                                    <span style={{display: errors?.includes('emailLength') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 ml-2 font-bold">Email must be shorter</span>
                                 </div>
                             </div>
                             <div>
                                 <label className="font-bold text-lg" htmlFor="description">Bug Description<Required spaceLeft={2} color="crimson" /></label>
                                 <div className="flex flex-col">
                                     <div className="relative max-w-[75ch] w-full h-fit">
-                                        <textarea style={{borderColor: errors?.includes('descriptionLength') || errors?.includes('noDescription') ? 'FireBrick' : ''}} onChange={e => setDescriptionLength(e.currentTarget.value.length)} name="description" rows={5} className="pr-[60px] flex w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="description" />
+                                        <textarea ref={descriptionRef} style={{borderColor: errors?.includes('descriptionLength') || errors?.includes('noDescription') ? 'FireBrick' : ''}} onChange={e => setDescriptionLength(e.currentTarget.value.length)} name="description" rows={5} className="pr-[60px] flex w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="description" />
                                         <Chars cur={descriptionLength} max={maxLengths.description} />
                                     </div>
-                                    <span style={{display: errors?.includes('descriptionLength') ? '' : 'none'}} className="text-red-700 mt-1 font-bold">Description must be shorter</span>
-                                    <span style={{display: errors?.includes('noDescription') ? '' : 'none'}} className="text-red-700 mt-1 font-bold">A description of the bug must be provided</span>
+                                    <span style={{display: errors?.includes('descriptionLength') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 mt-1 font-bold">Description must be shorter</span>
+                                    <span style={{display: errors?.includes('noDescription') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 mt-1 font-bold">A description of the bug must be provided</span>
                                 </div>
                             </div>
                             <div>
                                 <label className="font-bold text-lg" htmlFor="game">Game URL or PGN <span className="text-foregroundGrey font-normal">(if needed)</span></label>
                                 <div className="flex flex-row">
-                                    <textarea style={{borderColor: errors?.includes('gameLength') ? 'FireBrick' : ''}} name="game" rows={1} className="flex h-7 max-w-[45ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="game" />
-                                    <span style={{display: errors?.includes('gameLength') ? '' : 'none'}} className="text-red-700 ml-2 font-bold">Game URL/PGN must be shorter</span>
+                                    <textarea ref={gameRef} style={{borderColor: errors?.includes('gameLength') ? 'FireBrick' : ''}} name="game" rows={1} className="flex h-7 max-w-[45ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="game" />
+                                    <span style={{display: errors?.includes('gameLength') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 ml-2 font-bold">Game URL/PGN must be shorter</span>
                                 </div>
                             </div>
-                            <input type="submit" className="w-fit h-fit py-1 px-2 mt-2 cursor-pointer rounded-borderRoundness text-lg bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-all font-extrabold hover:shadow-shadowBoxBoxHighlighted" value="Submit Bug Report" />
+                            <div className="flex flex-row gap-2 h-fit items-center mt-3">
+                                <input type="submit" className="w-fit h-fit py-1 px-2 cursor-pointer rounded-borderRoundness text-lg bg-backgroundBoxBoxHighlighted hover:bg-backgroundBoxBoxHighlightedHover transition-all font-extrabold hover:shadow-shadowBoxBoxHighlighted" value="Submit Bug Report" />
+                                <button onClick={() => window.location.replace('/')} type="button" className="py-1 px-2 border-border hover:bg-foreground hover:text-foregroundBlackDark w-fit h-fit font-bold transition-colors border-2 rounded-borderRoundness hover:border-white">Back</button>
+                            </div>
+                            <div style={{display: serverError === 'userLimit' ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 mt-1 text-xl font-bold">For security reasons, bug reports are restricted to one per user per hour.<br />Please try again later.</div>
+                            <div style={{display: serverError === 'globalLimit' ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 mt-1 text-xl font-bold">We're currently experiencing issues handling the traffic of bug reports.<br />Please try again later. We apologize for the inconvenience.</div>
+                            <div style={{display: serverError === 'unknown' ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 mt-1 text-xl font-bold">An unknown error occurred while processing your bug report.<br />Please try again later. We apologize for the inconvenience.</div>
                         </div>
                     </form>
                 </div>
