@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  next-app:
+    build: .
+    ports:
+      - "80:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./database:/app/database
+    depends_on:
+      - redis
+    # command: "npm run start"
+  redis:
+    image: "redis:alpine"
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--save", ""]
