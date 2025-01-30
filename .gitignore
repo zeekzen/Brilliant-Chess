@@ -39,5 +39,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# database
+database/*
+!database/.gitkeep
+
 # test files
 test
