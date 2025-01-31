@@ -65,7 +65,7 @@ export async function sendFeedback(formData: FormData, maxLengths: { [key: strin
     const clientIp = await getClientIp(headers()) ?? 'unknown'
 
     try {
-        blacklistIp(clientIp)
+        await blacklistIp(clientIp)
         storeBug(formData)
     } catch (e: any) {
         if (e.message === 'LimitReached') redirect('/feedback?' + getErrorUrlParams(formData, 'globalLimit'))

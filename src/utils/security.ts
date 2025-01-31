@@ -1,3 +1,4 @@
+import redis from "@/lib/redis"
 import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers"
 
 export async function getClientIp(headers: Promise<ReadonlyHeaders>) {
@@ -6,13 +7,13 @@ export async function getClientIp(headers: Promise<ReadonlyHeaders>) {
     return clientIp
 }
 
-const BLACKLIST_TIME = 5000
+const BLACKLIST_TIME = 3600
 const MAX_ENTRIES = 50000
 
-export function cleanUpBlacklist() {
+export async function blacklistIp(ip: string) {
+    const entries = await redis.dbsize()
+    if (entries >= MAX_ENTRIES) throw new Error('LimitReached')
 
-}
-
-export function blacklistIp(ip: string) {
-    
+    const added = await redis.set(ip, "", "EX", BLACKLIST_TIME, "NX")
+    if (!added) throw new Error('AlreadyBlacklisted')
 }

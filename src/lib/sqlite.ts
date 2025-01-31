@@ -3,7 +3,7 @@ import path from "path"
 
 const dbPath = path.join(process.cwd(), "database", "bugs.sqlite")
 
-const db = new Database(dbPath, { verbose: console.log })
+const db = new Database(dbPath)
 
 db.exec(`
     create table if not exists bugs (
