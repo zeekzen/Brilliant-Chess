@@ -1,7 +1,7 @@
-import { moveRating, position, square } from "@/engine/stockfish";
+import { moveRating, position, result, square } from "@/engine/stockfish";
 import Image from "next/image";
 import { useContext, useEffect, useRef, useState } from "react";
-import { Chess, PieceSymbol, WHITE } from "chess.js";
+import { Chess, KING, PieceSymbol, WHITE } from "chess.js";
 import { Howl } from "howler";
 import { AnalyzeContext } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
@@ -268,7 +268,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void }) {
+export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const configContext = useContext(ConfigContext)
@@ -285,7 +285,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation } = props
+    const { boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -317,6 +317,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const soundCastleInstance = forward ? castle : nextCastle
 
     const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
+
+    const isLastMove = !nextMove.length && move.length
 
     useEffect(() => {
         if (!props.fen) return
@@ -513,12 +515,26 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor} ${rounded}`} />
-                                    if (i === 1) {
-                                        highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={0} /> : ''
-                                    }
-                                    return
+                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
                                 }
                             })
+
+                            let resultIcon
+                            if (isLastMove) {
+                                if (square?.type === KING) {
+                                    if (result === '1/2-1/2') {
+                                        resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
+                                    } else {
+                                        if (square.color === WHITE) {
+                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                        } else {
+                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                        }
+                                    }
+                                }
+                            }
 
                             const toAnimateSquare = forward ? move[1] : nextMove[0]
                             const adaptedToAnimateSquare = toAnimateSquare ? adaptSquare(toAnimateSquare) : { col: NaN, row: NaN }
@@ -535,7 +551,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
-                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{highlightedIcon}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {
