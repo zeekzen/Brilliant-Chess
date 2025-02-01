@@ -134,6 +134,10 @@ function PreloadRatingImages({ highlightedStyle }: { highlightedStyle: filteredH
     return preloaders
 }
 
+function isKnightMove(from: square, to: square) {
+    return (Math.abs(from.col - to.col) === 2 && Math.abs(from.row - to.row) === 1) || (Math.abs(from.col - to.col) === 1 && Math.abs(from.row - to.row) === 2)
+}
+
 export function Arrow(props: { move: square[], squareSize: number, class: string, white: boolean }) {
 
     const { move, squareSize, white } = props
@@ -156,6 +160,76 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     }
 
     const [from, to] = move
+
+    if (isKnightMove(from, to)) {
+        const getTransform = () => {
+            const longY = Math.abs(from.row - to.row) > Math.abs(from.col - to.col)
+            const toDown = white ? (from.row < to.row) : (from.row > to.row)
+            const toLeft = white ? (from.col < to.col) : (from.col > to.col)
+
+            let rotation = 0
+            let scaleX = 1
+            let scaleY = 1
+
+            if (longY) {
+                if (toDown) {
+                    rotation = 270
+                    if (toLeft) scaleY = -1
+                } else {
+                    rotation = 90
+                    if (!toLeft) scaleY = -1
+                }
+            } else {
+                if (toDown) {
+                    rotation = 180
+                    if (!toLeft) scaleX = -1
+                } else {
+                    if (toLeft) scaleX = -1
+                }
+            }
+
+            return `rotate(${rotation}deg) scaleX(${scaleX}) scaleY(${scaleY})`
+        }
+
+        const fromElementPosition = {
+            x: squareSize * (white ? from.col : (7 - from.col)),
+            y: squareSize * (white ? from.row : (7 - from.row)),
+        }
+    
+        const toElementPosition = {
+            x: squareSize * (white ? to.col : (7 - to.col)),
+            y: squareSize * (white ? to.row : (7 - to.row)),
+        }
+
+        const distance = {
+            x: Math.abs(fromElementPosition.x - toElementPosition.x),
+            y: Math.abs(fromElementPosition.y - toElementPosition.y),
+        }
+
+        const longLineLength = Math.abs(Math.max(distance.x, distance.y))
+        const shortLineLength = Math.abs(Math.min(distance.x, distance.y))
+
+        const lineWidth = (squareSize / 2) * (3 / 7)
+
+        const arrowHeadHeight = lineWidth * 1.6
+        const arrowHeadWidth = squareSize / 2
+
+        const height = shortLineLength + lineWidth / 2
+        const width = longLineLength + (squareSize / 4) - arrowHeadHeight
+
+        const longLineCenter = height - (lineWidth / 2)
+        const shortLineCenter = arrowHeadWidth / 2
+
+        const positionX = `${toElementPosition.x + (squareSize / 2) - (arrowHeadWidth / 2)}px`
+        const positionY = `${toElementPosition.y + (squareSize / 2)}px`
+
+        return (
+            <svg style={{ top: positionY, left: positionX, transformOrigin: `${arrowHeadWidth / 2}px 0`, transform: getTransform() }} className={`absolute opacity-80 z-[60] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+                <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${shortLineCenter},0 ${arrowHeadWidth},${arrowHeadHeight}`} />
+                <path fill="none" strokeWidth={lineWidth} d={`M ${shortLineCenter} ${arrowHeadHeight - 1} L ${shortLineCenter} ${longLineCenter} L ${width} ${longLineCenter}`} />
+            </svg>
+        )
+    }
 
     const fromElementPosition = {
         x: squareSize * from.col,
@@ -188,7 +262,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
 
     return (
         <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-80 z-[60] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
-            <line x1={lineCenter} y1={height} x2={lineCenter} y2={`${arrowHeadHeight - 1}`} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
+            <line x1={lineCenter} y1={height} x2={lineCenter} y2={arrowHeadHeight - 1} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
     )
