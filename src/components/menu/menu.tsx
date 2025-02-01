@@ -38,6 +38,7 @@ export default function Menu() {
     const [game, setGame] = analyzeContext.game
     const [players, setPlayers] = analyzeContext.players
     const [result, setResult] = analyzeContext.result
+    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -64,6 +65,11 @@ export default function Menu() {
     }, [])
 
     const { format } = data
+
+    useEffect(() => {
+        if (pageState !== 'analyze') return
+        setTab('moves')
+    }, [moveNumber])
 
     useEffect(() => {
         const playerNames = players.map(player => player.name) as [ string, string ]
