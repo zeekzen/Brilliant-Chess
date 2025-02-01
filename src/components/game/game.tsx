@@ -10,7 +10,8 @@ import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN, prepareStockfish } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
 import { getAproxMemory, wasmThreadsSupported } from "@/engine/wasmChecks"
-import { pushPageError } from "@/errors/error"
+import { pushPageError } from "@/errors/pageErrors"
+import { ErrorsContext } from "@/context/errors"
 
 const GAP = 10
 
@@ -21,6 +22,7 @@ export default function Game() {
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
 
     const analyzeContext = useContext(AnalyzeContext)
+    const errorsContext = useContext(ErrorsContext)
 
     const [players, setPlayers] = analyzeContext.players
     const [time, setTime] = analyzeContext.time
@@ -34,9 +36,10 @@ export default function Game() {
     const [playing, setPlaying] = analyzeContext.playing
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
     const [result, setResult] = analyzeContext.result
-    const [errors, setErrors] = analyzeContext.errors
     const [progress, setProgress] = analyzeContext.progress
     const [tab, setTab] = analyzeContext.tab
+
+    const [errors, setErrors] = errorsContext.errors
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)

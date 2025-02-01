@@ -1,10 +1,10 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
-import Image from "next/image"
-import { pushPageError } from "@/errors/error"
+import { pushPageError } from "@/errors/pageErrors"
 import { Chess } from "chess.js"
 import { capitalizeFirst, getMonthName, Loading, SimpleLoading } from "./selectChessCom"
+import { ErrorsContext } from "@/context/errors"
 
 interface Game {
     id: string;
@@ -54,9 +54,10 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
     const [loading, setLoading] = useState(true)
 
     const analyzeContext = useContext(AnalyzeContext)
+    const errorsContext = useContext(ErrorsContext)
 
     const [data, setData] = analyzeContext.data
-    const [errors, setErrors] = analyzeContext.errors
+    const [errors, setErrors] = errorsContext.errors
 
     useEffect(() => {
         (async () => {
@@ -173,9 +174,9 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
     const [selected, setSelected] = useState<number>(NaN)
     const [loading, setLoading] = useState(true)
 
-    const analyzeContext = useContext(AnalyzeContext)
+    const errorsContext = useContext(ErrorsContext)
 
-    const [errors, setErrors] = analyzeContext.errors
+    const [errors, setErrors] = errorsContext.errors
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)

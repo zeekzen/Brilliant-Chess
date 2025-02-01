@@ -1,9 +1,9 @@
 "use client"
 
 import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react"
-import { AnalyzeContext, PageErrorProps } from "@/context/analyze"
+import { ErrorsContext, PageErrorProps } from "@/context/errors"
 
-const TIME_IN_SCREEN = 5000
+const TIME_IN_SCREEN = 7500
 
 export type Corner = "tl" | "tr" | "bl" | "br"
 
@@ -50,7 +50,7 @@ function PageError(props: { title: string, description?: string, errorKey: numbe
     return (
         <div ref={errorRef} data-errorkey={errorKey} style={{opacity: hided ? 0 : 100}} className="bg-highlightBlunder p-3 text-xl select-text z-[999] text-foregroundHighlighted font-bold rounded-borderRoundness hover:scale-105 will-change-transform transition-all max-w-96">
             { title }
-            <div style={{display: description ? '' : 'none'}} className="text-base opacity-85">
+            <div style={{display: description ? '' : 'none'}} className="text-base opacity-85 mt-2">
                 { description }
             </div>
         </div>
@@ -60,7 +60,9 @@ function PageError(props: { title: string, description?: string, errorKey: numbe
 let errorKey = 0
 
 export default function PageErrors() {
-    const [errors, setErrors] = useContext(AnalyzeContext).errors
+    const errorsContext = useContext(ErrorsContext)
+
+    const [errors, setErrors] = errorsContext.errors
 
     const x = CORNER.substring(1, 2)
     const y = CORNER.substring(0, 1)

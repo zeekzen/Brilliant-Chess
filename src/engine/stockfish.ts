@@ -1,5 +1,4 @@
 import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
-import { resolve } from "path";
 import { SetStateAction } from "react";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'

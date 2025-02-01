@@ -4,24 +4,23 @@ import Menu from "@/components/menu/menu"
 import Nav from "@/components/nav/nav"
 import AnalyzeContextProvider from "@/context/analyze"
 import ConfigContextProvider from "@/context/config"
-import PageErrors from "@/errors/error"
+import ErrorsContextProvider from "@/context/errors"
+import PageErrors from "@/errors/pageErrors"
 
 export default function Home() {
   return (
-    <>
-      <ConfigContextProvider>
-        <header>
-          <Nav />
-        </header>
-        <main className="flex flex-row h-[95%] gap-2 items-center select-none">
-          <AnalyzeContextProvider>
-            <PageErrors />
-            <Game />
-            <BoardMenu />
-            <Menu />
-          </AnalyzeContextProvider>
-        </main>
-      </ConfigContextProvider>
-    </>
+    <ConfigContextProvider><ErrorsContextProvider>
+      <header>
+        <Nav />
+      </header>
+      <main className="flex flex-row h-[95%] gap-2 items-center select-none">
+        <AnalyzeContextProvider>
+          <PageErrors />
+          <Game />
+          <BoardMenu />
+          <Menu />
+        </AnalyzeContextProvider>
+      </main>
+    </ErrorsContextProvider></ConfigContextProvider>
   )
 }
