@@ -7,7 +7,7 @@ export async function getClientIp(headers: Promise<ReadonlyHeaders>) {
     return clientIp
 }
 
-const BLACKLIST_TIME = 3600
+const BLACKLIST_TIME = 1800
 const MAX_ENTRIES = 50000
 
 export async function blacklistIp(ip: string) {
