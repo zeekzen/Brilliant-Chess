@@ -40,7 +40,7 @@ export default function Done() {
 
     return (
         <main className="w-full h-full overflow-auto flex flex-col justify-center items-center p-8">
-            <div className="max-w-[800px] w-full bg-backgroundBox rounded-borderRoundness pt-16 px-16 pb-10 flex flex-col gap-5 items-center">
+            <section className="max-w-[800px] w-full bg-backgroundBox rounded-borderRoundness pt-16 px-16 pb-10 flex flex-col gap-5 items-center">
                 <Image className="mb-6" src="/images/done.svg" alt="done" width={80} height={80} />
                 <h1 className="text-4xl font-bold text-foregroundHighlighted flex flex-row">Thank You<Heart ref={heartRef} class="fill-foregroundHighlighted ml-1 rotate-12" /></h1>
                 <span className="text-lg text-center text-foregroundGrey">Your feedback helps us improve the app.<br />If you find another bug, please report it again.</span>
@@ -49,7 +49,7 @@ export default function Done() {
                     <button onClick={() => window.location.replace('/')} type="button" className="px-2 py-1 border-border hover:bg-foreground hover:text-foregroundBlackDark font-bold transition-colors border-2 rounded-borderRoundness hover:border-white">Return to Board</button>
                     <span className="text-lg font-extrabold">{timer}</span>
                 </div>
-            </div>
+            </section>
         </main>
     )
 }
