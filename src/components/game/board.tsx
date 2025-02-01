@@ -563,6 +563,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                 (() => {
                     if (!showArrows) return
 
+                    if (arrowAfterMove && moveRating === 'book') return
+
                     const move = arrowAfterMove ? previousBestMove : bestMove
                     const adaptedMove = move?.map(square => {
                         return adaptSquare(square)
