@@ -112,26 +112,31 @@ export default function Moves(props: { moves: move[], overallGameComment: string
         }, 0)
     }, [])
 
+    function resizeMoves() {
+        if (!componentRef.current || !commentsRef.current || !moveListRef.current || !gameChartRef.current) return
+
+        const totalHeight = componentRef.current.offsetHeight
+
+        const commentsHeight = commentsRef.current.offsetHeight
+        const gameChartHeight = gameChartRef.current.offsetHeight
+
+        const newMovesHeight = totalHeight - (commentsHeight + gameChartHeight)
+
+        setMovesHeight(newMovesHeight)
+        moveListRef.current.style.height = newMovesHeight ? `${newMovesHeight}px` : '100%'
+    }
+
     useEffect(() => {
-        function resizeMoves() {
-            if (!componentRef.current || !commentsRef.current || !moveListRef.current || !gameChartRef.current) return
-
-            const totalHeight = componentRef.current.offsetHeight
-
-            const commentsHeight = commentsRef.current.offsetHeight
-            const gameChartHeight = gameChartRef.current.offsetHeight
-
-            const newMovesHeight = totalHeight - (commentsHeight + gameChartHeight)
-
-            setMovesHeight(newMovesHeight)
-        }
-
         resizeMoves()
 
         window.addEventListener('resize', resizeMoves)
 
         return () => window.removeEventListener('resize', resizeMoves)
     }, [])
+
+    useEffect(() => {
+        resizeMoves()
+    }, [moveNumber])
 
     function handleMoveClick(number: number) {
         setMoveNumber(number)
