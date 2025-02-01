@@ -14,7 +14,6 @@ import Star from "../svg/star"
 import BoardIcon from "../svg/boardIcon"
 import Summary from "./analysis/summary/summary"
 import Moves from "./analysis/moves/moves"
-import GameChart from "./analysis/gameChart"
 import getOverallGameComment from "./analysis/moves/overallGameComment"
 import SelectLichessOrgGame from "./analyze/selectLichessOrg"
 
