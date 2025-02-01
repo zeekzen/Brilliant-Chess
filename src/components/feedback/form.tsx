@@ -149,7 +149,7 @@ export default function Form() {
                         <div>
                             <label className="font-bold text-lg" htmlFor="game">Game URL or PGN <span className="text-foregroundGrey font-normal">(if needed)</span></label>
                             <div className="flex flex-row">
-                                <textarea ref={gameRef} style={{borderColor: formErrors?.includes('gameLength') ? 'FireBrick' : ''}} name="game" rows={1} className="flex h-7 max-w-[45ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="game" />
+                                <textarea spellCheck={false} ref={gameRef} style={{borderColor: formErrors?.includes('gameLength') ? 'FireBrick' : ''}} name="game" rows={1} className="flex h-7 max-w-[45ch] w-full items-center transition-colors px-1 rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none resize-none" id="game" />
                                 <span style={{display: formErrors?.includes('gameLength') ? '' : 'none', textShadow: '0 0 2px black'}} className="text-red-600 ml-2 font-bold">Game URL/PGN must be shorter</span>
                             </div>
                         </div>
