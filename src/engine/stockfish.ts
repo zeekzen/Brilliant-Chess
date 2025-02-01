@@ -380,7 +380,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
         &&
         standardRating === 'excellent'
         &&
-        previousMistake || getPreviousStandardRating(0) === 'blunder'
+        (previousMistake || getPreviousStandardRating(0) === 'blunder')
     ) return { moveRating: 'great', comment: COMMENTS.great[commentNumber] }
 
     // best
