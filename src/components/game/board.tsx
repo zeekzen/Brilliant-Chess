@@ -553,13 +553,6 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                 })()
             }
             {
-                arrows.map((move, i) => {
-                    const singleSquare = JSON.stringify(move[0]) === JSON.stringify(move[1])
-
-                    return <Arrow key={i} move={singleSquare ? [move[0]] : move} squareSize={squareSize} class={singleSquare ? "bg-badArrow" : "fill-normalArrow stroke-normalArrow"} white={white} />
-                })
-            }
-            {
                 (() => {
                     if (!showArrows) return
 
@@ -572,6 +565,13 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
                     return adaptedMove ? <Arrow move={adaptedMove} squareSize={squareSize} class="fill-bestArrow stroke-bestArrow" white={white} /> : ''
                 })()
+            }
+            {
+                arrows.map((move, i) => {
+                    const singleSquare = JSON.stringify(move[0]) === JSON.stringify(move[1])
+
+                    return <Arrow key={i} move={singleSquare ? [move[0]] : move} squareSize={squareSize} class={singleSquare ? "bg-badArrow" : "fill-normalArrow stroke-normalArrow"} white={white} />
+                })
             }
         </div>
     )
