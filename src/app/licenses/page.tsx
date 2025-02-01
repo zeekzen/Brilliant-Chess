@@ -4,8 +4,10 @@ import Image from "next/image";
 export default function Licenses() {
     return (
         <div className="flex-grow h-full">
-            <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><License size={35} class="fill-foreground" />Licenses</h1>
-            <div className="grid grid-cols-3 p-14">
+            <header>
+                <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><License size={35} class="fill-foreground" />Licenses</h1>
+            </header>
+            <main className="grid grid-cols-3 p-14">
                 <div className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
                     <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
                         <div className="flex flex-row">
@@ -19,7 +21,7 @@ export default function Licenses() {
                         <li>License: <a className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License</a></li>
                     </ul>
                 </div>
-            </div>
+            </main>
         </div>
     )
 }

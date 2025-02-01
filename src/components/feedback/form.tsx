@@ -1,3 +1,5 @@
+"use client"
+
 import { ErrorsContext } from "@/context/errors"
 import { pushPageError } from "@/errors/pageErrors"
 import { sendFeedback, ssError } from "@/server/feedback"
