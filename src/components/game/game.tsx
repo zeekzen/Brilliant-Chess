@@ -113,6 +113,7 @@ export default function Game() {
             const element = e.target as HTMLElement
             const focusableInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url']
             if (element.tagName === 'INPUT' && focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
+            if (element.tagName === 'TEXTAREA') return
 
             const now = new Date().getTime()
             const minPressInterval = 50
