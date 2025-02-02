@@ -6,6 +6,9 @@ import { Chess } from "chess.js"
 import Files from "@/components/svg/files"
 import { ErrorsContext } from "@/context/errors"
 
+export const GAMES_ERROR = ["Error fetching games.", "Check your internet connection or try again later."]
+export const USER_ERROR = ["User not found.", "Check your spelling or your internet connection."]
+
 interface Game {
     url: string
     pgn: string
@@ -188,7 +191,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                 setGamesInfo(newGamesInfo)
             } catch (e) {
                 unSelect()
-                await pushPageError(setErrors, "Error fetching games.")
+                await pushPageError(setErrors, GAMES_ERROR[0], GAMES_ERROR[1])
             }
         })()
     }, [])
@@ -282,7 +285,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
                 setDates(newDates)
             } catch (e) {
                 stopSelecting()
-                await pushPageError(setErrors, "Error fetching Chess.com user.", "Check your spelling and your internet connection.")
+                await pushPageError(setErrors, USER_ERROR[0], USER_ERROR[0])
             }
         })()
     }, [username])

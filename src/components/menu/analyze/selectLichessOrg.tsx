@@ -3,7 +3,7 @@ import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import { pushPageError } from "@/errors/pageErrors"
 import { Chess } from "chess.js"
-import { capitalizeFirst, getMonthName, Loading, SimpleLoading } from "./selectChessCom"
+import { capitalizeFirst, GAMES_ERROR, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
 import { ErrorsContext } from "@/context/errors"
 
 interface Game {
@@ -107,7 +107,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
                 setGamesInfo(newGamesInfo)
             } catch (e) {
                 unSelect()
-                await pushPageError(setErrors, "Error fetching games.", "Slow down your requests and try again in a few seconds.")
+                await pushPageError(setErrors, GAMES_ERROR[0], GAMES_ERROR[1])
             }
         })()
     }, [])
@@ -217,7 +217,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                 setDates(newDates.toReversed())
             } catch (e) {
                 stopSelecting()
-                await pushPageError(setErrors, "Error fetching Lichess.org user.", "Check your spelling and your internet connection.")
+                await pushPageError(setErrors, USER_ERROR[0], USER_ERROR[1])
             }
         })()
     }, [username])
