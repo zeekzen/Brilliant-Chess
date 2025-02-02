@@ -156,7 +156,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                             return (
                                 <li key={i}>
                                     <button type="button" onClick={() => changeSelected(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className="flex flex-row items-center justify-center h-12 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold">
-                                        <Image alt="format" src={format[1]} width={150} height={0} className="h-6 w-fit" priority />
+                                        <Image draggable={false} alt="format" src={format[1]} width={150} height={0} className="h-6 w-fit" priority />
                                         {format[0]}
                                     </button>
                                 </li>
@@ -169,7 +169,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                             return (
                                 <li key={i}>
                                     <button title={depth[3]} type="button" onClick={() => changeType(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
-                                        <Image alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
+                                        <Image draggable={false} alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
                                         {depth[0]}
                                     </button>
                                 </li>
