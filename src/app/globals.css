@@ -65,6 +65,9 @@
 
   --scrollbarColor: #494949;
 
+  --error: #fa412d;
+  --warning: #bd900b;
+
   --shadowBoxBoxHighlighted: 0 0 8px;
 
   --borderRoundness: .25rem;
