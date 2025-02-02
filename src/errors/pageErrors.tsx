@@ -9,8 +9,8 @@ export type Corner = "tl" | "tr" | "bl" | "br"
 
 const CORNER: Corner = "br"
 
-function PageError(props: { title: string, description?: string, errorKey: number, removeError: (errorKey: number) => void, newErrorKey: number, y: string }) {
-    const { title, description, errorKey, removeError, newErrorKey, y } = props
+function PageError(props: { title: string, description?: string, errorKey: number, removeError: (errorKey: number) => void, newErrorKey: number, y: string, type: PageErrorProps['type'] }) {
+    const { title, description, errorKey, removeError, newErrorKey, y, type } = props
 
     const [hided, setHided] = useState(true)
 
@@ -48,7 +48,7 @@ function PageError(props: { title: string, description?: string, errorKey: numbe
     }, [newErrorKey])
 
     return (
-        <div ref={errorRef} data-errorkey={errorKey} style={{opacity: hided ? 0 : 100}} className="bg-highlightBlunder p-3 text-xl select-text z-[999] text-foregroundHighlighted font-bold rounded-borderRoundness hover:scale-105 will-change-transform transition-all max-w-96">
+        <div ref={errorRef} data-errorkey={errorKey} style={{opacity: hided ? 0 : 100, backgroundColor: type === 'error' ? 'var(--error)' : type === 'warning' ? 'var(--warning)' : ''}} className="p-3 text-xl select-text z-[999] text-foregroundHighlighted font-bold rounded-borderRoundness hover:scale-105 will-change-transform transition-all max-w-96">
             { title }
             <div style={{display: description ? '' : 'none'}} className="text-base opacity-85 mt-2">
                 { description }
@@ -73,12 +73,17 @@ export default function PageErrors() {
 
     return (
         <div className="absolute w-fit flex m-5 gap-2" style={{top: y === "t" ? 0 : '', bottom: y === "b" ? 0 : '', right: x === "r" ? 0 : '', left: x === "l" ? 0 : '', flexDirection: y === "b" ? "column" : "column-reverse", alignItems: x === 'r' ? 'flex-end' : 'flex-start'}}>
-            {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} y={y} />)}
+            {errors.map(error => <PageError key={error.errorKey} {...error} removeError={removeError} newErrorKey={errors[errors.length - 1].errorKey} y={y} type={error.type} />)}
         </div>
     )
 }
 
 export async function pushPageError(setErrors: Dispatch<SetStateAction<PageErrorProps[]>>, title: string, description?: string) {
     errorKey++
-    setErrors(prev => [...prev, {title, description, errorKey}])
+    setErrors(prev => [...prev, {title, description, type: 'error', errorKey}])
+}
+
+export async function pushPageWarning(setErrors: Dispatch<SetStateAction<PageErrorProps[]>>, title: string, description?: string) {
+    errorKey++
+    setErrors(prev => [...prev, {title, description, type: 'warning' , errorKey}])
 }

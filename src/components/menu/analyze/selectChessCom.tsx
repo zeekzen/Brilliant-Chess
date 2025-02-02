@@ -9,6 +9,8 @@ import { ErrorsContext } from "@/context/errors"
 export const GAMES_ERROR = ["Error fetching games.", "Check your internet connection or try again later."]
 export const USER_ERROR = ["User not found.", "Check your spelling or your internet connection."]
 
+export const API_BLOCKING_ERROR = ["Server might block excesive requests.", "Slow down your request rate or wait before you try again."]
+
 interface Game {
     url: string
     pgn: string
@@ -152,7 +154,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
             try {
                 setLoading(true)
                 const res = await fetch(url)
-                if (!res.ok) throw new Error('Error fetching games')
+                if (!res.ok) throw new Error(String(res.status))
 
                 const json: { games: Game[] } = await res.json()
                 const games = json.games
@@ -271,7 +273,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
             try {
                 setLoading(true)
                 const res = await fetch(`https://api.chess.com/pub/player/${username}/games/archives`)
-                if (!res.ok) throw new Error('Error fetching archives')
+                if (!res.ok) throw new Error(String(res.status))
 
                 const json: { archives: string[] } = await res.json()
                 const archives = json.archives

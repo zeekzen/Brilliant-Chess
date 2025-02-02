@@ -1,9 +1,9 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
-import { pushPageError } from "@/errors/pageErrors"
+import { pushPageError, pushPageWarning } from "@/errors/pageErrors"
 import { Chess } from "chess.js"
-import { capitalizeFirst, GAMES_ERROR, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
+import { API_BLOCKING_ERROR, capitalizeFirst, GAMES_ERROR, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
 import { ErrorsContext } from "@/context/errors"
 
 interface Game {
@@ -64,7 +64,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
             try {
                 setLoading(true)
                 const res = await fetch(url, { headers: { Accept: "application/x-ndjson" } })
-                if (!res.ok) throw new Error('Error fetching games')
+                if (!res.ok) throw new Error(String(res.status))
 
                 const text = await res.text()
                 
@@ -108,6 +108,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
             } catch (e) {
                 unSelect()
                 await pushPageError(setErrors, GAMES_ERROR[0], GAMES_ERROR[1])
+                await pushPageWarning(setErrors, API_BLOCKING_ERROR[0], API_BLOCKING_ERROR[1])
             }
         })()
     }, [])
@@ -187,14 +188,14 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
             try {
                 setLoading(true)
                 const resFirstGame = await fetch(`https://lichess.org/api/games/user/${username}?sort=dateAsc&max=1`, { headers: { Accept: "application/x-ndjson" } })
-                if (!resFirstGame.ok) throw new Error('Error fetching archives')
+                if (!resFirstGame.ok) throw new Error(String(resFirstGame.status))
                 
                 const jsonFirstGame: { createdAt: number } = await resFirstGame.json()
                 const dateFirstGame = new Date(jsonFirstGame.createdAt)
 
                 const resLastGame = await fetch(`https://lichess.org/api/games/user/${username}?sort=dateDesc&max=1`, { headers: { Accept: "application/x-ndjson" } })
-                if (!resLastGame.ok) throw new Error('Error fetching archives')
-                
+                if (!resLastGame.ok) throw new Error(String(resLastGame.status))
+
                 const jsonLastGame: { createdAt: number } = await resLastGame.json()
                 const dateLastGame = new Date(jsonLastGame.createdAt)
 
@@ -209,7 +210,6 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
                     const year = currentDate.getFullYear()
 
                     newDates.push({month: month + 1, year, url: `https://lichess.org/api/games/user/${username}?since=${sinceDate.getTime()}&until=${untilDate.getTime()}&pgnInJson=true`})
-                    console.log(newDates[0].url)
                     currentDate.setMonth(currentDate.getMonth() + 1)
                 }
 
@@ -218,6 +218,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
             } catch (e) {
                 stopSelecting()
                 await pushPageError(setErrors, USER_ERROR[0], USER_ERROR[1])
+                await pushPageWarning(setErrors, API_BLOCKING_ERROR[0], API_BLOCKING_ERROR[1])
             }
         })()
     }, [username])
