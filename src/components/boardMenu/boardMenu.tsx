@@ -23,8 +23,8 @@ export default function BoardMenu() {
     return (
         <div className="flex flex-col justify-between h-full">
             <div className='flex flex-col gap-2'>
-                <button ref={boardMenuSettingsRef} onClick={() => setOpenedMenu(prev => prev === "settings" ? null : "settings")} type='button'><Image src="/images/settings.svg" title='Settings' alt="Settings" width={17} height={17} /></button>
-                <button onClick={flipBoard} type='button'><Image src="/images/flip.svg" title='Flip Board' alt="Flip Board" width={17} height={17} /></button>
+                <button className='outline-none' ref={boardMenuSettingsRef} onClick={() => setOpenedMenu(prev => prev === "settings" ? null : "settings")} type='button'><Image src="/images/settings.svg" title='Settings' alt="Settings" width={17} height={17} /></button>
+                <button className='outline-none' onClick={flipBoard} type='button'><Image src="/images/flip.svg" title='Flip Board' alt="Flip Board" width={17} height={17} /></button>
             </div>
             <div>
 
