@@ -38,6 +38,7 @@ export default function Game() {
     const [result, setResult] = analyzeContext.result
     const [progress, setProgress] = analyzeContext.progress
     const [tab, setTab] = analyzeContext.tab
+    const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
 
     const [errors, setErrors] = errorsContext.errors
 
@@ -194,24 +195,28 @@ export default function Game() {
         const stockfish = engineWorkerRef.current
         if (!stockfish) return
 
-        const { metadata, moves } = await parsePGN(stockfish, pgn, depth, setProgress) ?? {}
+        try {
+            const { metadata, moves } = await parsePGN(stockfish, pgn, depth, setProgress, analyzeController.signal)
 
-        if (!metadata || !moves) {
-            pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
+            setTime(metadata.time)
+            setPlayers(metadata.players)
+            setGame(moves)
+            setResult(metadata.result)
+            setAnimation(false)
+    
+            setTimeout(() => gameStartSound.play(), 100)
+            setPageState('analyze')
+        } catch (e: any) {
+            if (e.message === 'PGN') {
+                pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
+            }
+
             setPageState('default')
-            return
+            setAnalyzeController(new AbortController())
         }
 
-        setMoveNumber(0)
-        setTime(metadata.time)
-        setPlayers(metadata.players)
-        setGame(moves)
-        setResult(metadata.result)
         setProgress(0)
-        setAnimation(false)
-
-        setTimeout(() => gameStartSound.play(), 100)
-        setPageState('analyze')
+        setMoveNumber(0)
     }
 
     useEffect(() => {

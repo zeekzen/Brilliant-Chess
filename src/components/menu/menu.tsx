@@ -38,6 +38,7 @@ export default function Menu() {
     const [players, setPlayers] = analyzeContext.players
     const [result, setResult] = analyzeContext.result
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
+    const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -109,7 +110,7 @@ export default function Menu() {
                 {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" && username.username ? <SelectChessComGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
                 {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" && username.username ? <SelectLichessOrgGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
 
-                {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} /> : ''}
+                {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} analyzeController={analyzeController} /> : ''}
 
                 {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} chartSize={gameChartSize} /> : ''}
                 {pageState === 'analyze' && tab === 'moves' ? <Moves chartSize={gameChartSize} moves={game} overallGameComment={overallGameComment} /> : ''}

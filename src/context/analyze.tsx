@@ -18,6 +18,8 @@ type pageState = 'default' | 'loading' | 'analyze'
 
 type tabs = 'analyze' | 'selectGame' | 'summary' | 'moves'
 
+const abortControllerInstance = new AbortController()
+
 export const AnalyzeContext = createContext<{
     data: [Data, Dispatch<SetStateAction<Data>>],
     pageState: [pageState, Dispatch<SetStateAction<pageState>>],
@@ -33,6 +35,7 @@ export const AnalyzeContext = createContext<{
     result: [result, Dispatch<SetStateAction<result>>],
     progress: [number, Dispatch<SetStateAction<number>>],
     tab: [tabs, Dispatch<SetStateAction<tabs>>],
+    analyzeController: [AbortController, Dispatch<SetStateAction<AbortController>>],
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ["analyze", () => { }],
@@ -48,6 +51,7 @@ export const AnalyzeContext = createContext<{
     result: ['1/2-1/2', () => { }],
     progress: [0, () => { }],
     tab: ['analyze', () => { }],
+    analyzeController: [abortControllerInstance, () => { }],
 })
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
@@ -65,9 +69,10 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [result, setResult] = useState<result>('1/2-1/2')
     const [progress, setProgress] = useState(0)
     const [tab, setTab] = useState<tabs>('analyze')
+    const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab], analyzeController: [analyzeController, setAnalyzeController] }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

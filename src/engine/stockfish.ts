@@ -1,3 +1,4 @@
+import { players } from "@/context/analyze";
 import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
 import { SetStateAction } from "react";
 
@@ -213,11 +214,16 @@ function formatStaticEval(evaluation: string) {
     return staticEval
 }
 
-async function getBestMove(program: Worker, depth: number): Promise<{ bestMove: square[], staticEval: string[] }> {
+async function getBestMove(program: Worker, depth: number, signal: AbortSignal): Promise<{ bestMove: square[], staticEval: string[] }> {
     program.postMessage(`go depth ${depth}`)
 
     let staticEval: string[]
     return new Promise((resolve, reject) => {
+        function cleanUp() {
+            program.removeEventListener('message', readMessage)
+            signal?.removeEventListener('abort', handleAbort)
+        }
+
         function readMessage(e: MessageEvent) {
             const line = e.data
 
@@ -225,10 +231,17 @@ async function getBestMove(program: Worker, depth: number): Promise<{ bestMove: 
             staticEval = formatStaticEval(line) ?? staticEval
 
             if (bestMove) {
-                program.removeEventListener('message', readMessage)
+                cleanUp()
                 resolve({ bestMove, staticEval })
             }
         }
+
+        function handleAbort() {
+            cleanUp()
+            reject(new Error('canceled'))
+        }
+
+        signal.addEventListener('abort', handleAbort)
 
         program.addEventListener('message', readMessage)
     })
@@ -438,10 +451,14 @@ function checkDepth(depth: number) {
     return depth <= 21
 }
 
-async function analyze(program: Worker, fen: string, depth: number) {
+async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
     program.postMessage(`position fen ${fen}`)
 
-    const { bestMove, staticEval } = await getBestMove(program, depth)
+    try {
+        var { bestMove, staticEval } = await getBestMove(program, depth, signal)
+    } catch {
+        throw new Error('cancelled')
+    }
 
     return { bestMove, staticEval }
 }
@@ -542,122 +559,190 @@ function cleanStockfish(stockfish: Worker) {
     stockfish.postMessage("ucinewgame")
 }
 
-async function waitTillReady(engine: Worker) {
+async function waitTillReady(engine: Worker, signal?: AbortSignal) {
     return new Promise((resolve, reject) => {
+        function cleanUp() {
+            engine.removeEventListener('message', isReadyOk)
+            signal?.removeEventListener('abort', handleAbort)
+        }
+
         function isReadyOk(e: MessageEvent) {
             if (e.data === 'readyok') {
-                engine.removeEventListener('message', isReadyOk)
+                cleanUp()
                 resolve(true)
             }
         }
-        
+
+        function handleAbort() {
+            cleanUp()
+            reject(new Error('canceled'))
+        }
+
+        signal?.addEventListener('abort', handleAbort)
+
         engine.addEventListener('message', isReadyOk)
         engine.postMessage('isready')
     })
 }
 
-export async function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>) {
-    if (!checkDepth(depth)) return
+export function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
+    return new Promise(async (resolve, reject) => {
+        function handleAbort() {
+            reject(new Error('canceled'))
+            signal.removeEventListener('abort', handleAbort)
+            setProgress(0)
+        }
 
-    const chess = new Chess()
+        signal.addEventListener('abort', handleAbort)
 
-    try {
-        chess.loadPgn(pgn)
-    } catch {
-        return
-    }
+        if (!checkDepth(depth)) reject(new Error('depth'))
 
-    const openingsRes = await fetch('/openings/openings.json')
-    const openings = await openingsRes.json()
+        const chess = new Chess()
 
-    const headers = chess.header()
+        try {
+            chess.loadPgn(pgn)
+        } catch {
+            reject(new Error('pgn'))
+            return
+        }
 
-    const players = getPlayers(headers)
-    const time = getTime(headers)
-    const result = getResult(chess)
+        const openingsRes = await fetch('/openings/openings.json')
+        const openings = await openingsRes.json()
 
-    const history = chess.history({ verbose: true })
+        const headers = chess.header()
 
-    const totalMoves = history.length
-    let progress = 0
+        const players = getPlayers(headers)
+        const time = getTime(headers)
+        let result
+        try {
+            result = getResult(chess)
+        } catch {
+            reject(new Error('pgn'))
+            return
+        }
 
-    const metadata = { players, time, result }
+        const history = chess.history({ verbose: true })
 
-    const moves: move[] = []
+        const totalMoves = history.length
+        let progress = 0
 
-    cleanStockfish(stockfish)
-    await waitTillReady(stockfish)
+        const metadata = { players, time, result }
 
-    let moveNumber = 0, previousBestMove, previousSacrice = false
-    const previousStaticEvals: string[][] = []
-    for (const move of history) {
-        const movement: square[] = [move.from, move.to].map(square => {
-            const { col, row } = formatSquare(square)
+        const moves: move[] = []
 
-            return { col, row }
-        })
+        cleanStockfish(stockfish)
+        try {
+            await waitTillReady(stockfish, signal)
+        } catch {
+            reject(new Error('canceled'))
+            return
+        }
 
-        if (moveNumber === 0) {
-            const fen = move.before
+        if (signal.aborted) {
+            handleAbort()
+            return
+        }
+
+        let moveNumber = 0, previousBestMove, previousSacrice = false
+        const previousStaticEvals: string[][] = []
+        for (const move of history) {
+            if (signal.aborted) {
+                handleAbort()
+                return
+            }
+            const movement: square[] = [move.from, move.to].map(square => {
+                const { col, row } = formatSquare(square)
+    
+                return { col, row }
+            })
+
+            if (moveNumber === 0) {
+                const fen = move.before
+                chess.load(fen)
+                const color = move.color
+
+                let analyzeObject
+                try {
+                    analyzeObject = await analyze(stockfish, move.before, depth, signal)
+                } catch {
+                    handleAbort()
+                    return
+                }
+
+                const { bestMove, staticEval } = analyzeObject
+
+                if (signal.aborted) {
+                    handleAbort()
+                    return
+                }
+                moves.push({
+                    fen,
+                    staticEval,
+                    bestMove,
+                    color,
+                })
+                previousBestMove = bestMove
+                previousStaticEvals.push(staticEval)
+            }
+            const fen = move.after
             chess.load(fen)
-            const color = move.color
-            const { bestMove, staticEval } = await analyze(stockfish, move.before, depth)
+
+            const color = invertColor(move.color)
+            const capture = move.captured
+            const san = move.san
+
+            const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
+
+            if (chess.isCheckmate()) {
+                var sacrifice = false
+                var staticEval = ["mate"]
+                var bestMove: square[] = []
+                var forced = false
+            } else {
+                var sacrifice = move.promotion ? false : isSacrifice(move)
+
+                try {
+                    var { staticEval, bestMove } = await analyze(stockfish, move.after, depth, signal)
+                } catch {
+                    handleAbort()
+                    return
+                }
+
+                if (signal.aborted) {
+                    handleAbort()
+                    return
+                }
+                var forced = isForced(move)
+            }
+
+            const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice, openings)
+
+            if (chess.isGameOver()) {
+                bestMove = []
+            }
+
             moves.push({
                 fen,
+                movement,
                 staticEval,
                 bestMove,
+                moveRating,
+                comment,
                 color,
+                capture,
+                castle,
+                san,
             })
+
             previousBestMove = bestMove
             previousStaticEvals.push(staticEval)
-        }
-        const fen = move.after
-        chess.load(fen)
-
-        const color = invertColor(move.color)
-        const capture = move.captured
-        const san = move.san
-
-        const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
-
-        if (chess.isCheckmate()) {
-            var sacrifice = false
-            var staticEval = ["mate"]
-            var bestMove: square[] = []
-            var forced = false
-        } else {
-            var sacrifice = move.promotion ? false : isSacrifice(move)
-            var { staticEval, bestMove } = await analyze(stockfish, move.after, depth)
-            var forced = isForced(move)
+            moveNumber++
+            previousSacrice = sacrifice
+    
+            progress++
+            setProgress((progress / totalMoves) * 100)
         }
 
-        const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice, openings)
-
-        if (chess.isGameOver()) {
-            bestMove = []
-        }
-
-        moves.push({
-            fen,
-            movement,
-            staticEval,
-            bestMove,
-            moveRating,
-            comment,
-            color,
-            capture,
-            castle,
-            san,
-        })
-
-        previousBestMove = bestMove
-        previousStaticEvals.push(staticEval)
-        moveNumber++
-        previousSacrice = sacrifice
-
-        progress++
-        setProgress((progress / totalMoves) * 100)
-    }
-
-    return { metadata, moves }
+        resolve({ metadata, moves })
+    })
 }

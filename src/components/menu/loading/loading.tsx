@@ -2,9 +2,8 @@ import { useContext, useEffect, useRef, useState } from "react"
 import Lens from "../../svg/lens"
 import LoadingBar from "./loadingBar"
 import { AnalyzeContext } from "@/context/analyze"
-import { TYPES } from "../analyze/form"
 
-export default function Loading(props: { format: string }) {
+export default function Loading(props: { format: string, analyzeController?: AbortController }) {
     const [ellipsis, setEllipsis] = useState('')
 
     const analyzeContext = useContext(AnalyzeContext)
@@ -14,7 +13,7 @@ export default function Loading(props: { format: string }) {
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)
 
-    const { format } = props
+    const { format, analyzeController } = props
 
     useEffect(() => {
         ellipsisRef.current = ellipsis
@@ -40,6 +39,10 @@ export default function Loading(props: { format: string }) {
         progressRef.current = progress
     }, [progress])
 
+    function cancel() {
+        analyzeController?.abort()
+    }
+
     return (
         <div className="flex flex-col flex-grow">
             <div className="text-lg font-bold text-foregroundGrey px-5 pb-5 w-full">Analyzing{ellipsis}</div>
@@ -51,7 +54,7 @@ export default function Loading(props: { format: string }) {
                         <span className="text-xl text-foreground font-bold">{format.toUpperCase()}</span>
                         <span className="w-full">Analyzing Game{ellipsis}</span>
                     </div>
-                    <button className="hover:text-foreground transition-colors" type="button">Cancel</button>
+                    <button onClick={cancel} className="hover:text-foreground transition-colors" type="button">Cancel</button>
                     <LoadingBar progress={progress} transitionTime={100} />
                 </div>
             </div>
