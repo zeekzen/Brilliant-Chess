@@ -156,7 +156,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
 
         const size = squareSize + 'px'
 
-        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-[20] ${props.class} ${rounded}`} />
+        return <div style={{ top: white ? elementPosition.y : '', bottom: !white ? elementPosition.y : '', left: white ? elementPosition.x : '', right: !white ? elementPosition.x : '', width: size, height: size }} className={`absolute opacity-80 z-[10] ${props.class} ${rounded}`} />
     }
 
     const [from, to] = move
@@ -224,7 +224,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
         const positionY = `${toElementPosition.y + (squareSize / 2)}px`
 
         return (
-            <svg style={{ top: positionY, left: positionX, transformOrigin: `${arrowHeadWidth / 2}px 0`, transform: getTransform() }} className={`absolute opacity-65 z-[60] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+            <svg style={{ top: positionY, left: positionX, transformOrigin: `${arrowHeadWidth / 2}px 0`, transform: getTransform() }} className={`absolute opacity-65 z-[50] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
                 <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${shortLineCenter},0 ${arrowHeadWidth},${arrowHeadHeight}`} />
                 <path fill="none" strokeWidth={lineWidth} d={`M ${shortLineCenter} ${arrowHeadHeight - 1} L ${shortLineCenter} ${longLineCenter} L ${width} ${longLineCenter}`} />
             </svg>
@@ -261,7 +261,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     const positionY = `${toElementPosition.y + (squareSize / 2) - (white ? 0 : height)}px`
 
     return (
-        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-65 z-[60] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-65 z-[50] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <line x1={lineCenter} y1={height} x2={lineCenter} y2={arrowHeadHeight - 1} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
@@ -344,8 +344,8 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     useEffect(() => {
         if (!animation) return
-        if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 50, forward, white, squareSize)
-        if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 40, forward, white, squareSize)
+        if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 40, forward, white, squareSize)
+        if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 30, forward, white, squareSize)
     }, [move, animation])
 
     let newMaterialAdvantage = 0
@@ -520,7 +520,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div style={{ backgroundColor: highlightColor }} className={`relative w-full h-full opacity-50 ${rounded}`} />
-                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
+                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[60]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
                                 }
                             })
 
@@ -528,14 +528,14 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             if (isLastMove) {
                                 if (square?.type === KING) {
                                     if (result === '1/2-1/2') {
-                                        resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: iconSize }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
+                                        resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: 'translateX(50%) translateY(-50%)', width: iconSize }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
                                     } else {
                                         if (square.color === WHITE) {
-                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
                                         } else {
-                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
                                         }
                                     }
                                 }
@@ -553,7 +553,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             if (pieceColor && pieceType) {
                                 const imageColor = PIECES_IMAGES[pieceColor as keyof object]
                                 const pieceImages = imageColor[pieceType as keyof object]
-                                piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[30] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
+                                piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[20] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
                             squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}</div>)
