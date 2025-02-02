@@ -456,7 +456,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                 { transform: `translate(${forward ? -distance.x : 0}px, ${forward ? distance.y : 0}px)` },
                 { transform: `translate(${!forward ? distance.x : 0}px, ${!forward ? -distance.y : 0}px)` },
             ],
-            { duration: 100, easing: 'linear', direction: forward ? 'normal' : 'reverse' },
+            { duration: 150, easing: 'linear', direction: forward ? 'normal' : 'reverse' },
         )
 
         animation.finished.then(resetElements).catch(resetElements)

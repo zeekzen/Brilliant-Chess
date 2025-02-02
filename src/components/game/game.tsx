@@ -117,7 +117,7 @@ export default function Game() {
             if (element.tagName === 'TEXTAREA') return
 
             const now = new Date().getTime()
-            const minPressInterval = 50
+            const minPressInterval = 25
 
             switch (e.key) {
                 case 'ArrowLeft':
