@@ -510,12 +510,17 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             if (rowNumber === 0 && columnNumber === 7) rounded = white ? 'rounded-tr-borderRoundness' : 'rounded-bl-borderRoundness'
                             if (rowNumber === 7 && columnNumber === 7) rounded = white ? 'rounded-br-borderRoundness' : 'rounded-tl-borderRoundness'
 
+                            const iconTranslateX = (white ? columnNumber === 7 : columnNumber === 0) ? -5 : 35
+                            const iconTranslateY = (white ? rowNumber === 0 : rowNumber === 7) ? 5 : -35
+
+                            const iconSize = squareSize / 2.4
+
                             let highlighted, highlightedIcon
                             move.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor} ${rounded}`} />
-                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
+                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
                                 }
                             })
 
@@ -523,14 +528,14 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             if (isLastMove) {
                                 if (square?.type === KING) {
                                     if (result === '1/2-1/2') {
-                                        resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
+                                        resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: iconSize }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
                                     } else {
                                         if (square.color === WHITE) {
-                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
                                         } else {
-                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: 'translateX(50%) translateY(-50%)', width: squareSize / 2.2 }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
+                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[50]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
                                         }
                                     }
                                 }
