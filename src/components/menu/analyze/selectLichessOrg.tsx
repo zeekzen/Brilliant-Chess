@@ -228,7 +228,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
             <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-foregroundHighlighted text-3xl font-bold">{username}</a>'s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
-                {loading ? <Loading whatIsLoading="Archives" /> : null}
+                {loading ? <Loading whatIsLoading="Archives" abort={stopSelecting} /> : null}
                 {dates.map((date, i) => {
                     return (
                         <div key={i}>

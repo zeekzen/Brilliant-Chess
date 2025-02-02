@@ -68,7 +68,7 @@ export function capitalizeFirst(string: string) {
     return string[0].toUpperCase() + string.substring(1).toLowerCase()
 }
 
-export function Loading(props: {whatIsLoading: string}) {
+export function Loading(props: {whatIsLoading: string, abort: () => void}) {
     const [ellipsis, setEllipsis] = useState('')
 
     const ellipsisRef = useRef(ellipsis)
@@ -100,7 +100,7 @@ export function Loading(props: {whatIsLoading: string}) {
                                 <span className="text-xl text-foreground font-bold">{props.whatIsLoading}</span>
                                 <span className="w-full ml-14">Fetching api{ellipsis}</span>
                             </div>
-                            <button className="hover:text-foreground transition-colors" type="button">Cancel</button>
+                            <button onClick={props.abort} className="hover:text-foreground transition-colors" type="button">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -297,7 +297,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
             <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>'s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
-                {loading ? <Loading whatIsLoading="Archives" /> : null}
+                {loading ? <Loading whatIsLoading="Archives" abort={stopSelecting} /> : null}
                 {dates.map((date, i) => {
                     return (
                         <div key={i}>
