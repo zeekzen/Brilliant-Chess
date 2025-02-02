@@ -33,17 +33,17 @@ const PIECES_IMAGES = {
 }
 
 const HIGHLIGHT_STYLE = {
-    forced: { color: "bg-highlightBoard", icon: "forced.svg" },
-    brilliant: { color: "bg-highlightBrilliant", icon: "brilliant.svg" },
-    great: { color: "bg-highlightGreat", icon: "great.svg" },
-    best: { color: "bg-highlightBest", icon: "best.svg" },
-    excellent: { color: "bg-highlightExcellent", icon: "excellent.svg" },
-    good: { color: "bg-highlightGood", icon: "good.svg" },
-    book: { color: "bg-highlightBook", icon: "book.svg" },
-    inaccuracy: { color: "bg-highlightInaccuracy", icon: "inaccuracy.svg" },
-    mistake: { color: "bg-highlightMistake", icon: "mistake.svg" },
-    miss: { color: "bg-highlightMiss", icon: "miss.svg" },
-    blunder: { color: "bg-highlightBlunder", icon: "blunder.svg" },
+    forced: { color: "", icon: "forced.svg" },
+    brilliant: { color: "var(--highlightBrilliant)", icon: "brilliant.svg" },
+    great: { color: "var(--highlightGreat)", icon: "great.svg" },
+    best: { color: "var(--highlightBest)", icon: "best.svg" },
+    excellent: { color: "var(--highlightExcellent)", icon: "excellent.svg" },
+    good: { color: "var(--highlightGood)", icon: "good.svg" },
+    book: { color: "var(--highlightBook)", icon: "book.svg" },
+    inaccuracy: { color: "var(--highlightInaccuracy)", icon: "inaccuracy.svg" },
+    mistake: { color: "var(--highlightMistake)", icon: "mistake.svg" },
+    miss: { color: "var(--highlightMiss)", icon: "miss.svg" },
+    blunder: { color: "var(--highlightBlunder)", icon: "blunder.svg" },
 }
 
 const PIECES_VALUES = {
@@ -309,7 +309,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
 
     const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_STYLE)
 
-    const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? "bg-highlightBoard" : "bg-highlightBoard"
+    const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? boardThemes[boardTheme].highlight : boardThemes[boardTheme].highlight
     const highlightIcon = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.icon
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
@@ -519,7 +519,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                             move.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
-                                    highlighted = <div className={`relative w-full h-full opacity-50 ${highlightColor} ${rounded}`} />
+                                    highlighted = <div style={{ backgroundColor: highlightColor }} className={`relative w-full h-full opacity-50 ${rounded}`} />
                                     if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[50]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
                                 }
                             })

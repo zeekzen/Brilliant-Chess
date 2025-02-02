@@ -7,16 +7,17 @@ interface boardTheme {
     label: boardThemeLabel,
     black: string,
     white: string,
+    highlight: string,
 }
 
 export const boardThemes: boardTheme[] = [
-    { label: "Green", black: "#779556", white: "#ebecd0" },
-    { label: "Brown", black: "#b58863", white: "#f0d9b5" },
-    { label: "Blue", black: "#4d6d92", white: "#ececd7" },
-    { label: "Gray", black: "#4f4f4f", white: "#e3e3e3" },
-    { label: "Red", black: "#ba5546", white: "#f0d8bf" },
-    { label: "Purple", black: "#8877b7", white: "#efefef" },
-    { label: "Orange", black: "#d08b18", white: "#fce4b2" },
+    { label: "Green", black: "#779556", white: "#ebecd0", highlight: "#ffff33" },
+    { label: "Brown", black: "#b58863", white: "#f0d9b5", highlight: "#ffff33" },
+    { label: "Blue", black: "#4d6d92", white: "#ececd7", highlight: "#00a5ff" },
+    { label: "Gray", black: "#4f4f4f", white: "#e3e3e3", highlight: "#ffff33" },
+    { label: "Red", black: "#ba5546", white: "#f0d8bf", highlight: "#f8f893" },
+    { label: "Purple", black: "#8877b7", white: "#efefef", highlight: "#7dacc9" },
+    { label: "Orange", black: "#d08b18", white: "#fce4b2", highlight: "#ffff33" },
 ]
 
 export default function Themes() {
