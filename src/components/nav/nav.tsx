@@ -80,7 +80,7 @@ export default function Nav() {
                     </a>
                     {topLinks.map((link, i) => {
                         return (
-                            <button onClick={link?.click} onMouseEnter={link?.hover} onMouseLeave={link?.unHover} type="button" key={i} className="text-lg font-bold px-3 py-2 hover:bg-backgroundBoxHover hover:text-foregroundHighlighted transition-colors flex flex-row gap-2">
+                            <button onClick={link?.click} onMouseEnter={link?.hover} onMouseLeave={link?.unHover} type="button" key={i} className="text-lg outline-none font-bold px-3 py-2 hover:bg-backgroundBoxHover hover:text-foregroundHighlighted transition-colors flex flex-row gap-2">
                                 <Image height={28} width={28} alt={link.label} src={link.icon} className="transition-colors" />
                                 <div className="h-fit w-fit">{link.label}</div>
                             </button>
