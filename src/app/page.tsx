@@ -1,3 +1,4 @@
+import RightAd from "@/components/ads/righAd"
 import BoardMenu from "@/components/boardMenu/boardMenu"
 import Game from "@/components/game/game"
 import Menu from "@/components/menu/menu"
@@ -19,6 +20,7 @@ export default function Home() {
           <Game />
           <BoardMenu />
           <Menu />
+          <RightAd pId={process.env.PUBLISHER_ID ?? ''} sId="" />
         </AnalyzeContextProvider>
       </main>
     </ErrorsContextProvider></ConfigContextProvider>

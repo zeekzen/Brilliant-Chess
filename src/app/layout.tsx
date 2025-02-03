@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 import { Roboto } from 'next/font/google'
+import Adsense from "@/components/ads/adsense"
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
       <body className={`flex flex-row items-center justify-between h-screen ${roboto.className}`}>
         {children}
       </body>
