@@ -13,7 +13,7 @@ export const FORMATS = [
 
 export const TYPES = [
     ["Quick", "/images/quick.svg", 15, "Depth: 15"],
-    ["Standard", "/images/standard.svg", 18, "Depth: 18"],
+    ["Basic", "/images/standard.svg", 18, "Depth: 18"],
     ["Deep", "/images/deep.svg", 21, "Depth: 21"],
 ] as const
 
@@ -145,7 +145,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
             <textarea spellCheck={false} rows={1} value={value} onKeyDown={handleKeyDown} onKeyUp={handleKeyUp} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setValue(e?.currentTarget.value)} ref={inputRef} placeholder={inputPlaceholder} className="w-[85%] px-2 py-[13px] flex items-center transition-colors text-xl font-bold rounded-borderRoundness border-border hover:border-borderHighlighted focus:border-borderHighlighted border-solid border-[1px] bg-backgroundBoxBox outline-none placeholder:text-placeholder placeholder:font-normal resize-none" />
             <div className="w-[85%] flex flex-col gap-2">
                 <button type="button" className="flex flex-row gap-1 items-center justify-center w-full h-14 rounded-borderRoundness text-xl bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover hover:text-foregroundHighlighted transition-colors font-bold relative" onClick={e => { e.preventDefault(); setSelecting(isSelecting => !isSelecting) }}>
-                    <img src={FORMATS[selected][1]} className="h-7" />
+                    <Image alt="icon" src={FORMATS[selected][1]} width={28} height={28} />
                     {FORMATS[selected][0]}
                     <div className={`absolute h-full right-6 top-0 flex flex-row items-center ${isSelecting ? "" : "rotate-180"}`}><Arrow class="fill-foregroundGrey" /></div>
                 </button>

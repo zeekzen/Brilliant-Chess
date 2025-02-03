@@ -11,17 +11,17 @@ import PageErrors from "@/errors/pageErrors"
 export default function Home() {
   return (
     <ConfigContextProvider><ErrorsContextProvider>
+      <PageErrors />
       <header>
         <Nav />
       </header>
-      <main className="flex flex-row h-[95%] gap-2 items-center select-none">
+      <main className="flex flex-row h-full p-4 gap-2 items-center justify-center select-none w-full">
         <AnalyzeContextProvider>
-          <PageErrors />
           <Game />
           <BoardMenu />
           <Menu />
-          <RightAd pId={process.env.PUBLISHER_ID ?? ''} sId="" />
         </AnalyzeContextProvider>
+        <RightAd showPlaceHolder={process.env.NODE_ENV === 'development'} pId={process.env.PUBLISHER_ID ?? ''} sId="" />
       </main>
     </ErrorsContextProvider></ConfigContextProvider>
   )

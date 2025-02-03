@@ -96,7 +96,7 @@ export default function Menu() {
     ]
 
     return (
-        <div ref={menuRef} className="h-full select-text bg-backgroundBox rounded-borderRoundness w-[500px] flex flex-col gap-4 overflow-hidden">
+        <div ref={menuRef} className="h-full select-text bg-backgroundBox rounded-borderRoundness flex-grow max-w-[500px] min-w-[290px] flex flex-col gap-4 overflow-hidden">
             <menu className="flex flex-row relative select-none">
                 {tabs.map((t, i) => {
                     if (!t.show) return

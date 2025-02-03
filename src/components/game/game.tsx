@@ -19,6 +19,7 @@ const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported.', 'Update 
 
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
+    const [gameHeight, setGameHeight] = useState(850)
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
 
     const analyzeContext = useContext(AnalyzeContext)
@@ -255,7 +256,20 @@ export default function Game() {
 
             const boardHeight = componentHeight - ((statusBarHeight * 2) + (gapHeight * 2))
 
-            setBoardSize(boardHeight)
+            const navWidth = document.getElementsByTagName("nav")[0]?.offsetWidth ?? 0
+            const evalWidth = 36
+            const menuWidth = 290
+            const rightAdWidth = 144
+            const boardMenuWidth = 17
+            const gapWidth = 8
+            const paddingWidth = 16
+
+            const maxWidth = screen.width - (navWidth + paddingWidth + evalWidth + GAP + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
+
+            const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
+
+            setBoardSize(newBoardSize)
+            setGameHeight(newBoardSize + (statusBarHeight * 2) + (gapHeight * 2))
         }
 
         updateBoardSize()
@@ -274,6 +288,10 @@ export default function Game() {
         }
         setCaptured(newCaptured)
     }, [moveNumber])
+
+    function roundBoardSize(boardSize: number) {
+        return Math.round(boardSize / 8) * 8
+    }
 
     function formatTime(seconds: number): string {
         const noTime = '--:--'
@@ -312,9 +330,11 @@ export default function Game() {
     }
 
     return (
-        <div ref={gameRef} tabIndex={0} style={{ gap: GAP }} className="h-full flex flex-row items-center outline-none">
-            <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
-            <div ref={componentRef} className="h-full flex flex-col justify-between">
+        <div ref={gameRef} tabIndex={0} style={{ gap: GAP }} className="h-full flex flex-row outline-none">
+            <div style={{ height: gameHeight }} className="flex items-center">
+                <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
+            </div>
+            <div ref={componentRef} style={{gap: GAP}} className="h-full flex flex-col justify-start">
                 <div className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} ${players[white ? 1 : 0].elo !== 'NOELO' ? `(${players[white ? 1 : 0].elo})` : ''}`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
