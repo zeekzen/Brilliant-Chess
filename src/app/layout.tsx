@@ -18,7 +18,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
-      <body className={`flex flex-row items-center justify-start h-screen w-screen ${roboto.className}`}>
+      <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
         {children}
       </body>
     </html>

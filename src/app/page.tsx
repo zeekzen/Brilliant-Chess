@@ -15,10 +15,13 @@ export default function Home() {
       <header>
         <Nav />
       </header>
-      <main className="flex flex-row h-full p-4 gap-2 items-center justify-center select-none w-full">
+      <main className="flex flex-col vertical:flex-row h-full p-4 vertical:gap-2 gap-4 items-center vertical:justify-center select-none w-full overflow-x-hidden overflow-y-auto">
         <AnalyzeContextProvider>
-          <Game />
-          <BoardMenu />
+          <div className="h-full flex flex-row gap-2 w-min">
+            <Game />
+            <BoardMenu />
+            <RightAd vertical showPlaceHolder={process.env.NODE_ENV === 'development'} pId={process.env.PUBLISHER_ID ?? ''} sId="" />
+          </div>
           <Menu />
         </AnalyzeContextProvider>
         <RightAd showPlaceHolder={process.env.NODE_ENV === 'development'} pId={process.env.PUBLISHER_ID ?? ''} sId="" />

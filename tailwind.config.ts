@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+export const maxVertical = 1050
+
 export default {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -71,6 +73,10 @@ export default {
         shadowBoxBoxHighlighted: "var(--shadowBoxBoxHighlighted) var(--backgroundBoxBoxHighlightedHover)",
       },
     },
+    screens: {
+      "vertical": `${maxVertical}px`,
+      "reduceNav": "1280px",
+    }
   },
   plugins: [],
 } satisfies Config;

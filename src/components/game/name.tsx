@@ -12,7 +12,7 @@ export default function Name(props: { white: boolean, children: React.ReactNode,
                 <Profile width={40} height={40} class={`${white ? "fill-foregroundProfileWhite" : "fill-foregroundProfileBlack"}`} />
             </div>
             <div className="flex flex-col justify-between h-11">
-                <span className="h-fit pb-[1px] pt-[2px] select-text">{name}</span>
+                <span className="h-fit pb-[1px] pt-[2px] select-text text-nowrap">{name}</span>
                 <CapturedPieces advantage={materialAdvantage} white={white} pieces={captured} />
             </div>
         </div>
