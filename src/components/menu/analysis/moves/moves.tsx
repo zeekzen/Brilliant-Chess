@@ -58,7 +58,6 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     const commentsRef = useRef<HTMLDivElement>(null)
     const moveListRef = useRef<HTMLUListElement>(null)
     const gameChartRef = useRef<HTMLDivElement>(null)
-    const currentMoveRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
         const realMoves = moves.slice(1)
@@ -78,43 +77,25 @@ export default function Moves(props: { moves: move[], overallGameComment: string
         setTurns(newTurns)
     }, [moves])
 
-    useEffect(() => {
-        if (!currentMoveRef.current || !moveListRef.current) return
+    function scrollToCurrentMove() {
+        if (!moveListRef.current) return
+
+        const moveListRow = moveListRef.current.getElementsByTagName('li')[0]
+        if (!moveListRow) return
+
+        const turnHeight = moveListRow.offsetHeight
+
+        const gap = 4
 
         moveListRef.current.scrollTo({
-            behavior: 'smooth',
-            top: currentMoveRef.current.offsetTop - moveListRef.current.offsetTop,
+            behavior: moveNumber ? "smooth" : "instant",
+            top: (turnHeight * Math.floor((moveNumber - 1) / 2)) + (gap * (Math.floor((moveNumber - 1) / 2))),
         })
+    }
 
-        if (moveNumber === 0) {
-            void moveListRef.current?.offsetHeight
+    useEffect(scrollToCurrentMove, [moveNumber])
 
-            moveListRef.current?.scrollTo({
-                behavior: "smooth",
-                top: 0,
-            })
-        }
-    }, [moveNumber])
-
-    useEffect(() => {
-        setTimeout(() => {
-            if (!currentMoveRef.current || !moveListRef.current) return
-
-            moveListRef.current?.scrollTo({
-                behavior: 'instant',
-                top: currentMoveRef.current.offsetTop - moveListRef.current.offsetTop,
-            })
-    
-            if (moveNumber === 0) {
-                void moveListRef.current?.offsetHeight
-
-                moveListRef.current?.scrollTo({
-                    behavior: "instant",
-                    top: 0,
-                })
-            }
-        }, 0)
-    }, [])
+    useEffect(scrollToCurrentMove, [])
 
     function resizeMoves() {
         if (!componentRef.current || !commentsRef.current || !moveListRef.current || !gameChartRef.current) return
@@ -189,7 +170,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
                                     const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
                                     return (
-                                        <div ref={isSelected ? currentMoveRef : null} key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
+                                        <div key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
                                             <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</button>
                                             <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className={`rounded-borderRoundness outline-none border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
                                         </div>
