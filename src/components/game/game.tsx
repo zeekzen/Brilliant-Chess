@@ -263,15 +263,15 @@ export default function Game() {
             const gapWidth = 8
             const paddingWidth = 16
 
-            if (screen.width < maxVertical) {
-                setBoardSize(roundBoardSize(screen.height - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2))))
-                setGameHeight(roundBoardSize(screen.height - (gapHeight * 2)))
+            if (window.innerWidth < maxVertical) {
+                setBoardSize(roundBoardSize(window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2))))
+                setGameHeight(roundBoardSize(window.innerHeight - (gapHeight * 2)))
 
                 return
             }
 
             const boardHeight = componentHeight - ((statusBarHeight * 2) + (gapHeight * 2))
-            const maxWidth = screen.width - (navWidth + paddingWidth + evalWidth + GAP + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
+            const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + GAP + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
 
             const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
 
