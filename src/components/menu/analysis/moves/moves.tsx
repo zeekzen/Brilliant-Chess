@@ -79,9 +79,11 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     }, [moves])
 
     useEffect(() => {
-        currentMoveRef.current?.scrollIntoView({
+        if (!currentMoveRef.current || !moveListRef.current) return
+
+        moveListRef.current.scrollTo({
             behavior: 'smooth',
-            block: 'start',
+            top: currentMoveRef.current.offsetTop - moveListRef.current.offsetTop,
         })
 
         if (moveNumber === 0) {
@@ -96,14 +98,16 @@ export default function Moves(props: { moves: move[], overallGameComment: string
 
     useEffect(() => {
         setTimeout(() => {
-            currentMoveRef.current?.scrollIntoView({
+            if (!currentMoveRef.current || !moveListRef.current) return
+
+            moveListRef.current?.scrollTo({
                 behavior: 'instant',
-                block: 'start',
+                top: currentMoveRef.current.offsetTop - moveListRef.current.offsetTop,
             })
     
             if (moveNumber === 0) {
                 void moveListRef.current?.offsetHeight
-    
+
                 moveListRef.current?.scrollTo({
                     behavior: "instant",
                     top: 0,
