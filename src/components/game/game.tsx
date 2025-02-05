@@ -10,7 +10,7 @@ import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN, prepareStockfish } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
 import { getAproxMemory, wasmThreadsSupported } from "@/engine/wasmChecks"
-import { pushPageError } from "@/errors/pageErrors"
+import { pushPageError } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
 import { maxVertical } from "../../../tailwind.config"
 

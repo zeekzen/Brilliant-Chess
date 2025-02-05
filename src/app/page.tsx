@@ -6,12 +6,14 @@ import Nav from "@/components/nav/nav"
 import AnalyzeContextProvider from "@/context/analyze"
 import ConfigContextProvider from "@/context/config"
 import ErrorsContextProvider from "@/context/errors"
-import PageErrors from "@/errors/pageErrors"
+import PageErrors from "@/components/errors/pageErrors"
+import VerticalScreenError from "@/components/errors/verticalScreenError"
 
 export default function Home() {
   return (
     <ConfigContextProvider><ErrorsContextProvider>
       <PageErrors />
+      <VerticalScreenError />
       <header>
         <Nav />
       </header>

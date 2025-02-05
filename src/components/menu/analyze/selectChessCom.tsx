@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
-import { pushPageError } from "@/errors/pageErrors"
+import { pushPageError } from "@/components/errors/pageErrors"
 import { Chess } from "chess.js"
 import Files from "@/components/svg/files"
 import { ErrorsContext } from "@/context/errors"

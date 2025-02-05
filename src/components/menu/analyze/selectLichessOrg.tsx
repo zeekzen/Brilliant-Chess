@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
-import { pushPageError, pushPageWarning } from "@/errors/pageErrors"
+import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { Chess } from "chess.js"
 import { API_BLOCKING_ERROR, capitalizeFirst, GAMES_ERROR, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
 import { ErrorsContext } from "@/context/errors"

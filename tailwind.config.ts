@@ -64,6 +64,9 @@ export default {
 
         winGreen: "var(--winGreen)",
         lossRed: "var(--lossRed)",
+
+        error: "var(--error)",
+        warning: "var(--warning)",
       },
       borderRadius: {
         borderRoundness: "var(--borderRoundness)",

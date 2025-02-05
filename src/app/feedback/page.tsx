@@ -1,7 +1,7 @@
 import Form from "@/components/feedback/form";
 import Chats from "@/components/svg/chats";
 import ErrorsContextProvider from "@/context/errors";
-import PageErrors from "@/errors/pageErrors";
+import PageErrors from "@/components/errors/pageErrors";
 
 export default function Feedback() {
     return (

@@ -1,7 +1,7 @@
 "use client"
 
 import { ErrorsContext } from "@/context/errors"
-import { pushPageError } from "@/errors/pageErrors"
+import { pushPageError } from "@/components/errors/pageErrors"
 import { sendFeedback, ssError } from "@/server/feedback"
 import { useContext, useEffect, useRef, useState } from "react"
 
