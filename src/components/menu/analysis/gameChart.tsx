@@ -17,11 +17,12 @@ function isImportantMove(moveNumber: number, rating: moveRating | undefined, pre
     return
 }
 
-export default function GameChart(props: { moves: move[], size: { width: number, height: number } }) {
-    const { moves, size } = props
+export default function GameChart(props: { moves: move[], container: HTMLElement }) {
+    const { moves, container } = props
 
     const [hoveredMove, setHoveredMove] = useState(NaN)
     const [importantMoves, setImportantMoves] = useState<{color: (string|undefined), move: move}[]>([])
+    const [size, setSize] = useState({ width: 400, height: 96 })
 
     const analyzeContext = useContext(AnalyzeContext)
 
@@ -32,6 +33,18 @@ export default function GameChart(props: { moves: move[], size: { width: number,
     const totalMoves = moves.length - 1
     const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width
     const moveNumberX = getMoveX(moveNumber, totalMoves) * size.width
+
+    useEffect(() => {
+        function setRealSize() {
+            setSize({ width: container.offsetWidth * 0.85, height: 96 })
+        }
+
+        setRealSize()
+
+        window.addEventListener('resize', setRealSize)
+
+        return () => window.removeEventListener('resize', setRealSize)
+    }, [])
 
     useEffect(() => {
         const newImportantMoves = moves.map((move, i) => {

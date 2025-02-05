@@ -20,8 +20,6 @@ import SelectLichessOrgGame from "./analyze/selectLichessOrg"
 export type platform = "chessCom" | "lichessOrg"
 
 export default function Menu() {
-    const [gameChartSize, setGameChartSize] = useState({ width: NaN, height: NaN })
-
     const [username, setUsername] = useState<{platform: platform, username: string}>({platform: "chessCom", username: ""})
 
     const [type, setType] = useState(1)
@@ -56,13 +54,6 @@ export default function Menu() {
             setTab('analyze')
         }
     }, [username])
-
-    useEffect(() => {
-        const container = menuRef.current
-        const width = (container?.clientWidth ?? 0) * 0.85
-
-        setGameChartSize({ width, height: 96 })
-    }, [])
 
     const { format } = data
 
@@ -112,8 +103,8 @@ export default function Menu() {
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} analyzeController={analyzeController} /> : ''}
 
-                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} chartSize={gameChartSize} /> : ''}
-                {pageState === 'analyze' && tab === 'moves' ? <Moves chartSize={gameChartSize} moves={game} overallGameComment={overallGameComment} /> : ''}
+                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} container={menuRef.current as HTMLElement} /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={game} overallGameComment={overallGameComment} /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex flex-col gap-1 pb-1 items-center">

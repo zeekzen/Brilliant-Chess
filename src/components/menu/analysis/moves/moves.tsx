@@ -42,8 +42,8 @@ export function getLastBookMove(moves: move[]) {
     return -1
 }
 
-export default function Moves(props: { moves: move[], overallGameComment: string, chartSize: {width: number, height: number} }) {
-    const { moves, overallGameComment, chartSize } = props
+export default function Moves(props: { moves: move[], overallGameComment: string, container: HTMLElement }) {
+    const { moves, overallGameComment, container } = props
 
     const [turns, setTurns] = useState<[number, string, string | undefined][]>([])
     const [movesHeight, setMovesHeight] = useState(0)
@@ -201,7 +201,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
                 })}
             </ul>
             <div ref={gameChartRef}>
-                <GameChart size={chartSize} moves={moves} />
+                <GameChart container={container} moves={moves} />
             </div>
         </div>
     )
