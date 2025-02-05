@@ -4,7 +4,7 @@ import Image from "next/image"
 import { useEffect, useRef, useState } from "react"
 
 export default function VerticalScreenError() {
-    const [verticalScreenError, setVerticalScreenError] = useState(true)
+    const [verticalScreenError, setVerticalScreenError] = useState(false)
     const ignored = useRef(false)
 
     useEffect(() => {
