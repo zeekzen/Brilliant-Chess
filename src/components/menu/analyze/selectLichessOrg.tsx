@@ -3,7 +3,7 @@ import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { Chess } from "chess.js"
-import { API_BLOCKING_ERROR, capitalizeFirst, GAMES_ERROR, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
+import { API_BLOCKING_ERROR, capitalizeFirst, GAMES_ERROR, GamesUI, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
 import { ErrorsContext } from "@/context/errors"
 
 interface Game {
@@ -119,52 +119,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
         )
     }
 
-    return (
-        <>
-            {loading ? <SimpleLoading whatIsLoading="games" /> : null}
-            <table className="w-full">
-                <thead style={{display: loading ? 'none' : ''}}>
-                    <tr>
-                        <th className="py-2 text-left pl-8">Players</th>
-                        <th className="py-2 text-left px-6">Result</th>
-                        <th className="py-2 text-left pr-8">Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {gamesInfo.map((gameInfo, i) => {
-                        const { whiteName, blackName, whiteElo, blackElo, result, timestamp, pgn, timeClass } = gameInfo
-
-                        const whiteWon = result === 'white'
-                        const blackWon = result === 'black'
-                        const draw = result === 'draw'
-
-                        const isWin = (whiteWon && whiteName.toUpperCase() === username.toUpperCase()) || (blackWon && blackName.toUpperCase() === username.toUpperCase())
-                        const isLoss = (whiteWon && whiteName.toUpperCase() !== username.toUpperCase()) || (blackWon && blackName !== username)
-
-                        const date = new Date(timestamp)
-
-                        return (
-                            <tr title={`Time Class: ${capitalizeFirst(timeClass)}`} onClick={() => setData({ format: 'pgn', string: pgn, depth })} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
-                                <td className="text-lg flex flex-col py-4 w-64 overflow-hidden pl-8">
-                                    <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
-                                    <div className="font-bold flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
-                                </td>
-                                <td className="py-4 px-6">
-                                    <div className="flex flex-row items-center gap-3">
-                                        <div className="flex w-4 flex-col text-foregroundGrey font-bold text-lg"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
-                                        <div style={{ mixBlendMode: 'screen' }} className={`h-5 w-5 rounded-borderRoundness text-xl font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
-                                    </div>
-                                </td>
-                                <td className="py-4 pr-8">
-                                    {getMonthName(date.getMonth() + 1).slice(0, 3)} <span className="font-bold text-xl">{date.getDate()}</span>, {date.getFullYear()}
-                                </td>
-                            </tr>
-                        )
-                    })}
-                </tbody>
-            </table>
-        </>
-    )
+    return <GamesUI gamesInfo={gamesInfo} loading={loading} username={username} depth={depth} setData={setData} />
 }
 
 export default function SelectLichessOrgGame(props: { username: string, depth: number, stopSelecting: () => void }) {

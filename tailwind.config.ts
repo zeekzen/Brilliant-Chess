@@ -79,6 +79,7 @@ export default {
     screens: {
       "vertical": `${maxVertical}px`,
       "reduceNav": "1280px",
+      "notFullDate": "1300px",
     }
   },
   plugins: [],
