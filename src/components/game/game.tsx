@@ -300,8 +300,10 @@ export default function Game() {
             const paddingWidth = 16
 
             if (window.innerWidth < maxVertical) {
-                setBoardSize(roundBoardSize(window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2))))
-                setGameHeight(roundBoardSize(window.innerHeight - (gapHeight * 2)))
+                const newBoardSize = roundBoardSize(window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2)))
+
+                setBoardSize(newBoardSize)
+                setGameHeight(newBoardSize + (statusBarHeight * 2) + (gapHeight * 2))
 
                 return
             }
