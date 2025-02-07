@@ -18,6 +18,16 @@ const GAP = 10
 
 const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported.', 'Update or switch your browser in order to run this app.']
 
+export interface Controller {
+    back: () => void
+    forward: () => void
+    first: () => void
+    last: () => void
+    play: () => void
+    pause: () => void
+    togglePlay: () => void
+}
+
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
     const [gameHeight, setGameHeight] = useState(850)
@@ -109,6 +119,38 @@ export default function Game() {
         return () => clearInterval(intervalRef.current)
     }, [playing])
 
+    const gameController: Controller = {
+        back: () => {
+            if (moveNumberRef.current === 0) return
+
+            setForward(false)
+            setAnimation(true)
+            setMoveNumber(prev => prev - 1)
+        },
+        forward: () => {
+            if (moveNumberRef.current === gameLengthRef.current - 1) return
+
+            setForward(true)
+            setAnimation(true)
+            setMoveNumber(prev => prev + 1)
+        },
+        first: () => {
+            setMoveNumber(0)
+        },
+        last: () => {
+            setMoveNumber(gameLengthRef.current - 1)
+        },
+        togglePlay: () => {
+            setPlaying(prev => !prev)
+        },
+        play: () => {
+            setPlaying(true)
+        },
+        pause: () => {
+            setPlaying(false)
+        }
+    }
+
     useEffect(() => {
         let lastPressed = 0
         function handleKeyDown(e: KeyboardEvent) {
@@ -125,22 +167,16 @@ export default function Game() {
                 case 'ArrowLeft':
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
-                    if (moveNumberRef.current === 0) return
 
-                    setForward(false)
-                    setAnimation(true)
-                    setMoveNumber(prev => prev - 1)
+                    gameController.back()
 
                     lastPressed = new Date().getTime()
                     break
                 case 'ArrowRight':
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
-                    if (moveNumberRef.current === gameLengthRef.current - 1) return
 
-                    setForward(true)
-                    setAnimation(true)
-                    setMoveNumber(prev => prev + 1)
+                    gameController.forward()
 
                     lastPressed = new Date().getTime()
                     break
@@ -148,7 +184,7 @@ export default function Game() {
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
 
-                    setMoveNumber(0)
+                    gameController.first()
 
                     lastPressed = new Date().getTime()
                     break
@@ -156,7 +192,7 @@ export default function Game() {
                     e.preventDefault()
                     if (now - lastPressed < minPressInterval) return
 
-                    setMoveNumber(gameLengthRef.current - 1)
+                    gameController.last()
 
                     lastPressed = new Date().getTime()
                     break
@@ -346,7 +382,7 @@ export default function Game() {
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} ${players[white ? 1 : 0].elo !== 'NOELO' ? `(${players[white ? 1 : 0].elo})` : ''}`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
-                <Board forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} previousBestMove={game[moveNumber - 1]?.bestMove} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} setAnimation={setAnimation} result={result} />
+                <Board controller={gameController} forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} previousBestMove={game[moveNumber - 1]?.bestMove} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} setAnimation={setAnimation} result={result} />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>

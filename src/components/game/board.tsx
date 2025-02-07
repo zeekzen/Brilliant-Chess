@@ -6,6 +6,8 @@ import { Howl } from "howler";
 import { AnalyzeContext } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
+import { maxVertical } from "../../../tailwind.config";
+import { Controller } from "./game";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, icon: string }
@@ -268,7 +270,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-export default function Board(props: { boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result }) {
+export default function Board(props: { controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result }) {
     const [arrows, setArrows] = useState<square[][]>([])
 
     const configContext = useContext(ConfigContext)
@@ -285,7 +287,7 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
 
-    const { boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
+    const { controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -556,7 +558,20 @@ export default function Board(props: { boardSize: number, fen?: string, nextFen?
                                 piece = <div ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)} className="w-full h-full z-[20] absolute bottom-0 left-0 cursor-grab"><Image alt={`${pieceType}-${pieceColor}`} className="w-full" width={200} height={0} src={`/images/pieces/${pieceImages}`} priority /></div>
                             }
 
-                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}</div>)
+                            const col = columnNumber
+                            function handleSquareClick() {
+                                if (window.innerWidth < maxVertical) {
+                                    if (white) {
+                                        if (col < 4) controller.back()
+                                        else controller.forward()
+                                    } else {
+                                        if (col < 4) controller.forward()
+                                        else controller.back()
+                                    }
+                                }
+                            }
+
+                            squares.push(<div onClick={handleSquareClick} data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {

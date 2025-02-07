@@ -107,7 +107,7 @@ export default function Menu() {
                 {pageState === 'analyze' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={game} overallGameComment={overallGameComment} /> : ''}
             </div>
             {pageState === 'analyze' ? (
-                <div className="flex flex-col gap-1 pb-1 items-center">
+                <div className="flex-col gap-1 pb-1 items-center hidden vertical:flex">
                     <hr className="border-neutral-600 w-[85%]" />
                     <GameButtons />
                 </div>
