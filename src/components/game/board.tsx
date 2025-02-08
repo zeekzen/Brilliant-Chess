@@ -406,6 +406,22 @@ export default function Board(props: { controller: Controller, boardSize: number
     const isLastMove = !nextMove.length && move.length
 
     useEffect(() => {
+        if (drag.is) return
+        if (!drag.id) return
+
+        const selectedPiece = chess.get(drag.id as Square)
+        if (!selectedPiece) {
+            setDrag({ is: false, id: "" })
+            return
+        }
+
+        if (selectedPiece.color !== chess.turn()) {
+            setDrag({ is: false, id: "" })
+            return
+        }
+    }, [fen])
+
+    useEffect(() => {
         if (!props.fen) return
 
         if (soundChessInstance.isCheck()) {
