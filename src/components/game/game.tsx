@@ -317,7 +317,7 @@ export default function Game() {
             setMoveNumber(0)
             setResult('1/2-1/2')
             setProgress(0)
-            setArrows({ 0: [] })
+            cleanArrows()
 
             setPageState('default')
         }

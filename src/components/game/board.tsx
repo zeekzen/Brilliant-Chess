@@ -610,6 +610,10 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         animation.oncancel = resetElements
     }
 
+    function isMobile() {
+        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
+    }
+
     function getLegalMoves() {
         if (!drag.id) return []
 
@@ -741,6 +745,10 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
                             const col = columnNumber
                             function handleSquareClick() {
+                                if (!isMobile()) return
+
+                                setDrag({ is: false, id: "" })
+
                                 if (window.innerWidth < maxVertical) {
                                     if (white) {
                                         if (col < 4) controller.back()
