@@ -283,18 +283,35 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
 
         const startPosition = { x: elemenRect.x + elemenRect.width / 2, y: elemenRect.y + elemenRect.height / 2 }
 
-        function pieceDrag(e: MouseEvent) {
-            handlePieceDrag(e, startPosition)
-        }
-
-        function pieceDragStop(e: MouseEvent) {
-            handlePieceDragStop(e, startPosition)
-
+        function cleanUp() {
+            document.removeEventListener('mousedown', pieceDragCancel)
             document.removeEventListener('mousemove', pieceDrag)
             document.removeEventListener('mouseup', pieceDragStop)
             document.body.style.cursor = ''
         }
 
+        function pieceDragCancel(e: MouseEvent) {
+            setMovement({ x: 0, y: 0 })
+            setDrag({ is: false, id })
+
+            cleanUp()
+        }
+
+        function pieceDrag(e: MouseEvent) {
+            if (e.button !== 0) return
+
+            handlePieceDrag(e, startPosition)
+        }
+
+        function pieceDragStop(e: MouseEvent) {
+            if (e.button !== 0) return
+
+            handlePieceDragStop(e, startPosition)
+
+            cleanUp()
+        }
+
+        document.addEventListener('mousedown', pieceDragCancel)
         document.addEventListener('mousemove', pieceDrag)
         document.addEventListener('mouseup', pieceDragStop)
 
@@ -311,8 +328,6 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     }
 
     function handlePieceDrag(e: MouseEvent, startPosition: { x: number, y: number }) {
-        if (e.button !== 0) return
-
         const movement = {
             x: e.clientX - startPosition.x,
             y: e.clientY - startPosition.y,
@@ -322,7 +337,10 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     }
 
     function handlePieceDragStop(e: MouseEvent, startPosition: { x: number, y: number }) {
-        if (e.button !== 0) return
+        const movement = {
+            x: e.clientX - startPosition.x,
+            y: e.clientY - startPosition.y,
+        }
 
         setMovement({ x: 0, y: 0 })
         setDrag({ is: false, id })
@@ -487,6 +505,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     }
 
     function handleMouseDown(e: React.MouseEvent) {
+        if (drag.is) return
+
         cleanDrag(e.target as HTMLElement)
 
         if (e.button === 2) {
@@ -502,6 +522,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     }
 
     function handleMouseUp(e: React.MouseEvent) {
+        if (drag.is) return
+
         if (e.button === 2) {
             e.preventDefault()
             setAnimation(false)
