@@ -125,14 +125,14 @@ export default function Game() {
 
     const gameController: Controller = {
         back: () => {
-            if (moveNumberRef.current === 0) return
+            if (moveNumberRef.current <= 0) return
 
             setForward(false)
             setAnimation(true)
             setMoveNumber(prev => prev - 1)
         },
         forward: () => {
-            if (moveNumberRef.current === gameLengthRef.current - 1) return
+            if (moveNumberRef.current >= gameLengthRef.current - 1) return
 
             setForward(true)
             setAnimation(true)
