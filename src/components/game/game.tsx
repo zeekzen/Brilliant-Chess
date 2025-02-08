@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { parsePGN, prepareStockfish } from "@/engine/stockfish"
+import { parsePGN, prepareStockfish, square } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
 import { getAproxMemory, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError } from "@/components/errors/pageErrors"
@@ -28,10 +28,14 @@ export interface Controller {
     togglePlay: () => void
 }
 
+export type arrow = square[]
+export interface AllGameArrows { [key: number]: arrow[] }
+
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
     const [gameHeight, setGameHeight] = useState(850)
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
+    const [arrows, setArrows] = useState<AllGameArrows>({0: []})
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -151,6 +155,37 @@ export default function Game() {
         }
     }
 
+    function createArrowsObject(length: number) {
+        const newArrows: AllGameArrows = {}
+        Array.from({ length }).forEach((_, i) => {
+            newArrows[i] = []
+        })
+
+        return newArrows
+    }
+
+    function cleanArrows() {
+        setArrows({ 0: [] })
+    }
+
+    function cleanCurrentArrows() {
+        setArrows(prev => {return {...prev, [moveNumber]: []}})
+    }
+
+    function pushArrow(currentArrow: arrow) {
+        const repeatedIndex = arrows[moveNumber].findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
+        const isRepeated = repeatedIndex !== -1
+
+        const newArrows = [...arrows[moveNumber]]
+        if (isRepeated) {
+            newArrows.splice(repeatedIndex, 1)
+        } else {
+            newArrows.push(currentArrow)
+        }
+
+        setArrows(prev => {return {...prev, [moveNumber]: newArrows}})
+    }
+
     useEffect(() => {
         let lastPressed = 0
         function handleKeyDown(e: KeyboardEvent) {
@@ -241,6 +276,7 @@ export default function Game() {
             setGame(moves)
             setResult(metadata.result)
             setAnimation(false)
+            setArrows(createArrowsObject(moves.length))
     
             setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
@@ -277,6 +313,7 @@ export default function Game() {
             setMoveNumber(0)
             setResult('1/2-1/2')
             setProgress(0)
+            setArrows({ 0: [] })
 
             setPageState('default')
         }
@@ -384,7 +421,7 @@ export default function Game() {
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} ${players[white ? 1 : 0].elo !== 'NOELO' ? `(${players[white ? 1 : 0].elo})` : ''}`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
-                <Board controller={gameController} forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} previousBestMove={game[moveNumber - 1]?.bestMove} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} setAnimation={setAnimation} result={result} />
+                <Board cleanArrows={cleanCurrentArrows} arrows={arrows[moveNumber] ?? []} controller={gameController} forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} previousBestMove={game[moveNumber - 1]?.bestMove} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} setAnimation={setAnimation} result={result} pushArrow={pushArrow} />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>

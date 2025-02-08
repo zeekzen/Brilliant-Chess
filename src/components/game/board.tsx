@@ -7,7 +7,7 @@ import { AnalyzeContext } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
 import { maxVertical } from "../../../tailwind.config";
-import { Controller } from "./game";
+import { arrow, Controller } from "./game";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, icon: string }
@@ -349,8 +349,7 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     )
 }
 
-export default function Board(props: { controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result }) {
-    const [arrows, setArrows] = useState<square[][]>([])
+export default function Board(props: { cleanArrows: () => void, controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void }) {
     const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
     const [hoverDrag, setHoverDrag] = useState('')
 
@@ -370,7 +369,7 @@ export default function Board(props: { controller: Controller, boardSize: number
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
+    const { pushArrow, cleanArrows, arrows, controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -452,20 +451,6 @@ export default function Board(props: { controller: Controller, boardSize: number
     let newMaterialAdvantage = 0
     useEffect(() => setMaterialAdvantage(newMaterialAdvantage), [fen])
 
-    function pushArrow(currentArrow: square[]) {
-        const repeatedIndex = arrows.findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
-        const isRepeated = repeatedIndex !== -1
-
-        const newArrows = [...arrows]
-        if (isRepeated) {
-            newArrows.splice(repeatedIndex, 1)
-        } else {
-            newArrows.push(currentArrow)
-        }
-
-        setArrows(newArrows)
-    }
-
     function startArrow(x: number, y: number) {
         const rowNumber = Math.floor(y / squareSize)
         const colNumber = Math.floor(x / squareSize)
@@ -495,10 +480,6 @@ export default function Board(props: { controller: Controller, boardSize: number
         return filteredHighlightStyle
     }
 
-    function restartArrows() {
-        setArrows([])
-    }
-
     function cleanDrag(target: HTMLElement) {
         if (target.dataset.dontcleandrag) return
 
@@ -515,8 +496,8 @@ export default function Board(props: { controller: Controller, boardSize: number
 
             startArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
         } else {
+            cleanArrows()
             setAnimation(false)
-            restartArrows()
         }
     }
 
