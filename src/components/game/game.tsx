@@ -448,8 +448,7 @@ export default function Game() {
                     setAnimation={setAnimation}
                     result={result} pushArrow={pushArrow}
                 />
-                <div style={{ width: boardSize }}
-                className="flex flex-row justify-between">
+                <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
