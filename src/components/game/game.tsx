@@ -421,8 +421,31 @@ export default function Game() {
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} ${players[white ? 1 : 0].elo !== 'NOELO' ? `(${players[white ? 1 : 0].elo})` : ''}`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
-                <Board cleanArrows={cleanCurrentArrows} arrows={arrows[moveNumber] ?? []} controller={gameController} forward={forward} moveRating={game[moveNumber]?.moveRating} bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined} previousBestMove={game[moveNumber - 1]?.bestMove} move={game[moveNumber]?.movement} nextMove={game[moveNumber + 1]?.movement} fen={game[moveNumber]?.fen} nextFen={game[moveNumber + 1]?.fen} boardSize={boardSize} white={white} animation={animation} gameEnded={moveNumber === game.length - 1} capture={game[moveNumber]?.capture} nextCapture={game[moveNumber + 1]?.capture} castle={game[moveNumber]?.castle} nextCastle={game[moveNumber + 1]?.castle} setAnimation={setAnimation} result={result} pushArrow={pushArrow} />
-                <div style={{ width: boardSize }} className="flex flex-row justify-between">
+                <Board
+                    cleanArrows={cleanCurrentArrows}
+                    arrows={arrows[moveNumber] ?? []}
+                    controller={gameController}
+                    forward={forward}
+                    moveRating={game[moveNumber]?.moveRating}
+                    bestMove={game[moveNumber]?.bestMove[0] ? game[moveNumber]?.bestMove : undefined}
+                    previousBestMove={game[moveNumber - 1]?.bestMove}
+                    move={game[moveNumber]?.movement}
+                    nextMove={game[moveNumber + 1]?.movement}
+                    fen={game[moveNumber]?.fen}
+                    nextFen={game[moveNumber + 1]?.fen}
+                    boardSize={boardSize}
+                    white={white}
+                    animation={animation}
+                    gameEnded={moveNumber === game.length - 1}
+                    capture={game[moveNumber]?.capture}
+                    nextCapture={game[moveNumber + 1]?.capture}
+                    castle={game[moveNumber]?.castle}
+                    nextCastle={game[moveNumber + 1]?.castle}
+                    setAnimation={setAnimation}
+                    result={result} pushArrow={pushArrow}
+                />
+                <div style={{ width: boardSize }}
+                className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>
                     <Clock white={white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
