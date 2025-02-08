@@ -673,7 +673,7 @@ export default function Board(props: { controller: Controller, boardSize: number
 
                             const legalMove = legalMoves.includes(squareId as Square) ? (
                                 piece ?
-                                    <div className="absolute top-0 left-0 border-[10px] border-black opacity-[15%] z-[40] w-full h-full rounded-full" />
+                                    <div className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
                                 :
                                     <div className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] bg-black opacity-[15%] z-[30] w-[30%] h-[30%] rounded-full" />
                             ) : null
