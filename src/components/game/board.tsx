@@ -294,7 +294,7 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
 
         function pieceDragCancel(e: MouseEvent) {
             setMovement({ x: 0, y: 0 })
-            setDrag({ is: false, id })
+            setDrag({ is: false, id: '' })
 
             cleanUp()
         }
@@ -508,6 +508,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         if (!currentArrowRef.current[0] || !currentArrowRef.current[1]) return
 
         pushArrow([...currentArrowRef.current])
+
+        currentArrowRef.current = []
     }
 
     function filterHighlightStyle(highlightStyle: typeof HIGHLIGHT_STYLE) {
@@ -522,6 +524,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     function handleMovePiece(e: React.MouseEvent, toSquare: string) {
         if (e.button !== 0) return
+        if (!drag.id) return
 
         pushPageWarning(setErrors, 'Feature in Development', 'The free movement of pieces is not yet implemented.');
 
