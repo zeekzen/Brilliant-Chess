@@ -665,8 +665,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             function handleSquareDragMouseLeave() {
                                 setHoverDrag('')
                             }
-                            
-                            const hoverDragSquare = drag.is ? <div style={{ opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={handleSquareDragMouseEnter} onMouseLeave={handleSquareDragMouseLeave} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" /> : null
+
+                            const hoverDragSquare = <div style={{ display: drag.is ? '' : 'none',  opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={handleSquareDragMouseEnter} onMouseLeave={handleSquareDragMouseLeave} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" />
 
                             const legalMove = legalMoves.includes(squareId as Square) ? (
                                 piece ?
