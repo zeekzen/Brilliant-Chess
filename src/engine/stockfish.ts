@@ -450,10 +450,6 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
 
-function checkDepth(depth: number) {
-    return depth <= 21
-}
-
 async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
     program.postMessage(`position fen ${fen}`)
 
@@ -597,8 +593,6 @@ export function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgr
         }
 
         signal.addEventListener('abort', handleAbort)
-
-        if (!checkDepth(depth)) reject(new Error('depth'))
 
         const chess = new Chess()
 
