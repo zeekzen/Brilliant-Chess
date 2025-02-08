@@ -272,8 +272,8 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, handleMouseDown: (e: React.MouseEvent) => void, handleMouseUp: (e: React.MouseEvent) => void }) {
-    const { pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, handleMouseDown, handleMouseUp } = props
+function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, handleMouseDown: (e: React.MouseEvent) => void, handleMouseUp: (e: React.MouseEvent) => void, boardRef: RefObject<HTMLDivElement> }) {
+    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, handleMouseDown, handleMouseUp } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
 
@@ -330,9 +330,24 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     }
 
     function handlePieceDrag(e: MouseEvent, startPosition: { x: number, y: number }) {
+        const board = boardRef.current
+
+        if (!board) return
+
+        const limits = {
+            min: {
+                x: board.offsetLeft,
+                y: board.offsetTop,
+            },
+            max: {
+                x: board.offsetLeft + board.offsetWidth,
+                y: board.offsetTop + board.offsetHeight,
+            },
+        }
+
         const movement = {
-            x: e.clientX - startPosition.x,
-            y: e.clientY - startPosition.y,
+            x: Math.min(Math.max(e.clientX, limits.min.x), limits.max.x) - startPosition.x,
+            y: Math.min(Math.max(e.clientY, limits.min.y), limits.max.y) - startPosition.y,
         }
 
         setMovement(movement)
@@ -386,6 +401,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
+
+    const boardRef = useRef<HTMLDivElement>(null)
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
@@ -602,7 +619,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const boardColors = [boardThemes[boardTheme].white, boardThemes[boardTheme].black]
 
     return (
-        <div onContextMenu={e => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
+        <div ref={boardRef} onContextMenu={e => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
             <PreloadRatingImages highlightedStyle={filteredHighlightStyle} />
             {
                 (() => {
@@ -693,7 +710,21 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             if (pieceColor && pieceType) {
                                 const imageColor = PIECES_IMAGES[pieceColor as keyof object]
                                 const pieceImages = imageColor[pieceType as keyof object]
-                                piece = <Piece handleMouseDown={handleMouseDown} handleMouseUp={handleMouseUp} drag={drag} setDrag={setDrag} id={squareId} pieceRef={pieceRef} moved={moved} isCastleRook={isCastleRook} castleRookRef={castleRookRef} pieceType={pieceType} pieceColor={pieceColor} pieceImages={pieceImages} />
+                                piece = <Piece
+                                    handleMouseDown={handleMouseDown}
+                                    handleMouseUp={handleMouseUp}
+                                    drag={drag}
+                                    setDrag={setDrag}
+                                    id={squareId}
+                                    pieceRef={pieceRef}
+                                    moved={moved}
+                                    isCastleRook={isCastleRook}
+                                    castleRookRef={castleRookRef}
+                                    pieceType={pieceType}
+                                    pieceColor={pieceColor}
+                                    pieceImages={pieceImages}
+                                    boardRef={boardRef}
+                                />
                             }
 
                             const hoverDragSquare = <div style={{ display: drag.is ? '' : 'none',  opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" />
