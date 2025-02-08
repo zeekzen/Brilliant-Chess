@@ -1,7 +1,7 @@
 import { moveRating, position, result, square } from "@/engine/stockfish";
 import Image from "next/image";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
-import { Chess, Color, KING, PieceSymbol, WHITE } from "chess.js";
+import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
 import { AnalyzeContext } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
@@ -226,7 +226,7 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
         const positionY = `${toElementPosition.y + (squareSize / 2)}px`
 
         return (
-            <svg style={{ top: positionY, left: positionX, transformOrigin: `${arrowHeadWidth / 2}px 0`, transform: getTransform() }} className={`absolute opacity-65 z-[50] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+            <svg style={{ top: positionY, left: positionX, transformOrigin: `${arrowHeadWidth / 2}px 0`, transform: getTransform() }} className={`absolute opacity-65 z-[70] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
                 <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${shortLineCenter},0 ${arrowHeadWidth},${arrowHeadHeight}`} />
                 <path fill="none" strokeWidth={lineWidth} d={`M ${shortLineCenter} ${arrowHeadHeight - 1} L ${shortLineCenter} ${longLineCenter} L ${width} ${longLineCenter}`} />
             </svg>
@@ -263,19 +263,21 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     const positionY = `${toElementPosition.y + (squareSize / 2) - (white ? 0 : height)}px`
 
     return (
-        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-65 z-[50] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
+        <svg style={{ top: white ? positionY : '', bottom: !white ? positionY : '', left: white ? positionX : '', right: !white ? positionX : '', transformOrigin: '50% 0', rotate: (-degs) + 'deg' }} className={`absolute opacity-65 z-[70] pointer-events-none ${props.class}`} width={width} height={height} xmlns="http://www.w3.org/2000/svg">
             <line x1={lineCenter} y1={height} x2={lineCenter} y2={arrowHeadHeight - 1} strokeWidth={lineWidth} markerEnd="url(#arrowhead)" />
             <polygon strokeWidth={0} points={`0,${arrowHeadHeight} ${lineCenter},0 ${width},${arrowHeadHeight}`} />
         </svg>
     )
 }
 
-function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string }) {
-    const { pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id } = props
+function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, handleMouseDown: (e: React.MouseEvent) => void, handleMouseUp: (e: React.MouseEvent) => void }) {
+    const { pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, handleMouseDown, handleMouseUp } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
 
     function handlePieceDragStart(e: React.MouseEvent) {
+        if (e.button !== 0) return
+
         const element = e.currentTarget
         const elemenRect = element.getBoundingClientRect()
 
@@ -309,6 +311,8 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     }
 
     function handlePieceDrag(e: MouseEvent, startPosition: { x: number, y: number }) {
+        if (e.button !== 0) return
+
         const movement = {
             x: e.clientX - startPosition.x,
             y: e.clientY - startPosition.y,
@@ -318,18 +322,22 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
     }
 
     function handlePieceDragStop(e: MouseEvent, startPosition: { x: number, y: number }) {
+        if (e.button !== 0) return
+
         setMovement({ x: 0, y: 0 })
         setDrag({ is: false, id })
     }
 
     return (
         <div
+            data-dontcleandrag={true}
             onMouseDown={handlePieceDragStart}
             ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)}
             className="w-full relative h-full z-[20] cursor-grab"
-            style={{ top: movement.y || '', left: movement.x || '', zIndex: drag.is && drag.id === id ? 70 : '' }}
+            style={{ top: movement.y || '', left: movement.x || '', zIndex: drag.is && drag.id === id ? 90 : '' }}
         >
             <Image
+                data-dontcleandrag={true}
                 draggable={false}
                 alt={`${pieceType}-${pieceColor}`}
                 className="w-full"
@@ -359,6 +367,8 @@ export default function Board(props: { controller: Controller, boardSize: number
 
     const pieceRef = useRef<HTMLDivElement>(null)
     const castleRookRef = useRef<HTMLDivElement>(null)
+
+    const currentArrowRef = useRef<square[]>([])
 
     const { controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
     const fen = props.fen ?? DEFAULT_POSITION
@@ -419,8 +429,8 @@ export default function Board(props: { controller: Controller, boardSize: number
 
     useEffect(() => {
         if (!animation) return
-        if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 40, forward, white, squareSize)
-        if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 30, forward, white, squareSize)
+        if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 60, forward, white, squareSize)
+        if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 50, forward, white, squareSize)
     }, [move, animation])
 
     let newMaterialAdvantage = 0
@@ -440,24 +450,23 @@ export default function Board(props: { controller: Controller, boardSize: number
         setArrows(newArrows)
     }
 
-    const currentArrow: square[] = []
     function startArrow(x: number, y: number) {
         const rowNumber = Math.floor(y / squareSize)
         const colNumber = Math.floor(x / squareSize)
 
         const square = { col: white ? colNumber : 7 - colNumber, row: white ? rowNumber : 7 - rowNumber }
-        currentArrow[0] = square
+        currentArrowRef.current[0] = square
     }
     function endArrow(x: number, y: number) {
         const rowNumber = Math.floor(y / squareSize)
         const colNumber = Math.floor(x / squareSize)
 
         const square = { col: white ? colNumber : 7 - colNumber, row: white ? rowNumber : 7 - rowNumber }
-        currentArrow[1] = square
+        currentArrowRef.current[1] = square
 
-        if (!currentArrow[0] || !currentArrow[1]) return
+        if (!currentArrowRef.current[0] || !currentArrowRef.current[1]) return
 
-        pushArrow(currentArrow)
+        pushArrow([...currentArrowRef.current])
     }
 
     function filterHighlightStyle(highlightStyle: typeof HIGHLIGHT_STYLE) {
@@ -474,7 +483,15 @@ export default function Board(props: { controller: Controller, boardSize: number
         setArrows([])
     }
 
+    function cleanDrag(target: HTMLElement) {
+        if (target.dataset.dontcleandrag) return
+
+        setDrag({ id: '', is: false })
+    }
+
     function handleMouseDown(e: React.MouseEvent) {
+        cleanDrag(e.target as HTMLElement)
+
         if (e.button === 2) {
             e.preventDefault()
             const element = e.currentTarget
@@ -538,10 +555,19 @@ export default function Board(props: { controller: Controller, boardSize: number
         animation.oncancel = resetElements
     }
 
+    function getLegalMoves() {
+        if (!drag.id) return []
+
+        const moves = chess.moves({ square: drag.id as Square, verbose: true }).map(move => move.to)
+        return moves
+    }
+
+    const legalMoves = getLegalMoves()
+
     const boardColors = [boardThemes[boardTheme].white, boardThemes[boardTheme].black]
 
     return (
-        <div onContextMenu={(e) => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
+        <div onContextMenu={e => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
             <PreloadRatingImages highlightedStyle={filteredHighlightStyle} />
             {
                 (() => {
@@ -594,8 +620,8 @@ export default function Board(props: { controller: Controller, boardSize: number
                             move.forEach((square, i) => {
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
-                                    highlighted = <div style={{ backgroundColor: highlightColor }} className={`absolute top-0 left-0 w-full h-full opacity-50 ${rounded}`} />
-                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[60]" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
+                                    highlighted = <div style={{ backgroundColor: highlightColor }} className={`absolute z-[10] top-0 left-0 w-full h-full opacity-50 ${rounded}`} />
+                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[80] pointer-events-none" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
                                 }
                             })
 
@@ -632,7 +658,7 @@ export default function Board(props: { controller: Controller, boardSize: number
                             if (pieceColor && pieceType) {
                                 const imageColor = PIECES_IMAGES[pieceColor as keyof object]
                                 const pieceImages = imageColor[pieceType as keyof object]
-                                piece = <Piece drag={drag} setDrag={setDrag} id={squareId} pieceRef={pieceRef} moved={moved} isCastleRook={isCastleRook} castleRookRef={castleRookRef} pieceType={pieceType} pieceColor={pieceColor} pieceImages={pieceImages} />
+                                piece = <Piece handleMouseDown={handleMouseDown} handleMouseUp={handleMouseUp} drag={drag} setDrag={setDrag} id={squareId} pieceRef={pieceRef} moved={moved} isCastleRook={isCastleRook} castleRookRef={castleRookRef} pieceType={pieceType} pieceColor={pieceColor} pieceImages={pieceImages} />
                             }
 
                             function handleSquareDragMouseEnter() {
@@ -643,7 +669,14 @@ export default function Board(props: { controller: Controller, boardSize: number
                                 setHoverDrag('')
                             }
                             
-                            const hoverDragSquare = drag.is ? <div style={{ opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={handleSquareDragMouseEnter} onMouseLeave={handleSquareDragMouseLeave} className="absolute top-0 left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" /> : null
+                            const hoverDragSquare = drag.is ? <div style={{ opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={handleSquareDragMouseEnter} onMouseLeave={handleSquareDragMouseLeave} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" /> : null
+
+                            const legalMove = legalMoves.includes(squareId as Square) ? (
+                                piece ?
+                                    <div className="absolute top-0 left-0 border-[10px] border-black opacity-[15%] z-[40] w-full h-full rounded-full" />
+                                :
+                                    <div className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] bg-black opacity-[15%] z-[30] w-[30%] h-[30%] rounded-full" />
+                            ) : null
 
                             const col = columnNumber
                             function handleSquareClick() {
@@ -658,13 +691,7 @@ export default function Board(props: { controller: Controller, boardSize: number
                                 }
                             }
 
-                            function handleSquareMouseDown(e: React.MouseEvent) {
-                                if (e.target !== e.currentTarget) return
-
-                                setDrag({ id: '', is: false })
-                            }
-
-                            squares.push(<div onMouseDown={handleSquareMouseDown} onClick={handleSquareClick} data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}{hoverDragSquare}</div>)
+                            squares.push(<div onClick={handleSquareClick} data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}{hoverDragSquare}{legalMove}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {
