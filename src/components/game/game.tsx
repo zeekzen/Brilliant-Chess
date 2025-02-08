@@ -281,8 +281,12 @@ export default function Game() {
             setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
         } catch (e: any) {
-            if (e.message === 'pgn') {
-                pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
+            switch (e.message) {
+                case 'pgn':
+                    pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
+                    break
+                case 'canceled':
+                    break
             }
 
             setPageState('default')
