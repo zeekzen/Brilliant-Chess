@@ -16,7 +16,7 @@ import { maxVertical } from "../../../tailwind.config"
 
 const GAP = 10
 
-const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported.', 'Update or switch your browser in order to run this app.']
+const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported', 'Update or switch your browser in order to run this app.']
 
 export interface Controller {
     back: () => void
@@ -81,7 +81,7 @@ export default function Game() {
         const threads = navigator.hardwareConcurrency ?? 1
         const hash = Math.floor(getAproxMemory() / 4)
 
-        const errorTimeout = setTimeout(() => pushPageError(setErrors, 'The browser is having some troubles loading Stockfish', 'Try restarting the browser'), 5000);
+        const errorTimeout = setTimeout(() => pushPageError(setErrors, 'The browser is having some troubles loading Stockfish', 'Try restarting the browser.'), 5000);
         (async () => {
             await prepareStockfish(stockfish, threads, hash)
             clearTimeout(errorTimeout)

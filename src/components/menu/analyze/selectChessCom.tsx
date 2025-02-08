@@ -6,10 +6,10 @@ import { Chess } from "chess.js"
 import Files from "@/components/svg/files"
 import { ErrorsContext } from "@/context/errors"
 
-export const GAMES_ERROR = ["Error fetching games.", "Check your internet connection or try again later."]
-export const USER_ERROR = ["User not found.", "Check your spelling or your internet connection."]
+export const GAMES_ERROR = ["Error fetching games", "Check your internet connection or try again later."]
+export const USER_ERROR = ["User not found", "Check your spelling or your internet connection."]
 
-export const API_BLOCKING_ERROR = ["Server might block excesive requests.", "Slow down your request rate or wait before you try again."]
+export const API_BLOCKING_ERROR = ["Server might block excesive requests", "Slow down your request rate or wait before you try again."]
 
 interface Game {
     url: string
