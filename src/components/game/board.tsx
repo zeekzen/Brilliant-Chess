@@ -8,6 +8,8 @@ import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
 import { maxVertical } from "../../../tailwind.config";
 import { arrow, Controller } from "./game";
+import { pushPageWarning } from "../errors/pageErrors";
+import { ErrorsContext } from "@/context/errors";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, icon: string }
@@ -371,8 +373,11 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
     const [hoverDrag, setHoverDrag] = useState('')
 
+    const errorsContext = useContext(ErrorsContext)
     const configContext = useContext(ConfigContext)
     const analyzeContext = useContext(AnalyzeContext)
+
+    const [errors, setErrors] = errorsContext.errors
 
     const [boardTheme, setBoardTheme] = configContext.boardTheme
     const [usedRatings, setUsedRatings] = configContext.usedRatings
@@ -496,6 +501,17 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         }
 
         return filteredHighlightStyle
+    }
+
+    function handleMovePiece(e: React.MouseEvent, toSquare: string) {
+        if (e.button !== 0) return
+
+        pushPageWarning(setErrors, 'Feature in Development', 'The free movement of pieces is not yet implemented.');
+
+        // const from = drag.id
+        // const to = toSquare
+
+        // chess.move({ from, to })
     }
 
     function cleanDrag(target: HTMLElement) {
@@ -680,21 +696,13 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                 piece = <Piece handleMouseDown={handleMouseDown} handleMouseUp={handleMouseUp} drag={drag} setDrag={setDrag} id={squareId} pieceRef={pieceRef} moved={moved} isCastleRook={isCastleRook} castleRookRef={castleRookRef} pieceType={pieceType} pieceColor={pieceColor} pieceImages={pieceImages} />
                             }
 
-                            function handleSquareDragMouseEnter() {
-                                setHoverDrag(squareId)
-                            }
-
-                            function handleSquareDragMouseLeave() {
-                                setHoverDrag('')
-                            }
-
-                            const hoverDragSquare = <div style={{ display: drag.is ? '' : 'none',  opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={handleSquareDragMouseEnter} onMouseLeave={handleSquareDragMouseLeave} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" />
+                            const hoverDragSquare = <div style={{ display: drag.is ? '' : 'none',  opacity: hoverDrag === squareId ? '100' : '' }} onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} className="absolute top-0 z-[30] left-0 w-full h-full border-[5px] border-opacity-65 opacity-0 block border-white pointer-events-auto" />
 
                             const legalMove = legalMoves.includes(squareId as Square) ? (
                                 piece ?
-                                    <div className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab pointer-events-auto"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
                                 :
-                                    <div className="absolute top-1/2 left-1/2 translate-x-[-50%] translate-y-[-50%] bg-black opacity-[15%] z-[30] w-[30%] h-[30%] rounded-full" />
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
                             ) : null
 
                             const col = columnNumber
