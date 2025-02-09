@@ -39,6 +39,7 @@ export const ConfigContext = createContext<{
     highlightByRating: [boolean, Dispatch<SetStateAction<boolean>>],
     showArrows: [boolean, Dispatch<SetStateAction<boolean>>],
     arrowAfterMove: [boolean, Dispatch<SetStateAction<boolean>>],
+    showLegalMoves: [boolean, Dispatch<SetStateAction<boolean>>],
 
     boardMenuSettingsRef: React.MutableRefObject<HTMLButtonElement | null>,
 }>({
@@ -48,6 +49,7 @@ export const ConfigContext = createContext<{
     highlightByRating: [true, () => { }],
     showArrows: [true, () => { }],
     arrowAfterMove: [true, () => { }],
+    showLegalMoves: [true, () => { }],
 
     boardMenuSettingsRef: { current: null },
 })
@@ -59,11 +61,12 @@ export default function ConfigContextProvider(props: { children: React.ReactNode
     const [highlightByRating, setHighlightByRating] = useState<boolean>(true)
     const [showArrows, setShowArrows] = useState<boolean>(true)
     const [arrowAfterMove, setArrowAfterMove] = useState<boolean>(true)
+    const [showLegalMoves, setShowLegalMoves] = useState<boolean>(true)
 
     const boardMenuSettingsRef = useRef<HTMLButtonElement>(null)
 
     return (
-        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], highlightByRating: [highlightByRating, setHighlightByRating], showArrows: [showArrows, setShowArrows], arrowAfterMove: [arrowAfterMove, setArrowAfterMove], boardMenuSettingsRef: boardMenuSettingsRef }}>
+        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], highlightByRating: [highlightByRating, setHighlightByRating], showArrows: [showArrows, setShowArrows], arrowAfterMove: [arrowAfterMove, setArrowAfterMove], showLegalMoves: [showLegalMoves, setShowLegalMoves], boardMenuSettingsRef: boardMenuSettingsRef }}>
             {props.children}
         </ConfigContext.Provider>
     )
