@@ -46,3 +46,6 @@ database/*
 
 # test files
 test
+
+# temporal files
+tmp

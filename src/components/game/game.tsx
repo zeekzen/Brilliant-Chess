@@ -9,14 +9,15 @@ import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN, prepareStockfish, square } from "@/engine/stockfish"
 import { PieceSymbol } from "chess.js"
-import { getAproxMemory, wasmThreadsSupported } from "@/engine/wasmChecks"
-import { pushPageError } from "@/components/errors/pageErrors"
+import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
+import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
 import { maxVertical } from "../../../tailwind.config"
 
 const GAP = 10
 
-const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly threads not supported', 'Update or switch your browser in order to run this app.']
+const NOT_SUPPORTED_WASM_THREADS_WARNING = ['WebAssembly threads not supported', 'The app may run slower. Try updating your browser for better performance.']
+const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs this feature to run properly. Try updating your browser in order to run this app.']
 
 export interface Controller {
     back: () => void
@@ -70,11 +71,16 @@ export default function Game() {
 
     useEffect(() => {
         if (!wasmThreadsSupported()) {
-            pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
-            return
-        }
+            if (!wasmSupported()) {
+                pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+                return
+            }
 
-        engineWorkerRef.current = new window.Worker('/engine/stockfish.js')
+            pushPageWarning(setErrors, NOT_SUPPORTED_WASM_THREADS_WARNING[0], NOT_SUPPORTED_WASM_THREADS_WARNING[1])
+            engineWorkerRef.current = new window.Worker('/engine/stockfish-single.js')
+        } else {
+            engineWorkerRef.current = new window.Worker('/engine/stockfish.js')
+        }
 
         const stockfish = engineWorkerRef.current
 
@@ -260,9 +266,13 @@ export default function Game() {
         setPageState('loading')
 
         if (!wasmThreadsSupported()) {
-            pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
-            setPageState('default')
-            return
+            if (!wasmSupported()) {
+                pushPageError(setErrors, NOT_SUPPORTED_WASM_ERROR[0], NOT_SUPPORTED_WASM_ERROR[1])
+                setPageState('default')
+                return
+            }
+
+            pushPageWarning(setErrors, NOT_SUPPORTED_WASM_THREADS_WARNING[0], NOT_SUPPORTED_WASM_THREADS_WARNING[1])
         }
 
         const stockfish = engineWorkerRef.current

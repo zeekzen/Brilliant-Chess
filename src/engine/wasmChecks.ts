@@ -26,15 +26,25 @@ export function wasmThreadsSupported() {
         return false;
     }
 
-    // Growable shared memory (optional)
-    try {
-        mem.grow(8);
-    } catch (e) {
-        // console.log(`Browser Error ${e}`);
-        return false;
-    }
+    // // Growable shared memory (optional)
+    // try {
+    //     mem.grow(8);
+    // } catch (e) {
+    //     // console.log(`Browser Error ${e}`);
+    //     return false;
+    // }
 
     return true;
+}
+
+export function wasmSupported() {
+    // WebAssembly 1.0
+
+    if (typeof WebAssembly !== "object") return false;
+    if (typeof WebAssembly.validate !== "function") return false;
+
+    const source = Uint8Array.of(0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00);
+    return WebAssembly.validate(source);
 }
 
 export function getAproxMemory() {
