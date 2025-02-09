@@ -526,6 +526,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         if (e.button !== 0) return
         if (!drag.id) return
 
+        setTimeout(() => setDrag({ is: false, id: '' }), 0)
+
         pushPageWarning(setErrors, 'Feature in Development', 'The free movement of pieces is not yet implemented.');
 
         // const from = drag.id
