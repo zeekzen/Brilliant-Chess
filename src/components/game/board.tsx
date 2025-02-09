@@ -442,7 +442,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_STYLE)
 
-    const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color ?? boardThemes[boardTheme].highlight : boardThemes[boardTheme].highlight
+    const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color || boardThemes[boardTheme].highlight : boardThemes[boardTheme].highlight
     const highlightIcon = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.icon
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
