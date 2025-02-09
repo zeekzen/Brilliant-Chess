@@ -93,7 +93,7 @@ export default function Ratings() {
 
                         return (
                             <div key={i} style={{ backgroundColor: squareColor }} className="h-5 w-5 relative">
-                                {i === 2 || i === 3 ? <div className="w-full h-full absolute top-0 left-0 opacity-50" style={{backgroundColor: highlightByRating ? 'var(--highlightGreat)' : 'var(--highlightBoard)'}} /> : null}
+                                {i === 2 || i === 3 ? <div className="w-full h-full absolute top-0 left-0 opacity-50" style={{backgroundColor: highlightByRating ? 'var(--highlightGreat)' : boardThemes[boardTheme].highlight}} /> : null}
                                 {i === 3 ? (
                                     <>
                                         <Image src="/images/pieces/white/queen.svg" width={20} height={20} alt="queen" className="absolute top-0 left-0" />
