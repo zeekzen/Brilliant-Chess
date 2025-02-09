@@ -84,7 +84,8 @@ export default function BestMoves() {
                         return (
                             <div key={i} style={{ backgroundColor: squareColor }} className="h-5 w-5 relative">
                                 {(i === 2 || i === 3) && arrowAfterMove ? <div className="w-full h-full absolute top-0 left-0 opacity-50" style={{backgroundColor: 'var(--highlightBoard)'}} /> : null}
-                                {(i === 2 && !arrowAfterMove) || (i === 3 && arrowAfterMove) ? <Image src="/images/pieces/white/queen.svg" width={20} height={20} alt="queen" className="absolute top-0 left-0" /> : null}
+                                {(i === 2 && !arrowAfterMove) || (i === 3 && arrowAfterMove) ? <Image src="/images/pieces/white/queen.svg" width={20} height={20} alt="queen" className="absolute z-10 top-0 left-0" /> : null}
+                                {(i === 2 || i === 3) && arrowAfterMove ? <div className="w-full h-full opacity-50 absolute top-0 left-0" style={{ backgroundColor: boardThemes[boardTheme].highlight }} /> : null}
                             </div>
                         )
                     })}
