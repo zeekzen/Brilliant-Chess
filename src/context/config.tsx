@@ -40,6 +40,7 @@ export const ConfigContext = createContext<{
     showArrows: [boolean, Dispatch<SetStateAction<boolean>>],
     arrowAfterMove: [boolean, Dispatch<SetStateAction<boolean>>],
     showLegalMoves: [boolean, Dispatch<SetStateAction<boolean>>],
+    animateMoves: [boolean, Dispatch<SetStateAction<boolean>>],
 
     boardMenuSettingsRef: React.MutableRefObject<HTMLButtonElement | null>,
 }>({
@@ -50,6 +51,7 @@ export const ConfigContext = createContext<{
     showArrows: [true, () => { }],
     arrowAfterMove: [true, () => { }],
     showLegalMoves: [true, () => { }],
+    animateMoves: [true, () => { }],
 
     boardMenuSettingsRef: { current: null },
 })
@@ -62,11 +64,12 @@ export default function ConfigContextProvider(props: { children: React.ReactNode
     const [showArrows, setShowArrows] = useState<boolean>(true)
     const [arrowAfterMove, setArrowAfterMove] = useState<boolean>(true)
     const [showLegalMoves, setShowLegalMoves] = useState<boolean>(true)
+    const [animateMoves, setAnimateMoves] = useState<boolean>(true)
 
     const boardMenuSettingsRef = useRef<HTMLButtonElement>(null)
 
     return (
-        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], highlightByRating: [highlightByRating, setHighlightByRating], showArrows: [showArrows, setShowArrows], arrowAfterMove: [arrowAfterMove, setArrowAfterMove], showLegalMoves: [showLegalMoves, setShowLegalMoves], boardMenuSettingsRef: boardMenuSettingsRef }}>
+        <ConfigContext.Provider value={{ boardTheme: [boardTheme, setBoardTheme], openedMenu: [openedMenu, setOpenedMenu], usedRatings: [usedRatings, setUsedRatings], highlightByRating: [highlightByRating, setHighlightByRating], showArrows: [showArrows, setShowArrows], arrowAfterMove: [arrowAfterMove, setArrowAfterMove], showLegalMoves: [showLegalMoves, setShowLegalMoves], animateMoves: [animateMoves, setAnimateMoves], boardMenuSettingsRef: boardMenuSettingsRef }}>
             {props.children}
         </ConfigContext.Provider>
     )

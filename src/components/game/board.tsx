@@ -409,6 +409,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [showArrows, setShowArrows] = configContext.showArrows
     const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
     const [showLegalMoves, setShowLegalMoves] = configContext.showLegalMoves
+    const [animateMoves, setAnimateMoves] = configContext.animateMoves
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
@@ -494,6 +495,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     useEffect(() => {
         if (!animation) return
+        if (!animateMoves) return
+
         if (pieceRef.current) animateMove(pieceRef.current, forward ? move : nextMove, 60, forward, white, squareSize)
         if (castleRookRef.current) animateMove(castleRookRef.current, castleRookMove, 50, forward, white, squareSize)
     }, [move, animation])
