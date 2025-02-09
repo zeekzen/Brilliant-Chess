@@ -272,13 +272,17 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, handleMouseDown: (e: React.MouseEvent) => void, handleMouseUp: (e: React.MouseEvent) => void, boardRef: RefObject<HTMLDivElement> }) {
-    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, handleMouseDown, handleMouseUp } = props
+function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, boardRef: RefObject<HTMLDivElement> }) {
+    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, squareSize } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
 
+    const wasSelectedRef = useRef(false)
+
     function handlePieceDragStart(e: React.MouseEvent) {
         if (e.button !== 0) return
+
+        wasSelectedRef.current = drag.id === id
 
         const element = e.currentTarget
         const elemenRect = element.getBoundingClientRect()
@@ -359,8 +363,13 @@ function Piece(props: { pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefO
             y: e.clientY - startPosition.y,
         }
 
+        let newId = id
+        if (wasSelectedRef.current && Math.abs(movement.x) <= squareSize / 2 && Math.abs(movement.y) <= squareSize / 2) {
+            newId = ''
+        }
+
         setMovement({ x: 0, y: 0 })
-        setDrag({ is: false, id })
+        setDrag({ is: false, id: newId })
     }
 
     return (
@@ -720,8 +729,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                 const imageColor = PIECES_IMAGES[pieceColor as keyof object]
                                 const pieceImages = imageColor[pieceType as keyof object]
                                 piece = <Piece
-                                    handleMouseDown={handleMouseDown}
-                                    handleMouseUp={handleMouseUp}
+                                    squareSize={squareSize}
                                     drag={drag}
                                     setDrag={setDrag}
                                     id={squareId}
