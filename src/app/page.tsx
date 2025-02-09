@@ -17,7 +17,7 @@ export default function Home() {
       <header>
         <Nav />
       </header>
-      <main className="flex flex-col vertical:flex-row h-full p-4 vertical:gap-2 gap-4 items-center vertical:justify-center select-none w-full overflow-x-hidden overflow-y-auto">
+      <main className="flex flex-col vertical:flex-row h-full vertical:p-4 p-2 vertical:gap-2 gap-4 items-center vertical:justify-center select-none w-full overflow-x-hidden overflow-y-auto">
         <AnalyzeContextProvider>
           <div className="h-full flex flex-row gap-2 w-min">
             <Game />

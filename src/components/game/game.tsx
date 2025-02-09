@@ -14,8 +14,6 @@ import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
 import { maxVertical } from "../../../tailwind.config"
 
-const GAP = 10
-
 const NOT_SUPPORTED_WASM_THREADS_WARNING = ['WebAssembly threads not supported', 'The app may run slower. Try updating your browser for better performance.']
 const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs this feature to run properly. Try updating your browser in order to run this app.']
 
@@ -37,6 +35,7 @@ export default function Game() {
     const [gameHeight, setGameHeight] = useState(850)
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
     const [arrows, setArrows] = useState<AllGameArrows>({0: []})
+    const [gap, setGap] = useState(10)
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -335,12 +334,15 @@ export default function Game() {
 
     useEffect(() => {
         function updateBoardSize() {
+            const newGap = window.innerWidth < maxVertical ? 6 : 10
+            setGap(newGap)
+
             const component = componentRef.current
             const statusBar = component?.getElementsByTagName('div')[0]
 
             const componentHeight = component?.offsetHeight ?? 0
             const statusBarHeight = statusBar?.offsetHeight ?? 0
-            const gapHeight = GAP
+            const gapHeight = newGap
 
             const navWidth = document.getElementsByTagName("nav")[0]?.offsetWidth ?? 0
             const evalWidth = 36
@@ -351,6 +353,7 @@ export default function Game() {
             const paddingWidth = 16
 
             if (window.innerWidth < maxVertical) {
+                const paddingWidth = 8
                 const newBoardSize = roundBoardSize(window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2)))
 
                 setBoardSize(newBoardSize)
@@ -360,7 +363,7 @@ export default function Game() {
             }
 
             const boardHeight = componentHeight - ((statusBarHeight * 2) + (gapHeight * 2))
-            const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + GAP + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
+            const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + gapHeight + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
 
             const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
 
@@ -426,11 +429,11 @@ export default function Game() {
     }
 
     return (
-        <div ref={gameRef} tabIndex={0} style={{ gap: GAP }} className="h-full flex flex-row outline-none">
+        <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
                 <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
             </div>
-            <div ref={componentRef} style={{gap: GAP}} className="h-full flex flex-col justify-start">
+            <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'black' : 'white']} white={!white}>{`${players[white ? 1 : 0].name} ${players[white ? 1 : 0].elo !== 'NOELO' ? `(${players[white ? 1 : 0].elo})` : ''}`}</Name>
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
