@@ -77,11 +77,13 @@ const moveCheckSound = new Howl({
 const gameEndSound = new Howl({
     src: ['/sounds/game-end.mp3'],
     preload: true,
+    volume: 0.25,
 })
 
 export const gameStartSound = new Howl({
     src: ['/sounds/game-start.mp3'],
     preload: true,
+    volume: 0.5,
 })
 
 const captureSound = new Howl({
