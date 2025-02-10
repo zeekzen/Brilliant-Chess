@@ -1,5 +1,5 @@
 import { players } from "@/context/analyze";
-import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square } from "chess.js";
+import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square, WHITE } from "chess.js";
 import { SetStateAction } from "react";
 
 export type result = '1-0' | '0-1' | '1/2-1/2'
@@ -442,7 +442,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (isNotMateRelated && standardRating === "inaccuracy" && evaluationDiff >= 1.2 && givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.giveAdvantage[commentNumber] }
 
     // mistake - mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning && getPreviousStaticEvalAmount(0) >= 2 ) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
+    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning && (color === WHITE ? getPreviousStaticEvalAmount(0) <= -2 : getPreviousStaticEvalAmount(0) >= 2)) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
 
     // blunder - mate
     if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'blunder', comment: COMMENTS.gettingMated[commentNumber] }
