@@ -476,12 +476,12 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     useEffect(() => {
         if (!props.fen) return
 
-        if (soundChessInstance.isCheck()) {
-            moveCheckSound.play()
-        } else if (soundCastleInstance) {
+        if (soundCastleInstance) {
             castleSound.play()
         } else if (soundCaptureInstance) {
             captureSound.play()
+        } else if (soundChessInstance.isCheck()) {
+            moveCheckSound.play()
         } else {
             if (selfTurn) {
                 moveSelfSound.play()
