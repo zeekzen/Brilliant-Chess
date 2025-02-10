@@ -445,7 +445,11 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning && (color === WHITE ? getPreviousStaticEvalAmount(0) <= -2 : getPreviousStaticEvalAmount(0) >= 2)) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
 
     // blunder - mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning) return { moveRating: 'blunder', comment: COMMENTS.gettingMated[commentNumber] }
+    if (
+        (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning)
+        ||
+        (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !winning && previousWinig)
+    ) return { moveRating: 'blunder', comment: COMMENTS.gettingMated[commentNumber] }
 
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
