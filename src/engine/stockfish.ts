@@ -471,21 +471,37 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
     const legalAttackers = attackers.filter(attacker => chess.moves({ verbose: true }).findIndex(move => move.from === attacker && move.to === to) !== -1)
     const legalAttackersPieces = legalAttackers.map(attacker => chess.get(attacker))
 
-    const defenders = chess.attackers(to, color)
-    const legalDefenders = defenders.filter(defender => {
-        for (const attacker of legalAttackers) {
-            const testChess = new Chess(chess.fen())
-            try {
-                testChess.move({ from: attacker, to: to })
-            } catch { }
+    if (attackers.length === 1) {
+        const testChess = new Chess(chess.fen())
+        try {
+            testChess.move({ from: attackers[0], to })
+        } catch { }
 
+        var defenders = testChess.attackers(to, color)
+        var legalDefenders = defenders.filter(defender => {
             if (testChess.moves({ verbose: true }).findIndex(move => move.from === defender && move.to === to) === -1) {
                 return false
             }
-        }
-        return true
-    })
-    const legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+            return true
+        })
+        var legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+    } else {
+        var defenders = chess.attackers(to, color)
+        var legalDefenders = defenders.filter(defender => {
+            for (const attacker of legalAttackers) {
+                const testChess = new Chess(chess.fen())
+                try {
+                    testChess.move({ from: attacker, to: to })
+                } catch { }
+    
+                if (testChess.moves({ verbose: true }).findIndex(move => move.from === defender && move.to === to) === -1) {
+                    return false
+                }
+            }
+            return true
+        })
+        var legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+    }
 
     return { attackers: { squares: legalAttackers, pieces: legalAttackersPieces, length: legalAttackers.length }, defenders: { squares: legalDefenders, pieces: legalDefendersPieces, length: legalDefenders.length } }
 }
