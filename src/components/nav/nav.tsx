@@ -9,6 +9,8 @@ import Settings from "./settings/settings"
 import { ConfigContext } from "@/context/config"
 import Bug from "../svg/bug"
 
+export const DONATE_URL = "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW"
+
 export default function Nav() {
     const configContext = useContext(ConfigContext)
 
@@ -30,7 +32,7 @@ export default function Nav() {
     const topLinks: TopLink[] = [
         { label: "Settings", hover: openSettings, icon: "/images/setting.svg", role: "button" },
         { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: "/images/megaphone.svg", role: "link" },
-        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open("https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", "_blank", "noopener,noreferrer"), icon: "/images/donate.svg", role: "link" },
+        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open(DONATE_URL, "_blank", "noopener,noreferrer"), icon: "/images/donate.svg", role: "link" },
     ]
 
     interface BotLinks {
@@ -42,7 +44,7 @@ export default function Nav() {
     const botLinks: BotLinks[] = [
         { label: "Author", href: "https://github.com/wdeloo", icon: (props: {className: string}) => <GitHub class={props.className} /> },
         { label: "Report a Bug", href: "/feedback", icon: (props: {className: string}) => <Bug class={props.className} /> },
-        { label: "Support Me", href: "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW", icon: (props: {className: string}) => <Heart class={props.className} /> },
+        { label: "Support Me", href: DONATE_URL, icon: (props: {className: string}) => <Heart class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
     ]
 
