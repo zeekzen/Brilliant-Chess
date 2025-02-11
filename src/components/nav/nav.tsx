@@ -8,6 +8,7 @@ import Licenses from "../svg/license"
 import Settings from "./settings/settings"
 import { ConfigContext } from "@/context/config"
 import Bug from "../svg/bug"
+import Legal from "../svg/legal"
 
 export const DONATE_URL = "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW"
 
@@ -46,6 +47,7 @@ export default function Nav() {
         { label: "Report a Bug", href: "/feedback", icon: (props: {className: string}) => <Bug class={props.className} /> },
         { label: "Support Me", href: DONATE_URL, icon: (props: {className: string}) => <Heart class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
+        { label: "Privacy Policy", href: "/privacy", icon: (props: {className: string}) => <Legal class={`${props.className} scale-125`} /> }
     ]
 
     function openSettings() {
