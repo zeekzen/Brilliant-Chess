@@ -49,3 +49,8 @@ test
 
 # temporal files
 tmp
+
+# ssl
+# database
+ssl/*
+!ssl/.gitkeep
