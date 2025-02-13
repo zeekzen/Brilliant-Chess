@@ -10,7 +10,6 @@ services:
       - ./database:/app/database
     depends_on:
       - redis
-    # command: "npm run start"
   redis:
     image: "redis:alpine"
     restart: always
