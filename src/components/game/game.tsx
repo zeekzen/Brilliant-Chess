@@ -86,7 +86,7 @@ export default function Game() {
         const threads = navigator.hardwareConcurrency ?? 1
         const hash = Math.floor(getAproxMemory() / 4)
 
-        const errorTimeout = setTimeout(() => pushPageError(setErrors, 'The browser is having some troubles loading Stockfish', 'Try restarting the browser.'), 5000);
+        const errorTimeout = setTimeout(() => pushPageError(setErrors, 'The browser is having some troubles loading Stockfish', "If the app doesn't work properly try restarting the browser."), 10000);
         (async () => {
             await prepareStockfish(stockfish, threads, hash)
             clearTimeout(errorTimeout)
