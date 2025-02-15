@@ -1,4 +1,6 @@
-export default function Sitemap() {
+import { MetadataRoute } from "next"
+
+export default function Sitemap(): MetadataRoute.Sitemap {
     const protocol = "https"
     const domain = "brilliant-chess.com"
 
