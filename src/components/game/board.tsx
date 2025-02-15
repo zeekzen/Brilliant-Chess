@@ -11,25 +11,26 @@ import { arrow, Controller } from "./game";
 import { pushPageWarning } from "../errors/pageErrors";
 import { ErrorsContext } from "@/context/errors";
 import PieceSVG from "../svg/piece";
+import RatingSVG from "../svg/rating";
 
 interface filteredHighlightStyle {
-    [key: string]: { color: string, icon: string }
+    [key: string]: { color: string, rating: moveRating }
 }
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
-const HIGHLIGHT_STYLE = {
-    forced: { color: "", icon: "forced.svg" },
-    brilliant: { color: "var(--highlightBrilliant)", icon: "brilliant.svg" },
-    great: { color: "var(--highlightGreat)", icon: "great.svg" },
-    best: { color: "var(--highlightBest)", icon: "best.svg" },
-    excellent: { color: "var(--highlightExcellent)", icon: "excellent.svg" },
-    good: { color: "var(--highlightGood)", icon: "good.svg" },
-    book: { color: "var(--highlightBook)", icon: "book.svg" },
-    inaccuracy: { color: "var(--highlightInaccuracy)", icon: "inaccuracy.svg" },
-    mistake: { color: "var(--highlightMistake)", icon: "mistake.svg" },
-    miss: { color: "var(--highlightMiss)", icon: "miss.svg" },
-    blunder: { color: "var(--highlightBlunder)", icon: "blunder.svg" },
+const HIGHLIGHT_COLORS = {
+    forced: "",
+    brilliant: "var(--highlightBrilliant)",
+    great: "var(--highlightGreat)",
+    best: "var(--highlightBest)",
+    excellent: "var(--highlightExcellent)",
+    good: "var(--highlightGood)",
+    book: "var(--highlightBook)",
+    inaccuracy: "var(--highlightInaccuracy)",
+    mistake: "var(--highlightMistake)",
+    miss: "var(--highlightMiss)",
+    blunder: "var(--highlightBlunder)",
 }
 
 const PIECES_VALUES = {
@@ -405,10 +406,10 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
 
-    const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_STYLE)
+    const filteredHighlightStyle = filterHighlightStyle(HIGHLIGHT_COLORS)
 
     const highlightColor = highlightByRating ? filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.color || boardThemes[boardTheme].highlight : boardThemes[boardTheme].highlight
-    const highlightIcon = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.icon
+    const highlightRating = filteredHighlightStyle[moveRating as keyof typeof filteredHighlightStyle]?.rating
 
     const soundChessInstance = forward ? chess : new Chess(nextFen)
     const soundCaptureInstance = forward ? capture : nextCapture
@@ -488,11 +489,11 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         currentArrowRef.current = []
     }
 
-    function filterHighlightStyle(highlightStyle: typeof HIGHLIGHT_STYLE) {
+    function filterHighlightStyle(highlightStyle: typeof HIGHLIGHT_COLORS) {
         const filteredHighlightStyle: filteredHighlightStyle = {}
         for (const key in highlightStyle) {
             const rating = key as keyof typeof usedRatings
-            if (usedRatings[rating]) filteredHighlightStyle[rating as keyof typeof filteredHighlightStyle] = HIGHLIGHT_STYLE[rating]
+            if (usedRatings[rating]) filteredHighlightStyle[rating as string] = { color: HIGHLIGHT_COLORS[rating], rating }
         }
 
         return filteredHighlightStyle
@@ -657,7 +658,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                 const highlightedSquare = adaptSquare(square)
                                 if (highlightedSquare.col === columnNumber && highlightedSquare.row === rowNumber) {
                                     highlighted = <div style={{ backgroundColor: highlightColor }} className={`absolute z-[10] top-0 left-0 w-full h-full opacity-50 ${rounded}`} />
-                                    if (i === 1) highlightedIcon = highlightIcon && i === 1 ? <Image style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} className="absolute top-0 right-0 z-[80] pointer-events-none" alt="move-evaluation" src={`/images/rating/${highlightIcon}`} priority width={120} height={120} /> : ''
+                                    if (i === 1) highlightedIcon = highlightRating && i === 1 ? <RatingSVG className="absolute top-0 right-0 z-[80] pointer-events-none" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)` }} size={iconSize} rating={highlightRating} /> : ''
                                 }
                             })
 

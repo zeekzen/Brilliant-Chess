@@ -1,12 +1,13 @@
 import { capitalizeFirst } from "@/components/menu/analyze/selectChessCom"
 import { ConfigContext, defaultUsedRatings, usedRatings } from "@/context/config"
-import Image from "next/image"
 import { useContext, useEffect } from "react"
 import { boardThemes } from "./themes"
 import { QUEEN, WHITE } from "chess.js"
 import PieceSVG from "@/components/svg/piece"
+import { moveRating } from "@/engine/stockfish"
+import RatingSVG from "@/components/svg/rating"
 
-const ratings = [
+const ratings: moveRating[] = [
     "brilliant",
     "great",
     "best",
@@ -99,7 +100,7 @@ export default function Ratings() {
                                 {i === 3 ? (
                                     <>
                                         <PieceSVG className="absolute z-10 top-0 left-0" piece={QUEEN} size={20} color={WHITE} />
-                                        <Image src="/images/rating/great.svg" width={12} height={12} alt="great" className="absolute top-0 right-0 translate-x-1/2 translate-y-[-50%]" />
+                                        <RatingSVG rating="great" size={12} className="absolute top-0 right-0 translate-x-1/2 translate-y-[-50%]" />
                                     </>
                                 ) : null}
                             </div>
@@ -110,7 +111,6 @@ export default function Ratings() {
                 <div style={{backgroundColor: "var(--foreground)", display: highlightByRating ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
             </button>
             {ratings.map((rating, i) => {
-                const src = `/images/rating/${rating}.svg`
                 const color = rating === 'forced' ? 'var(--highlightGood)' : `var(--highlight${capitalizeFirst(rating)})`
 
                 function toggleRating() {
@@ -124,7 +124,7 @@ export default function Ratings() {
 
                 return (
                     <button role="switch" onClick={toggleRating} type="button" key={i} className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
-                        <Image alt={rating} src={src} height={35} width={35} className="w-10 h-10 p-[2.5px]" />
+                        <RatingSVG rating={rating} size={35} className="w-[40px] h-[40px] flex justify-center items-center" />
                         <span className="font-bold text-lg">{capitalizeFirst(rating)}</span>
                         <div style={{backgroundColor: color, display: usedRatings[rating as keyof typeof usedRatings] ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
                     </button>

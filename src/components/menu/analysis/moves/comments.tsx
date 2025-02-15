@@ -1,5 +1,4 @@
-import Image from "next/image"
-import { RATING_STYLE } from "./moves"
+import RatingSVG from "@/components/svg/rating"
 import { moveRating } from "@/engine/stockfish"
 
 const RATING_FORMATS_GUIDE = {
@@ -56,13 +55,11 @@ export default function Comments(props: { comment?: string, rating?: moveRating,
         )
     }
 
-    const ratingSrc = '/images/rating/' + RATING_STYLE[rating].icon
-
     return (
         <div style={{backgroundColor: "#ffffff"}} className="h-44 w-[85%] p-4 rounded-borderExtraRoundness text-foregroundBlack text-lg font-bold flex flex-col gap-1">
             <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-row items-center gap-2">
-                    <Image src={ratingSrc} alt={'rating'} width={32} height={32} />
+                    <RatingSVG rating={rating} size={32} />
                     <span>{moveSan} {RATING_FORMATS[rating].replace('_', rating)}</span>
                 </div>
                 {formatEval(evaluation, white)}

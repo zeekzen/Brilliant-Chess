@@ -1,8 +1,8 @@
-import { move } from "@/engine/stockfish";
-import Image from "next/image";
+import RatingSVG from "@/components/svg/rating";
+import { move, moveRating } from "@/engine/stockfish";
 import { useEffect, useState } from "react";
 
-const ratings = [
+const ratings: moveRating[] = [
     "brilliant", // text-highlightBrilliant
     "great", // text-highlightGreat
     "best", // text-highlightBest
@@ -44,7 +44,7 @@ export default function RatingCount(props: { moves: move[] }) {
                         <span className="font-bold text-foregroundGrey text-lg">{titleRating}</span>
                         <div className="flex flex-row text-xl font-extrabold w-48">
                             <span className={`w-[81px] text-left text-highlight${titleRating}`}>{counter.w[rating] ?? 0}</span>
-                            <Image className="select-none" alt={rating} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
+                            <RatingSVG draggable className="select-none" rating={rating} size={30} />
                             <span className={`w-[81px] text-right text-highlight${titleRating}`}>{counter.b[rating] ?? 0}</span>
                         </div>
                     </div>

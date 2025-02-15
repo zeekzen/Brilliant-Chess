@@ -12,9 +12,9 @@ export default function Licenses() {
             <main className="grid grid-cols-3 p-14 gap-6">
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
                     <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
-                        <div className="flex flex-row">
-                            <PieceSVG draggable className="rotate-[-20deg] relative top-1" piece={QUEEN} size={50} color={WHITE} />
-                            <PieceSVG draggable className="rotate-12 relative bottom-2 right-2" piece={KING} size={50} color={WHITE} />
+                        <div draggable role="img" aria-label="pieces" className="flex flex-row">
+                            <PieceSVG className="rotate-[-20deg] relative top-1" piece={QUEEN} size={50} color={WHITE} />
+                            <PieceSVG className="rotate-12 relative bottom-2 right-2" piece={KING} size={50} color={WHITE} />
                         </div>
                         Chess Pieces Images
                     </h1>

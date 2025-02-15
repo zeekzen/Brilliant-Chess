@@ -1,35 +1,33 @@
 import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/engine/stockfish"
-import Image from "next/image"
 import { useContext, useEffect, useRef, useState } from "react"
 import Comments from "./comments"
 import { WHITE } from "chess.js"
 import GameChart from "../gameChart"
+import RatingSVG from "@/components/svg/rating"
 
-export const RATING_STYLE = {
-    forced: { color: "text-highlightBoard", icon: "forced.svg" },
-    brilliant: { color: "text-highlightBrilliant", icon: "brilliant.svg" },
-    great: { color: "text-highlightGreat", icon: "great.svg" },
-    best: { color: "text-highlightBest", icon: "best.svg" },
-    excellent: { color: "text-highlightExcellent", icon: "excellent.svg" },
-    good: { color: "text-highlightGood", icon: "good.svg" },
-    book: { color: "text-highlightBook", icon: "book.svg" },
-    inaccuracy: { color: "text-highlightInaccuracy", icon: "inaccuracy.svg" },
-    mistake: { color: "text-highlightMistake", icon: "mistake.svg" },
-    miss: { color: "text-highlightMiss", icon: "miss.svg" },
-    blunder: { color: "text-highlightBlunder", icon: "blunder.svg" },
+export const RATING_TEXT_COLORS = {
+    forced: "",
+    brilliant: "text-highlightBrilliant",
+    great: "text-highlightGreat",
+    best: "text-highlightBest",
+    excellent: "text-highlightExcellent",
+    good: "text-highlightGood",
+    book: "text-highlightBook",
+    inaccuracy: "text-highlightInaccuracy",
+    mistake: "text-highlightMistake",
+    miss: "text-highlightMiss",
+    blunder: "text-highlightBlunder",
 }
 
-function getRatingStyle(moveNumber: number, rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined, lastBookMove: number): { src: string, textClass: string } | undefined {
+function getRating(moveNumber: number, rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined, lastBookMove: number): { rating: moveRating, textClass: string } | undefined {
     if (!rating) return
 
-    const path = '/images/rating/'
+    if (moveNumber === lastBookMove) return { rating, textClass: RATING_TEXT_COLORS[rating] }
 
-    if (moveNumber === lastBookMove) return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
+    if (rating === 'best' && prevRating === 'inaccuracy') return { rating, textClass: RATING_TEXT_COLORS[rating] }
 
-    if (rating === 'best' && prevRating === 'inaccuracy') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
-
-    if (rating === 'blunder' || rating === 'mistake' || rating === 'miss' || rating === 'great' || rating === 'brilliant') return { src: path + RATING_STYLE[rating].icon, textClass: RATING_STYLE[rating].color }
+    if (rating === 'blunder' || rating === 'mistake' || rating === 'miss' || rating === 'great' || rating === 'brilliant') return { rating, textClass: RATING_TEXT_COLORS[rating] }
 
     return
 }
@@ -165,13 +163,13 @@ export default function Moves(props: { moves: move[], overallGameComment: string
                                     const prevRating = moves[adjustedMoveNumber - 1]?.moveRating
                                     const nextRating = moves[adjustedMoveNumber + 1]?.moveRating
 
-                                    const ratingStyle = getRatingStyle(adjustedMoveNumber, rating, prevRating, nextRating, lastBookMove)
+                                    const shownRating = getRating(adjustedMoveNumber, rating, prevRating, nextRating, lastBookMove)
 
-                                    const fgColorClass = ratingStyle ? ratingStyle.textClass : isSelected ? 'text-foregroundHighlighted' : ''
+                                    const fgColorClass = shownRating ? shownRating.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
                                     return (
                                         <div key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
-                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{ratingStyle ? <Image src={ratingStyle.src} alt={rating ?? ''} width={22} height={22} /> : ''}</button>
+                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{shownRating ? <RatingSVG rating={shownRating.rating} size={22} /> : null}</button>
                                             <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className={`rounded-borderRoundness outline-none border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
                                         </div>
                                     )

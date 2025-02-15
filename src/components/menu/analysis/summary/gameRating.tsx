@@ -1,7 +1,7 @@
 import { moveRating } from "@/engine/stockfish"
 import { avg } from "./playersAccuracy"
 import RatingBox from "./ratingBox"
-import Image from "next/image"
+import RatingSVG from "@/components/svg/rating"
 
 function getRating(accuracy: number): number {
     function nonLinearFunction(x: number): number {
@@ -54,7 +54,7 @@ function RatingIcon(props: { ratingPhase: {rating: moveRating|null, accuracy: st
 
     if (!rating || !accuracy) return <span className="text-xl" title="Not enough moves to evaluate this phase.">-</span>
 
-    return <Image alt={rating} title={titleText + ': ' + accuracy} src={`/images/rating/${rating}.svg`} width={30} height={30} priority />
+    return <RatingSVG draggable rating={rating} size={30} title={titleText + ': ' + accuracy} />
 }
 
 export default function GameRating(props: { accuracy: { w: number, b: number }, accuracyPhases: { opening: { w: number[], b: number[] }, middlegame: { w: number[], b: number[] }, endgame: { w: number[], b: number[] } } }) {

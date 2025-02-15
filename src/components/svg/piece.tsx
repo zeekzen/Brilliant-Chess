@@ -571,9 +571,9 @@ function King({ color, size }: { color: Color, size: number } ) {
     )
 }
 
-type Dataset = { [key: string]: any }
+export type Dataset = { [key: string]: any }
 
-function getPropsDataset(dataset: Dataset) {
+export function getPropsDataset(dataset: Dataset) {
     const propsDatasetEntries = Object.entries(dataset).map(([key, value]) => {
         return ['data-' + key, value]
     })
@@ -581,12 +581,12 @@ function getPropsDataset(dataset: Dataset) {
     return Object.fromEntries(propsDatasetEntries) as Dataset
 }
 
-export default function PieceSVG({ piece, color, size, dataset, className, style, draggable }: { piece: PieceSymbol, color: Color, size: number, dataset?: Dataset, className?: string, style?: React.CSSProperties, draggable?: boolean }) {
+export default function PieceSVG({ piece, color, size, dataset, className, style, draggable, title }: { piece: PieceSymbol, color: Color, size: number, dataset?: Dataset, className?: string, style?: React.CSSProperties, draggable?: boolean, title?: string }) {
     const propsDataset = getPropsDataset(dataset ?? {})
     const pieceProps = {color, size}
 
     return (
-        <div draggable={draggable} {...propsDataset} className={className} style={style}>
+        <div title={title} draggable={draggable} {...propsDataset} className={className} style={style}>
             {(() => {
                 switch (piece) {
                     case PAWN:
