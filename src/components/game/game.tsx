@@ -13,6 +13,7 @@ import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wa
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
 import { maxVertical } from "../../../tailwind.config"
+import { ConfigContext } from "@/context/config"
 
 const NOT_SUPPORTED_WASM_THREADS_WARNING = ['WebAssembly threads not supported', 'The app may run slower. Try updating your browser for better performance.']
 const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs this feature to run properly. Try updating your browser in order to run this app.']
@@ -39,6 +40,7 @@ export default function Game() {
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
+    const configContext = useContext(ConfigContext)
 
     const [players, setPlayers] = analyzeContext.players
     const [time, setTime] = analyzeContext.time
@@ -57,6 +59,8 @@ export default function Game() {
     const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
 
     const [errors, setErrors] = errorsContext.errors
+
+    const [boardSounds, setBoardSounds] = configContext.boardSounds
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -287,7 +291,7 @@ export default function Game() {
             setAnimation(false)
             setArrows(createArrowsObject(moves.length))
     
-            setTimeout(() => gameStartSound.play(), 100)
+            if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
         } catch (e: any) {
             switch (e.message) {

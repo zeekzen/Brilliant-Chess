@@ -374,6 +374,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
     const [showLegalMoves, setShowLegalMoves] = configContext.showLegalMoves
     const [animateMoves, setAnimateMoves] = configContext.animateMoves
+    const [boardSounds, setBoardSounds] = configContext.boardSounds
 
     const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
 
@@ -437,6 +438,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     useEffect(() => {
         if (!props.fen) return
+        if (!boardSounds) return
 
         if (soundCastleInstance) {
             castleSound.play()

@@ -3,6 +3,8 @@ import { useContext, useEffect, useState } from "react"
 import { boardThemes } from "./themes"
 import { BISHOP, ROOK, WHITE } from "chess.js"
 import PieceSVG from "@/components/svg/piece"
+import SoundMax from "@/components/svg/soundMax"
+import SoundMute from "@/components/svg/sound-mute"
 
 export default function Moves() {
     const [animateMovesMoved, setAnimateMovesMoved] = useState(false)
@@ -12,6 +14,7 @@ export default function Moves() {
     const [boardTheme, setBoardTheme] = configContext.boardTheme
     const [showLegalMoves, setShowLegalMoves] = configContext.showLegalMoves
     const [animateMoves, setAnimateMoves] = configContext.animateMoves
+    const [boardSounds, setBoardSounds] = configContext.boardSounds
 
     useEffect(() => {
         setInterval(() => {
@@ -57,6 +60,26 @@ export default function Moves() {
         localStorage.setItem('animateMoves', String(Number(newAnimateMoves)))
 
         setAnimateMoves(newAnimateMoves)
+    }
+
+    useEffect(() => {
+        const boardSounds = localStorage.getItem('boardSounds')
+        if (!boardSounds) return
+        const numberBoardSounds = Number(boardSounds)
+        if (!isNaN(numberBoardSounds)) {
+            setBoardSounds(Boolean(numberBoardSounds))
+        } else {
+            localStorage.setItem('boardSounds', '1')
+            setBoardSounds(true)
+        }
+    }, [])
+
+    function toggleBoardSounds() {
+        const newBoardSounds = !boardSounds
+
+        localStorage.setItem('boardSounds', String(Number(newBoardSounds)))
+
+        setBoardSounds(newBoardSounds)
     }
 
     return (
@@ -106,6 +129,14 @@ export default function Moves() {
                     </div>
                     <span className="font-bold text-lg">Animate moves</span>
                     <div style={{backgroundColor: "var(--foreground)", display: animateMoves ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
+                </button>
+                <button onClick={toggleBoardSounds} role="switch" type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+                    <div className="w-[40px] h-[40px] flex justify-center items-center">
+                        <SoundMax display={boardSounds} size={35} />
+                        <SoundMute display={!boardSounds} size={35} />
+                    </div>
+                    <span className="font-bold text-lg">Board sounds</span>
+                    <div style={{backgroundColor: "var(--foreground)", display: boardSounds ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
                 </button>
             </section>
         </div>
