@@ -4,7 +4,7 @@ export default function Privacy() {
     return (
         <div className="flex-grow h-full">
             <header>
-                <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><Legal size={40} class="fill-foreground" />Privacy Policy</h1>
+                <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><Legal draggable size={40} class="fill-foreground" />Privacy Policy</h1>
             </header>
             <main className="p-8 pt-14">
                 <div className="bg-backgroundBox max-w-4xl rounded-borderRoundness m-auto p-8">

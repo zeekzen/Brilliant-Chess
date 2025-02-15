@@ -59,7 +59,7 @@ export default function Comments(props: { comment?: string, rating?: moveRating,
         <div style={{backgroundColor: "#ffffff"}} className="h-44 w-[85%] p-4 rounded-borderExtraRoundness text-foregroundBlack text-lg font-bold flex flex-col gap-1">
             <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-row items-center gap-2">
-                    <RatingSVG rating={rating} size={32} />
+                    <RatingSVG draggable rating={rating} size={32} />
                     <span>{moveSan} {RATING_FORMATS[rating].replace('_', rating)}</span>
                 </div>
                 {formatEval(evaluation, white)}

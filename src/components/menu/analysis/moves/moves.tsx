@@ -169,7 +169,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
 
                                     return (
                                         <div key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
-                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{shownRating ? <RatingSVG rating={shownRating.rating} size={22} /> : null}</button>
+                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{shownRating ? <RatingSVG draggable rating={shownRating.rating} size={22} /> : null}</button>
                                             <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className={`rounded-borderRoundness outline-none border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
                                         </div>
                                     )

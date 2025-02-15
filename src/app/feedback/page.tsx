@@ -9,7 +9,7 @@ export default function Feedback() {
             <div className="flex-grow h-full flex flex-col">
                 <PageErrors />
                 <header>
-                    <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><Chats size={35} class="fill-foreground" />Feedback</h1>
+                    <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><Chats draggable size={35} class="fill-foreground" />Feedback</h1>
                 </header>
                 <main className="flex-grow pt-14 p-8">
                     <Form />

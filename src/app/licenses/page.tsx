@@ -7,7 +7,7 @@ export default function Licenses() {
     return (
         <div className="flex-grow h-full">
             <header>
-                <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><License size={35} class="fill-foreground" />Licenses</h1>
+                <h1 className="text-4xl font-extrabold mx-auto mt-6 flex flex-row items-center gap-4 w-fit"><License draggable size={35} class="fill-foreground" />Licenses</h1>
             </header>
             <main className="grid grid-cols-3 p-14 gap-6">
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
