@@ -15,14 +15,14 @@ FROM node:20-alpine as runner
 
 WORKDIR /app
 
-RUN addgroup -S app && adduser -S app -G appgroup
+RUN addgroup -S app && adduser -S app -G app
 
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-RUN chown -R appuser:appgroup /app
+RUN chown -R app:app /app
 
 USER app
 
