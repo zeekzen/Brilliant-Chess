@@ -5,7 +5,7 @@ export default function Robots(): MetadataRoute.Robots {
         rules: {
             userAgent: '*',
             allow: '/',
-            disallow: '/licenses/',
+            disallow: ['/licenses/', '/feedback/done', '/too-many-requests'],
         },
         sitemap: 'https://brilliant-chess.com/sitemap.xml',
     }
