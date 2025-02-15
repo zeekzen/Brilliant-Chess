@@ -22,10 +22,5 @@ export default function Sitemap(): MetadataRoute.Sitemap {
             lastModified: new Date(),
             priority: 0.1,
         },
-        {
-            url: baseUrl + '/' + 'licenses',
-            lastModified: new Date(),
-            priority: 0.1,
-        },
     ]
 }
