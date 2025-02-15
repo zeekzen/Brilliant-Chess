@@ -1,5 +1,4 @@
 import { moveRating, position, result, square } from "@/engine/stockfish";
-import Image from "next/image";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
@@ -12,6 +11,7 @@ import { pushPageWarning } from "../errors/pageErrors";
 import { ErrorsContext } from "@/context/errors";
 import PieceSVG from "../svg/piece";
 import RatingSVG from "../svg/rating";
+import ResultSVG from "../svg/result";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, rating: moveRating }
@@ -670,14 +670,14 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             if (isLastMove) {
                                 if (square?.type === KING) {
                                     if (result === '1/2-1/2') {
-                                        resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: 'translateX(50%) translateY(-50%)', width: iconSize }} alt="draw" src="/images/results/draw.svg" priority width={120} height={120} />
+                                        resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)` }} size={iconSize} result="draw" />
                                     } else {
                                         if (square.color === WHITE) {
-                                            if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '1-0') resultIcon = resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)` }} size={iconSize} result="victory" />
+                                            else if (result === '0-1') resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%) rotate(-90deg)` }} size={iconSize} result="defeat" />
                                         } else {
-                                            if (result === '0-1') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="victory" src="/images/results/victory.svg" priority width={120} height={120} />
-                                            else if (result === '1-0') resultIcon = <Image className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)`, width: iconSize }} alt="defeat" src="/images/results/defeat.svg" priority width={120} height={120} />
+                                            if (result === '0-1') resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)` }} size={iconSize} result="victory" />
+                                            else if (result === '1-0') resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%) rotate(-90deg)` }} size={iconSize} result="defeat" />
                                         }
                                     }
                                 }
