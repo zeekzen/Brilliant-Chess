@@ -12,8 +12,42 @@ const roboto = Roboto({
 })
 
 export const metadata: Metadata = {
-  title: "Brilliant Chess",
-  description: "A chess.com-like chess analyzer for free",
+  title: "Brilliant Chess - Free Chess Analyzer",
+  description: "Analyze your chess games and improve your skills completely free.",
+  keywords: ["chess", "chess analysis", "free chess analyzer", "free chess.com analyzer", "analyze chess for free", "analyze chess games"],
+  authors: [{ name: 'Delo', url: "https://github.com/wdeloo" }],
+  applicationName: "Brilliant Chess",
+  metadataBase: new URL("https://brilliant-chess.com"),
+
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+  },
+
+  alternates: {
+    canonical: "https://brilliant-chess.com"
+  },
+
+  icons: {
+    icon: "favicon.ico"
+  },
+
+  openGraph: {
+    title: "Brilliant Chess - Free Chess Analyzer",
+    description: "Analyze your chess games and improve your skills completely free.",
+    url: "https://brilliant-chess.com",
+    siteName: "Brilliant Chess",
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    title: "Brilliant Chess - Free Chess Analyzer",
+    description: "Analyze your chess games and improve your skills completely free.",
+    card: "summary",
+    site: "@BrilliantChess_",
+  },
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
