@@ -14,7 +14,7 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "Brilliant Chess - Free Chess Analyzer",
   description: "Analyze your chess games and improve your skills completely free.",
-  keywords: ["chess", "chess analysis", "free chess analyzer", "free chess.com analyzer", "analyze chess for free", "analyze chess games"],
+  keywords: ["chess", "chess analysis", "free chess analyzer", "free chess.com analyzer", "analyze chess for free", "analyze chess games", "brilliant move chess", "brilliant chess", "brilliant-chess", "brilliant-chess.com"],
   authors: [{ name: 'Delo', url: "https://github.com/wdeloo" }],
   applicationName: "Brilliant Chess",
   metadataBase: new URL("https://brilliant-chess.com"),
