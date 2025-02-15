@@ -1,4 +1,6 @@
 import License from "@/components/svg/license";
+import PieceSVG from "@/components/svg/piece";
+import { KING, QUEEN, WHITE } from "chess.js";
 import Image from "next/image";
 
 export default function Licenses() {
@@ -11,8 +13,8 @@ export default function Licenses() {
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
                     <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
                         <div className="flex flex-row">
-                            <Image className="rotate-[-20deg] relative top-1" alt="king" src="/images/pieces/white/queen.svg" width={50} height={0} />
-                            <Image className="rotate-12 relative bottom-2 right-2" alt="king" src="/images/pieces/white/king.svg" width={50} height={0} />
+                            <PieceSVG draggable className="rotate-[-20deg] relative top-1" piece={QUEEN} size={50} color={WHITE} />
+                            <PieceSVG draggable className="rotate-12 relative bottom-2 right-2" piece={KING} size={50} color={WHITE} />
                         </div>
                         Chess Pieces Images
                     </h1>
@@ -24,7 +26,7 @@ export default function Licenses() {
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
                     <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
                         <div className="flex flex-row mr-2">
-                            <Image className="rotate-[-20deg]" alt="king" src="/images/sound.svg" width={50} height={0} />
+                            <Image className="rotate-[-20deg]" alt="megaphone" src="/images/sound.svg" width={50} height={0} />
                         </div>
                         Board Sounds
                     </h1>

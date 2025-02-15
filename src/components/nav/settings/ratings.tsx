@@ -3,6 +3,8 @@ import { ConfigContext, defaultUsedRatings, usedRatings } from "@/context/config
 import Image from "next/image"
 import { useContext, useEffect } from "react"
 import { boardThemes } from "./themes"
+import { QUEEN, WHITE } from "chess.js"
+import PieceSVG from "@/components/svg/piece"
 
 const ratings = [
     "brilliant",
@@ -96,7 +98,7 @@ export default function Ratings() {
                                 {i === 2 || i === 3 ? <div className="w-full h-full absolute top-0 left-0 opacity-50" style={{backgroundColor: highlightByRating ? 'var(--highlightGreat)' : boardThemes[boardTheme].highlight}} /> : null}
                                 {i === 3 ? (
                                     <>
-                                        <Image src="/images/pieces/white/queen.svg" width={20} height={20} alt="queen" className="absolute top-0 left-0" />
+                                        <PieceSVG className="absolute z-10 top-0 left-0" piece={QUEEN} size={20} color={WHITE} />
                                         <Image src="/images/rating/great.svg" width={12} height={12} alt="great" className="absolute top-0 right-0 translate-x-1/2 translate-y-[-50%]" />
                                     </>
                                 ) : null}

@@ -1,7 +1,8 @@
 import { ConfigContext } from "@/context/config"
 import { useContext, useEffect, useState } from "react"
 import { boardThemes } from "./themes"
-import Image from "next/image"
+import { BISHOP, ROOK, WHITE } from "chess.js"
+import PieceSVG from "@/components/svg/piece"
 
 export default function Moves() {
     const [animateMovesMoved, setAnimateMovesMoved] = useState(false)
@@ -73,7 +74,7 @@ export default function Moves() {
                             return (
                                 <div key={i} style={{ backgroundColor: squareColor }} className="h-5 w-5 relative">
                                     {i === 2 ? <>
-                                        <Image className="z-10 absolute" src="/images/pieces/white/bishop.svg" alt="bishop" width={20} height={20} />
+                                        <PieceSVG className="absolute z-10 top-0 left-0" piece={BISHOP} size={20} color={WHITE} />
                                         <div className="w-full h-full opacity-50 absolute top-0 left-0" style={{ backgroundColor: boardThemes[boardTheme].highlight }} />
                                     </> : null}
                                     {i === 1 && showLegalMoves ? <div className="absolute w-full h-full top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[25%] w-[30%] h-[30%] rounded-full" /></div> : null }
@@ -95,7 +96,7 @@ export default function Moves() {
                             return (
                                 <div key={i} style={{ backgroundColor: squareColor }} className="h-5 w-5 relative">
                                     {i === 2 ? <>
-                                        <Image style={{transform: animateMovesMoved ? 'translateX(20px)' : '', transition: animateMoves ? '150ms' : '', transitionTimingFunction: animateMoves ? 'linear' : ''}} className="z-10 absolute" src="/images/pieces/white/rook.svg" alt="rook" width={20} height={20} />
+                                        <PieceSVG style={{transform: animateMovesMoved ? 'translateX(20px)' : '', transition: animateMoves ? '150ms' : '', transitionTimingFunction: animateMoves ? 'linear' : ''}} className="absolute z-10 top-0 left-0" piece={ROOK} size={20} color={WHITE} />
                                         <div className="w-full h-full opacity-50 absolute top-0 left-0" style={{ backgroundColor: boardThemes[boardTheme].highlight }} />
                                     </> : null}
                                     {i === 3 ? <div className="w-full h-full opacity-50 absolute top-0 left-0" style={{ backgroundColor: boardThemes[boardTheme].highlight }} /> : null}

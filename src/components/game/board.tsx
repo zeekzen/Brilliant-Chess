@@ -10,31 +10,13 @@ import { maxVertical } from "../../../tailwind.config";
 import { arrow, Controller } from "./game";
 import { pushPageWarning } from "../errors/pageErrors";
 import { ErrorsContext } from "@/context/errors";
+import PieceSVG from "../svg/piece";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, icon: string }
 }
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
-const PIECES_IMAGES = {
-    w: {
-        p: 'white/pawn.svg',
-        r: 'white/rook.svg',
-        n: 'white/knight.svg',
-        b: 'white/bishop.svg',
-        q: 'white/queen.svg',
-        k: 'white/king.svg'
-    },
-    b: {
-        p: 'black/pawn.svg',
-        r: 'black/rook.svg',
-        n: 'black/knight.svg',
-        b: 'black/bishop.svg',
-        q: 'black/queen.svg',
-        k: 'black/king.svg',
-    }
-}
 
 const HIGHLIGHT_STYLE = {
     forced: { color: "", icon: "forced.svg" },
@@ -125,19 +107,6 @@ function flipBoard(board: position) {
         row.reverse()
     }
     board.reverse()
-}
-
-function PreloadRatingImages({ highlightedStyle }: { highlightedStyle: filteredHighlightStyle }) {
-    const preloaders = []
-    for (const rating in highlightedStyle) {
-        const url = '/images/rating/' + highlightedStyle[rating as keyof typeof highlightedStyle].icon
-
-        preloaders.push(
-            <Image key={rating} alt={"preload " + rating} src={url} priority hidden width={1} height={0} />
-        )
-    }
-
-    return preloaders
 }
 
 function isKnightMove(from: square, to: square) {
@@ -274,8 +243,8 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceType: PieceSymbol, pieceColor: Color, pieceImages: string, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, boardRef: RefObject<HTMLDivElement> }) {
-    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceType, pieceColor, pieceImages, drag, setDrag, id, squareSize } = props
+function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceColor: Color, pieceSymbol: PieceSymbol, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, boardRef: RefObject<HTMLDivElement> }) {
+    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceColor, pieceSymbol, drag, setDrag, id, squareSize } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
 
@@ -382,15 +351,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
             className="w-full relative h-full z-[20] cursor-grab"
             style={{ top: movement.y || '', left: movement.x || '', zIndex: drag.is && drag.id === id ? 90 : '' }}
         >
-            <Image
-                data-dontcleandrag={true}
-                draggable={false}
-                alt={`${pieceType}-${pieceColor}`}
-                className="w-full"
-                width={200} height={0}
-                src={`/images/pieces/${pieceImages}`}
-                priority
-            />
+            <PieceSVG className="*:pointer-events-none" dataset={{"dontcleandrag": true}} piece={pieceSymbol} color={pieceColor} size={squareSize} />
         </div>
     )
 }
@@ -644,7 +605,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     return (
         <div ref={boardRef} onContextMenu={e => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
-            <PreloadRatingImages highlightedStyle={filteredHighlightStyle} />
             {
                 (() => {
                     const squares: JSX.Element[] = []
@@ -732,8 +692,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             const pieceType = square?.type
                             let piece
                             if (pieceColor && pieceType) {
-                                const imageColor = PIECES_IMAGES[pieceColor as keyof object]
-                                const pieceImages = imageColor[pieceType as keyof object]
                                 piece = <Piece
                                     squareSize={squareSize}
                                     drag={drag}
@@ -743,9 +701,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                     moved={moved}
                                     isCastleRook={isCastleRook}
                                     castleRookRef={castleRookRef}
-                                    pieceType={pieceType}
                                     pieceColor={pieceColor}
-                                    pieceImages={pieceImages}
+                                    pieceSymbol={pieceType}
                                     boardRef={boardRef}
                                 />
                             }
