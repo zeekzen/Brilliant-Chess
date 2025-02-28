@@ -17,9 +17,7 @@ export default function AcceptCookies() {
             return
         }
 
-        window.gtag("consent", "update", {
-            analytics_storage: Number(cookies) ? 'granted' : 'denied',
-        })
+        // code to add cookies
     }, [])
 
     if (isFilled) return

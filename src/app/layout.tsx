@@ -4,7 +4,7 @@ import "./globals.css"
 import { Roboto } from 'next/font/google'
 import Adsense from "@/components/ads/adsense"
 import AcceptCookies from "@/components/privacy/acceptCookies"
-import GoogleAnalytics from "@/components/analytics/googleAnalytics"
+import Analytics from "@/components/analytics/analytics"
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -56,7 +56,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
-      <GoogleAnalytics mId={process.env.MEASUREMENT_ID ?? ''} />
+      <Analytics mId={process.env.MEASUREMENT_ID ?? ''} />
       <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
         <AcceptCookies />
         {children}
