@@ -5,6 +5,7 @@ export default function Analytics(props: { mId: string }) {
                 strategy="afterInteractive"
                 async
                 src="https://analytics.ahrefs.com/analytics.js"
+                crossOrigin="anonymous"
                 data-key={props.mId}
             ></Script>
 }
