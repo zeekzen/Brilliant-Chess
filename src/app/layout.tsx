@@ -58,7 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
       <Analytics mId={process.env.MEASUREMENT_ID ?? ''} />
       <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
-        <AcceptCookies />
+        {/* <AcceptCookies /> */}
         {children}
       </body>
     </html>
