@@ -11,6 +11,8 @@ const roboto = Roboto({
   weight: ['400', '700', '900'],
 })
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: "Brilliant Chess - Free Chess Analyzer",
   description: "Analyze your chess games and improve your skills completely free.",
