@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import Image from "next/image"
 import { Data } from "@/context/analyze"
 import { platform } from "../menu"
+import { pushPageWarning } from "@/components/errors/pageErrors"
+import { FREE_MOVING_DEVELOPMENT_WARNING } from "@/components/game/board"
+import { ErrorsContext } from "@/context/errors"
 
 export const FORMATS = [
     ["Chess.com", "/images/chesscom.svg", "platform"],
@@ -19,6 +22,10 @@ export const TYPES = [
 
 export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
     const { setData, selectGame } = props
+
+    const errorsContext = useContext(ErrorsContext)
+
+    const [errors, setErrors] = errorsContext.errors
 
     const [isSelecting, setSelecting] = useState(false)
     const [value, setValue] = useState("")
@@ -93,6 +100,8 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
             case "PGN":
                 const depth = TYPES[type][2]
                 setData({format: "pgn", depth, string: value})
+            case "FEN":
+                pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
         }
     }
 

@@ -2,23 +2,6 @@ import { BISHOP, BLACK, KNIGHT, PAWN, PieceSymbol, QUEEN, ROOK, WHITE } from "ch
 import { maxVertical } from "../../../tailwind.config";
 import SimplePieceSVG from "../svg/simplePiece";
 
-const PIECES_IMAGES = {
-    w: {
-        p: 'white/pawn.svg',
-        r: 'white/rook.svg',
-        n: 'white/knight.svg',
-        b: 'white/bishop.svg',
-        q: 'white/queen.svg',
-    },
-    b: {
-        p: 'black/pawn.svg',
-        r: 'black/rook.svg',
-        n: 'black/knight.svg',
-        b: 'black/bishop.svg',
-        q: 'black/queen.svg',
-    }
-}
-
 const PIECES_ORDER: PieceSymbol[] = [ PAWN, BISHOP, KNIGHT, ROOK, QUEEN ]
 
 function formatAdvantage(advantage: number) {
@@ -37,7 +20,6 @@ export default function CapturedPieces(props: { white: boolean, pieces: PieceSym
         <div className="flex flex-row h-full items-end vertical:gap-2 gap-1">
             <div className="w-fit h-full flex flex-row ml-[-3px]">
                 {Object.entries(groupedPieces).sort((a, b) => PIECES_ORDER.indexOf(a[0] as PieceSymbol) - PIECES_ORDER.indexOf(b[0] as PieceSymbol)).map(([piece, count], i) => {
-                    const src = `/images/simplePieces/${PIECES_IMAGES[!white ? 'w' : 'b' as keyof object][piece as keyof object]}`
                     const outlineColor = "var(--border)"
                     const smallSize = window.innerWidth < maxVertical ? 8 : 15
                     const mediumSize = window.innerWidth < maxVertical ? 10 : 17

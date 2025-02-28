@@ -19,6 +19,8 @@ interface filteredHighlightStyle {
 
 const DEFAULT_POSITION = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
+export const FREE_MOVING_DEVELOPMENT_WARNING = ['Feature in Development', 'The free movement of pieces is not yet implemented.']
+
 const HIGHLIGHT_COLORS = {
     forced: "",
     brilliant: "var(--highlightBrilliant)",
@@ -507,7 +509,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
         setTimeout(() => setDrag({ is: false, id: '' }), 0)
 
-        pushPageWarning(setErrors, 'Feature in Development', 'The free movement of pieces is not yet implemented.');
+        pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
 
         // const from = drag.id
         // const to = toSquare
