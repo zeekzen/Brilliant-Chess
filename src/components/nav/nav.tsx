@@ -43,7 +43,7 @@ export default function Nav() {
     }
 
     const botLinks: BotLinks[] = [
-        { label: "Author", href: "https://github.com/wdeloo", icon: (props: {className: string}) => <GitHub class={props.className} /> },
+        // { label: "Author", href: "/author", icon: (props: {className: string}) => <GitHub class={props.className} /> },
         { label: "Report a Bug", href: "/feedback", icon: (props: {className: string}) => <Bug class={props.className} /> },
         { label: "Support Me", href: DONATE_URL, icon: (props: {className: string}) => <Heart class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
