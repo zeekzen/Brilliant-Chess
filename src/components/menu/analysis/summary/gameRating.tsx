@@ -3,6 +3,13 @@ import { avg } from "./playersAccuracy"
 import RatingBox from "./ratingBox"
 import RatingSVG from "@/components/svg/rating"
 
+function topElo(elo: number) {
+    const MAX_ELO = 3000
+
+    if (elo > MAX_ELO) return `${MAX_ELO}+`
+    else return String(elo)
+}
+
 function getRating(accuracy: number): number {
     function nonLinearFunction(x: number): number {
         return 1.5 * Math.pow(x, 4)
@@ -65,8 +72,8 @@ export default function GameRating(props: { accuracy: { w: number, b: number }, 
             <div className="flex flex-row w-full justify-between items-center">
                 <span className="font-bold text-foregroundGrey text-lg">Game Rating</span>
                 <div className="flex flex-row w-[262px] justify-between">
-                    <RatingBox white>{getRating(accuracy.w)}</RatingBox>
-                    <RatingBox>{getRating(accuracy.b)}</RatingBox>
+                    <RatingBox white>{topElo(getRating(accuracy.w))}</RatingBox>
+                    <RatingBox>{topElo(getRating(accuracy.b))}</RatingBox>
                 </div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
