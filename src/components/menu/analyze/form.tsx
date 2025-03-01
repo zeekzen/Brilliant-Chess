@@ -100,8 +100,10 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
             case "PGN":
                 const depth = TYPES[type][2]
                 setData({format: "pgn", depth, string: value})
+                break
             case "FEN":
                 pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
+                break
         }
     }
 
