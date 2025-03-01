@@ -20,7 +20,17 @@ const COMMENTS = {
         "After an intense struggle, neither __WINNER__ nor __LOSER__ could gain the upper hand, resulting in a draw. Let's break down the decisive moments.",
         "After a dynamic game, neither __WINNER__ nor __LOSER__ could secure the win, resulting in a draw. Let's review the critical phases.",
         "__WINNER__ and __LOSER__ showed strong play throughout, but the game concluded in a draw. Let's explore the key decisions.",
-    ]
+    ],
+    unknown: [
+        "An intense game between __WINNER__ and __LOSER__. Let's analyze the key moments that shaped the outcome.",
+        "A well-fought battle between __WINNER__ and __LOSER__. Let's break down the critical moves and decisions.",
+        "A complex and engaging game took place. Let's dive into the strategies employed by __WINNER__ and __LOSER__.",
+        "Both __WINNER__ and __LOSER__ displayed strong play. Let's review the turning points that defined the match.",
+        "A game full of strategic moments and tactical battles. Let's analyze the key positions and ideas.",
+        "An intriguing contest unfolded between __WINNER__ and __LOSER__. Let's explore the critical junctures of the game.",
+        "Both players showcased their skills in an engaging match. Let's take a closer look at their key moves.",
+        "A fascinating encounter between __WINNER__ and __LOSER__. Let's analyze how the game developed and the decisions made.",
+    ],
 }
 
 export default function getOverallGameComment(playerNames: [string, string], result: result) {
@@ -32,7 +42,7 @@ export default function getOverallGameComment(playerNames: [string, string], res
         return commentList[Math.floor(Math.random() * commentList.length)].replace(/__WINNER__/g, tab[0] + winner + tab[1]).replace(/__LOSER__/g, tab[0] + loser + tab[1])
     }
 
-    let comment: string
+    let comment: string, randomBool: boolean
     switch (result) {
         case '1-0':
             comment = getComment(COMMENTS.win, white, black)
@@ -41,7 +51,11 @@ export default function getOverallGameComment(playerNames: [string, string], res
             comment = getComment(COMMENTS.win, black, white)
             break
         case '1/2-1/2':
-            const randomBool = Math.floor(Math.random() * 2) === 0
+            randomBool = Boolean(Math.floor(Math.random() * 2))
+            comment = getComment(COMMENTS.draw, randomBool ? white : black, randomBool ? black : white)
+            break
+        case '':
+            randomBool = Boolean(Math.floor(Math.random() * 2))
             comment = getComment(COMMENTS.draw, randomBool ? white : black, randomBool ? black : white)
             break
     }

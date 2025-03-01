@@ -2,7 +2,7 @@ import { players } from "@/context/analyze";
 import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square, WHITE } from "chess.js";
 import { SetStateAction } from "react";
 
-export type result = '1-0' | '0-1' | '1/2-1/2'
+export type result = '1-0' | '0-1' | '1/2-1/2' | ''
 
 export type position = ({
     square: Square,
@@ -176,10 +176,8 @@ function getTime(headers: Record<string, string>) {
     return Number(seconds)
 }
 
-function getResult(chess: Chess): result {
-    const result = chess.pgn().split(' ').pop()
-    if (!(result === '1-0' || result === '0-1' || result === '1/2-1/2')) throw new Error('Invalid PGN: Game result must be "1-0", "0-1" or "1/2-1/2"')
-
+function getResult(headers: Record<string, string>): result {
+    const result = headers.result ?? ""
     return result as result
 }
 
@@ -630,13 +628,7 @@ export function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgr
 
         const players = getPlayers(headers)
         const time = getTime(headers)
-        let result
-        try {
-            result = getResult(chess)
-        } catch {
-            reject(new Error('pgn'))
-            return
-        }
+        const result = getResult(headers)
 
         const history = chess.history({ verbose: true })
 
