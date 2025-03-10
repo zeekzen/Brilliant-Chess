@@ -8,7 +8,7 @@ import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
 import { parsePGN, prepareStockfish, square } from "@/engine/stockfish"
-import { PieceSymbol } from "chess.js"
+import { PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
@@ -435,7 +435,7 @@ export default function Game() {
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={moveNumber % 2 === 0} />
+                <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={(game[moveNumber]?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
