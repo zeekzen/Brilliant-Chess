@@ -1,7 +1,7 @@
 import { players } from "@/context/analyze";
 import Profile from "../../../svg/profile";
 import { move, position } from "@/engine/stockfish";
-import { Dispatch, SetStateAction, useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import RatingBox from "./ratingBox";
 import { Chess, Color } from "chess.js";
 
@@ -59,7 +59,7 @@ function pushAccuracy(arr: { w: number[], b: number[] }, value: number, color: C
     arr[color].push(value)
 }
 
-export default function PlayersAccuracy(props: { players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{ w: number, b: number }>>], setAccuracyPhases: Dispatch<SetStateAction<accuracyPhases>> }) {
+export default function PlayersAccuracy(props: { reducedSummary: boolean, players: players, moves: move[], accuracy: [{ w: number, b: number }, Dispatch<SetStateAction<{ w: number, b: number }>>], setAccuracyPhases: Dispatch<SetStateAction<accuracyPhases>> }) {
     const { players, setAccuracyPhases, moves } = props
     const [accuracy, setAccuracy] = props.accuracy
 
@@ -121,26 +121,26 @@ export default function PlayersAccuracy(props: { players: players, moves: move[]
 
     return (
         <div className="w-[85%] flex flex-col items-end gap-3">
-            <div className="w-[262px] flex flex-row justify-between font-extrabold">
-                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[0].name}</span></div>
-                <div className="w-20 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[1].name}</span></div>
+            <div className="reduceSummary:w-[262px] w-[160px] flex flex-row justify-between font-extrabold">
+                <div className="reduceSummary:w-20 w-16 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[0].name}</span></div>
+                <div className="reduceSummary:w-20 w-16 flex flex-row justify-center whitespace-nowrap overflow-visible"><span>{players[1].name}</span></div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
-                <span className="font-bold text-foregroundGrey text-lg">Players</span>
-                <div className="flex flex-row w-[262px] justify-between">
-                    <div className="h-20 w-20 flex flex-row justify-center items-end bg-backgroundProfileWhite rounded-borderRoundness">
-                        <Profile width={70} height={70} class="fill-foregroundProfileWhite" />
+                <span className="font-bold text-foregroundGrey reduceSummary:text-lg text-base">Players</span>
+                <div className="flex flex-row reduceSummary:w-[262px] w-[160px] justify-between">
+                    <div className="reduceSummary:h-20 reduceSummary:w-20 h-16 w-16 flex flex-row justify-center items-end bg-backgroundProfileWhite rounded-borderRoundness">
+                        <Profile width={props.reducedSummary ? 58 : 70} height={props.reducedSummary ? 58 : 70} class="fill-foregroundProfileWhite" />
                     </div>
-                    <div className="h-20 w-20 flex flex-row justify-center items-end bg-backgroundProfileBlack rounded-borderRoundness">
-                        <Profile width={70} height={70} class="fill-foregroundProfileBlack" />
+                    <div className="reduceSummary:h-20 reduceSummary:w-20 h-16 w-16 flex flex-row justify-center items-end bg-backgroundProfileBlack rounded-borderRoundness">
+                        <Profile width={props.reducedSummary ? 58 : 70} height={props.reducedSummary ? 58 : 70} class="fill-foregroundProfileBlack" />
                     </div>
                 </div>
             </div>
             <div className="flex flex-row w-full justify-between items-center">
-                <span className="font-bold text-foregroundGrey text-lg">Accuracy</span>
-                <div className="flex flex-row w-[262px] justify-between">
-                    <RatingBox white>{accuracy.w.toFixed(1)}</RatingBox>
-                    <RatingBox>{accuracy.b.toFixed(1)}</RatingBox>
+                <span className="font-bold text-foregroundGrey reduceSummary:text-lg text-base">Accuracy</span>
+                <div className="flex flex-row reduceSummary:w-[262px] w-[160px] justify-between">
+                    <RatingBox fontSize={props.reducedSummary ? 18 : undefined} width={props.reducedSummary ? 64 : undefined} paddingY={props.reducedSummary ? 4 : undefined} white>{accuracy.w.toFixed(1)}</RatingBox>
+                    <RatingBox fontSize={props.reducedSummary ? 18 : undefined} width={props.reducedSummary ? 64 : undefined} paddingY={props.reducedSummary ? 4 : undefined}>{accuracy.b.toFixed(1)}</RatingBox>
                 </div>
             </div>
         </div>

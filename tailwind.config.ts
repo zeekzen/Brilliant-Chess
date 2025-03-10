@@ -1,6 +1,7 @@
 import type { Config } from "tailwindcss";
 
 export const maxVertical = 1050
+export const reduceSummary = 1669
 
 export default {
   content: [
@@ -80,6 +81,7 @@ export default {
       "vertical": `${maxVertical}px`,
       "reduceNav": "1280px",
       "notFullDate": "1300px",
+      "reduceSummary": `${reduceSummary}px`,
     }
   },
   plugins: [],
