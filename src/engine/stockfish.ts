@@ -602,7 +602,12 @@ async function waitTillReady(engine: Worker, signal?: AbortSignal) {
     })
 }
 
-export function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
+function clearPgn(pgn: string) {
+    // remove comments
+    return pgn.replace(/^%.*/gm, '')
+}
+
+export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
     return new Promise(async (resolve, reject) => {
         function handleAbort() {
             reject(new Error('canceled'))
@@ -613,6 +618,8 @@ export function parsePGN(stockfish: Worker, pgn: string, depth: number, setProgr
         signal.addEventListener('abort', handleAbort)
 
         const chess = new Chess()
+
+        const pgn = clearPgn(rawPgn)
 
         try {
             chess.loadPgn(pgn)
