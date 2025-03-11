@@ -5,7 +5,6 @@ import { Roboto } from 'next/font/google'
 import Adsense from "@/components/ads/adsense"
 import AcceptCookies from "@/components/privacy/acceptCookies"
 import Analytics from "@/components/analytics/analytics"
-import Head from "next/head"
 
 const roboto = Roboto({
   subsets: ['latin'],
