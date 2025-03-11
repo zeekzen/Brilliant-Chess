@@ -55,11 +55,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <Head>
+    <html>
+      <head>
         <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
+      </head>
         <Analytics mId={process.env.MEASUREMENT_ID ?? ''} />
-      </Head>
       <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
         {/* <AcceptCookies /> */}
         {children}

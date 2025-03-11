@@ -6,7 +6,7 @@ export default function Adsense(props: { pId: string }) {
             async={true}
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-${props.pId}`}
             crossOrigin="anonymous"
-            strategy="afterInteractive"
+            strategy="beforeInteractive"
         />
     )
 }
