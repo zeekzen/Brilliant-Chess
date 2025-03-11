@@ -8,7 +8,7 @@ export default function Privacy() {
             </header>
             <main className="p-8 pt-14">
                 <div className="bg-backgroundBox max-w-4xl rounded-borderRoundness m-auto p-8">
-                    <p className="text-foregroundGrey">Last updated: 11/2/2025</p>
+                    <p className="text-foregroundGrey">Last updated: 11/3/2025</p>
 
                     <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">1. Information We Collect</h2>
                     <p>When you visit our website, we may collect the following information:</p>
@@ -18,7 +18,7 @@ export default function Privacy() {
                         <li>Pages visited and time spent on them</li>
                         <li>Referring website</li>
                     </ul>
-                    <p>This data is collected through Google Analytics, Google AdSense, and our internal security systems.</p>
+                    <p>This data is collected through Ahrefs Web Analytics, Google AdSense, and our internal security systems.</p>
 
                     <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">2. Use of Information</h2>
                     <p>We use the information collected to:</p>
@@ -33,8 +33,6 @@ export default function Privacy() {
                     <p>To prevent spam, we store IP addresses of users who submit feedback on the <code className="bg-backgroundBoxDarker rounded-borderRoundness">/feedback</code> page. These IP addresses are used solely for security purposes and are not shared with third parties.</p>
 
                     <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">4. Google Services</h2>
-                    <h3 className="text-xl font-bold">Google Analytics</h3>
-                    <p>We use Google Analytics to collect and analyze traffic data. Google may use cookies and other tracking technologies to provide analytics services.</p>
 
                     <h3 className="text-xl font-bold mt-2">Google AdSense</h3>
                     <p>We display ads using Google AdSense, which may collect user data to personalize ads.</p>
@@ -42,17 +40,17 @@ export default function Privacy() {
                     <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">5. Cookies</h2>
                     <p>We use cookies to enhance your experience and analyze website traffic. You can disable cookies in your browser settings.</p>
 
-                    <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">6. User Rights</h2>
+                    {/* <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">6. User Rights</h2>
                     <p>Depending on your location, you may have the right to:</p>
                     <ul className="list-disc ml-5">
                         <li>Request access to your personal data</li>
                         <li>Request deletion of your data</li>
                         <li>Opt out of personalized ads</li>
                     </ul>
-                    {/* <p>To make such requests, contact us at <a href="mailto:privacy@yourwebsite.com">privacy@yourwebsite.com</a>.</p> */}
+                    <p>To make such requests, contact us at <a href="mailto:privacy@yourwebsite.com">privacy@yourwebsite.com</a>.</p> */}
 
-                    <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">7. Data Security</h2>
-                    <p>We take reasonable measures to protect your data from unauthorized access, loss, or misuse. However, no system is completely secure.</p>
+                    {/* <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">7. Data Security</h2>
+                    <p>We take reasonable measures to protect your data from unauthorized access, loss, or misuse. However, no system is completely secure.</p> */}
 
                     <h2 className="text-2xl text-foregroundHighlighted mt-5 mb-2 font-bold">8. Changes to This Privacy Policy</h2>
                     <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page with the updated date.</p>
