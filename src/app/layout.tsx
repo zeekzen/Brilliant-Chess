@@ -50,6 +50,10 @@ export const metadata: Metadata = {
     card: "summary",
     site: "@BrilliantChess_",
   },
+
+  other: {
+    "google-adsense-account": "ca-pub-6540864764079393"
+  }
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
