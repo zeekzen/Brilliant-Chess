@@ -14,7 +14,7 @@ export default function RightAd(props: { pId: string, sId: string, showPlaceHold
             <ins
                 className="adsbygoogle"
                 style={{ display: 'block' }}
-                data-ad-client={`ca-${props.pId}`}
+                data-ad-client={props.pId}
                 data-ad-slot={props.sId}
                 data-ad-format="auto"
                 data-full-width-responsive="true"

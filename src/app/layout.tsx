@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
 
   other: {
-    "google-adsense-account": "ca-pub-6540864764079393"
+    "google-adsense-account": process.env.PUBLISHER_ID ?? ''
   }
 }
 
