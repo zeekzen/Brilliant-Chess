@@ -3,12 +3,9 @@
 import Image from "next/image"
 import GitHub from "../svg/github"
 import { useContext, useEffect, useRef } from "react"
-import Heart from "../svg/heart"
 import Licenses from "../svg/license"
 import Settings from "./settings/settings"
 import { ConfigContext } from "@/context/config"
-import Bug from "../svg/bug"
-import Legal from "../svg/legal"
 
 export const DONATE_URL = "https://www.paypal.com/donate/?hosted_button_id=S8SWJBNYZ2WFW"
 
@@ -31,7 +28,7 @@ export default function Nav() {
     }
 
     const topLinks: TopLink[] = [
-        { label: "Settings", hover: openSettings, icon: "/images/setting.svg", role: "button" },
+        { label: "Settings", hover: openSettings, icon: `${process.env.NEXT_PUBLIC_BASE_PATH}/images/setting.svg`, role: "button" },
     ]
 
     interface BotLinks {
@@ -74,7 +71,7 @@ export default function Nav() {
             <div className="pt-1 pb-6 h-full overflow-y-auto bg-backgroundBox flex flex-col justify-between select-none items-start">
                 <div ref={topLinksRef} className="flex flex-col">
                     <a draggable={false} onMouseEnter={() => setOpenedMenu(null)} href="/" className="flex flex-row gap-1 font-extrabold text-xl p-3 transition-colors hover:bg-backgroundBoxHover hover:text-foregroundHighlighted">
-                        <Image draggable={false} height={30} width={30} alt="logo" src="images/logo.svg" className="mt-[-2px]" />
+                        <Image draggable={false} height={30} width={30} alt="logo" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/logo.svg`} className="mt-[-2px]" />
                         <div className="h-fit w-fit reduceNav:block hidden">Brilliant<span className="text-sm font-light">Chess</span></div>
                     </a>
                     {topLinks.map((link, i) => {

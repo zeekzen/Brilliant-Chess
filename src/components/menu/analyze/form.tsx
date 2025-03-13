@@ -8,16 +8,16 @@ import { FREE_MOVING_DEVELOPMENT_WARNING } from "@/components/game/board"
 import { ErrorsContext } from "@/context/errors"
 
 export const FORMATS = [
-    ["Chess.com", "/images/chesscom.svg", "platform"],
-    ["Lichess.org", "/images/lichess.svg", "platform"],
-    ["PGN", "/images/pgn.svg", "format"],
-    ["FEN", "/images/json.svg", "format"],
+    ["Chess.com", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/chesscom.svg`, "platform"],
+    ["Lichess.org", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/lichess.svg`, "platform"],
+    ["PGN", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/pgn.svg`, "format"],
+    ["FEN", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/json.svg`, "format"],
 ] as const
 
 export const TYPES = [
-    ["Quick", "/images/quick.svg", 15, "Depth: 15"],
-    ["Basic", "/images/standard.svg", 18, "Depth: 18"],
-    ["Deep", "/images/deep.svg", 21, "Depth: 21"],
+    ["Quick", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/quick.svg`, 15, "Depth: 15"],
+    ["Basic", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/standard.svg`, 18, "Depth: 18"],
+    ["Deep", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/deep.svg`, 21, "Depth: 21"],
 ] as const
 
 export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
@@ -161,7 +161,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                     <div className={`absolute h-full right-6 top-0 flex flex-row items-center ${isSelecting ? "" : "rotate-180"}`}><Arrow class="fill-foregroundGrey" /></div>
                 </button>
                 <div className="flex flex-col gap-2" style={{ display: isSelecting ? "" : "none" }}>
-                    <h6 className="mt-2 font-bold flex flex-row gap-1"><Image alt="depth" src="/images/formats.svg" width={18} height={18} />Game Formats</h6>
+                    <h6 className="mt-2 font-bold flex flex-row gap-1"><Image alt="depth" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/formats.svg`} width={18} height={18} />Game Formats</h6>
                     <ul className="grid grid-cols-2 gap-3">
                         {FORMATS.map((format, i) => {
                             return (
@@ -174,7 +174,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                             )
                         })}
                     </ul>
-                    <h6 className="mt-2 font-bold flex flex-row gap-2"><Image priority alt="depth" src="/images/type.svg" width={20} height={0} />Analysis Type</h6>
+                    <h6 className="mt-2 font-bold flex flex-row gap-2"><Image priority alt="depth" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/type.svg`} width={20} height={0} />Analysis Type</h6>
                     <ul className="grid grid-cols-3 gap-3">
                         {TYPES.map((depth, i) => {
                             return (

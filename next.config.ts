@@ -1,34 +1,20 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   /* config options here */
   // reactStrictMode: false,
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH,
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/",
         headers: [
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'credentialless',
-          },
-          {
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin',
-          },
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
         ]
-      },
-      {
-        source: '/engine/(.*)',
-        headers: [
-          {
-            key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp',
-          },
-        ],
       }
     ]
   }
-};
+}
 
-export default nextConfig;
+export default nextConfig

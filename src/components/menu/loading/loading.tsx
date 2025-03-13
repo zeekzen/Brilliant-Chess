@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react"
 import Lens from "../../svg/lens"
 import LoadingBar from "./loadingBar"
 import { AnalyzeContext } from "@/context/analyze"
-import Heart from "@/components/svg/heart"
 import { DONATE_URL } from "@/components/nav/nav"
 
 export default function Loading(props: { format: string, analyzeController?: AbortController }) {
@@ -49,7 +48,6 @@ export default function Loading(props: { format: string, analyzeController?: Abo
         <div className="flex flex-col flex-grow">
             <div className="text-lg font-bold text-foregroundGrey px-5 pb-5 w-full">Analyzing{ellipsis}</div>
             <hr className="border-neutral-600" />
-            <a href={DONATE_URL} target="_blank" className="inline hover:bg-black transition-colors w-full bg-backgroundBoxDarker text-sm px-3 py-2">If you're enjoying the app, consider making a <b className="text-foregroundHighlighted">donation</b> to help cover the costs. Your support means a lot! <Heart class="inline fill-red-600" /></a>
             <div className="flex-grow flex flex-col justify-center items-center relative">
                 <div className="w-[70%] bg-backgroundBox relative overflow-hidden rounded-borderExtraRoundness text-lg text-foregroundGrey flex flex-col gap-14 pb-4 pt-14 items-center">
                     <div className="w-36 flex flex-col items-center gap-4">

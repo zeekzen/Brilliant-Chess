@@ -628,7 +628,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
             return
         }
 
-        const openingsRes = await fetch('/openings/openings.json')
+        const openingsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/openings/openings.json`)
         const openings = await openingsRes.json()
 
         const headers = chess.header()
