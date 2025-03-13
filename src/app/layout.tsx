@@ -2,9 +2,6 @@ import type { Metadata } from "next"
 import "./globals.css"
 
 import { Roboto } from 'next/font/google'
-import Adsense from "@/components/ads/adsense"
-import AcceptCookies from "@/components/privacy/acceptCookies"
-import Analytics from "@/components/analytics/analytics"
 
 const roboto = Roboto({
   subsets: ['latin'],
@@ -60,10 +57,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html>
       <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
-        {/* <AcceptCookies /> */}
         {children}
-        <Adsense pId={process.env.PUBLISHER_ID ?? ''} />
-        <Analytics mId={process.env.MEASUREMENT_ID ?? ''} />
       </body>
     </html>
   )

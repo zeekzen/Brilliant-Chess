@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start:redis": "docker run --rm --name redis-server -p 6379:6379 redis:alpine redis-server --save \"\" --appendonly no",
-    "start:next": "next dev --turbopack",
-    "dev": "npm-run-all --parallel start:redis start:next",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

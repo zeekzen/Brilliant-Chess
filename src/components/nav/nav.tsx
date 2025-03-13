@@ -32,8 +32,6 @@ export default function Nav() {
 
     const topLinks: TopLink[] = [
         { label: "Settings", hover: openSettings, icon: "/images/setting.svg", role: "button" },
-        { label: "Feedback", hover: () => setOpenedMenu(null), click: () => window.open("/feedback", "_blank", "noopener,noreferrer"), icon: "/images/megaphone.svg", role: "link" },
-        { label: "Donate", hover: () => setOpenedMenu(null), click: () => window.open(DONATE_URL, "_blank", "noopener,noreferrer"), icon: "/images/donate.svg", role: "link" },
     ]
 
     interface BotLinks {
@@ -43,11 +41,8 @@ export default function Nav() {
     }
 
     const botLinks: BotLinks[] = [
-        // { label: "Author", href: "/author", icon: (props: {className: string}) => <GitHub class={props.className} /> },
-        { label: "Report a Bug", href: "/feedback", icon: (props: {className: string}) => <Bug class={props.className} /> },
-        { label: "Support Me", href: DONATE_URL, icon: (props: {className: string}) => <Heart class={props.className} /> },
+        { label: "Source Code", href: "https://github.com/wdeloo/Brilliant-Chess", icon: (props: {className: string}) => <GitHub class={props.className} /> },
         { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
-        { label: "Privacy Policy", href: "/privacy", icon: (props: {className: string}) => <Legal class={`${props.className} scale-125`} /> }
     ]
 
     function openSettings() {

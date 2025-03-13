@@ -1,4 +1,3 @@
-import RightAd from "@/components/ads/righAd"
 import BoardMenu from "@/components/boardMenu/boardMenu"
 import Game from "@/components/game/game"
 import Menu from "@/components/menu/menu"
@@ -22,11 +21,9 @@ export default function Home() {
           <div className="h-full flex flex-row gap-2 w-min">
             <Game />
             <BoardMenu />
-            <RightAd vertical showPlaceHolder={process.env.NODE_ENV === 'development'} pId={process.env.PUBLISHER_ID ?? ''} sId="" />
           </div>
           <Menu />
         </AnalyzeContextProvider>
-        <RightAd showPlaceHolder={process.env.NODE_ENV === 'development'} pId={process.env.PUBLISHER_ID ?? ''} sId="" />
       </main>
     </ErrorsContextProvider></ConfigContextProvider>
   )
