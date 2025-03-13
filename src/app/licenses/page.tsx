@@ -2,6 +2,7 @@ import License from "@/components/svg/license";
 import PieceSVG from "@/components/svg/piece";
 import { KING, QUEEN, WHITE } from "chess.js";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Licenses() {
     return (
@@ -19,8 +20,8 @@ export default function Licenses() {
                         Chess Pieces Images
                     </h1>
                     <ul className="text-lg">
-                        <li>Created by: <a target="_blank" className="text-blue-600 hover:underline font-bold" href="https://en.wikipedia.org/wiki/User:Cburnett">Cburnett</a></li>
-                        <li>License: <a target="_blank" className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License</a></li>
+                        <li>Created by: <Link target="_blank" className="text-blue-600 hover:underline font-bold" href="https://en.wikipedia.org/wiki/User:Cburnett">Cburnett</Link></li>
+                        <li>License: <Link target="_blank" className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License</Link></li>
                     </ul>
                 </section>
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
@@ -31,8 +32,8 @@ export default function Licenses() {
                         Board Sounds
                     </h1>
                     <ul className="text-lg">
-                        <li>Created by: <a target="_blank" className="text-blue-600 hover:underline font-bold" href="https://github.com/lichess-org">Lichess</a></li>
-                        <li>License: <a target="_blank" className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License</a></li>
+                        <li>Created by: <Link target="_blank" className="text-blue-600 hover:underline font-bold" href="https://github.com/lichess-org">Lichess</Link></li>
+                        <li>License: <Link target="_blank" className="text-blue-600 hover:underline font-bold" href="https://www.gnu.org/licenses/agpl-3.0.html">GNU Affero General Public License</Link></li>
                     </ul>
                 </section>
             </main>
