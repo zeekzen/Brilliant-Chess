@@ -21,7 +21,7 @@ export function wasmThreadsSupported() {
     // Structured cloning
     try {
         window.postMessage(mem, "*");
-    } catch (e) {
+    } catch {
         // console.log(`Browser Error ${e}`);
         return false;
     }

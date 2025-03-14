@@ -21,7 +21,7 @@ export default function Nav() {
 
     interface TopLink {
         label: string,
-        click?: () => any,
+        click?: () => void,
         hover?: () => void,
         unHover?: () => void,
         icon: string,

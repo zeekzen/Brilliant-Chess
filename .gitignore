@@ -54,3 +54,6 @@ tmp
 # database
 ssl/*
 !ssl/.gitkeep
+
+# Distribution
+dist

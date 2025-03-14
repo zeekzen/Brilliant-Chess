@@ -1,7 +1,7 @@
 import { players } from "@/context/analyze";
 import Profile from "../../../svg/profile";
 import { move, position } from "@/engine/stockfish";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 import RatingBox from "./ratingBox";
 import { Chess, Color } from "chess.js";
 

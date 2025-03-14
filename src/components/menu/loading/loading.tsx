@@ -2,14 +2,13 @@ import { useContext, useEffect, useRef, useState } from "react"
 import Lens from "../../svg/lens"
 import LoadingBar from "./loadingBar"
 import { AnalyzeContext } from "@/context/analyze"
-import { DONATE_URL } from "@/components/nav/nav"
 
 export default function Loading(props: { format: string, analyzeController?: AbortController }) {
     const [ellipsis, setEllipsis] = useState('')
 
     const analyzeContext = useContext(AnalyzeContext)
 
-    const [progress, setProgress] = analyzeContext.progress
+    const [progress] = analyzeContext.progress
 
     const progressRef = useRef(progress)
     const ellipsisRef = useRef(ellipsis)

@@ -169,7 +169,7 @@ export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, userna
 
                             const whiteWon = result === 'white'
                             const blackWon = result === 'black'
-                            const draw = result === 'draw'
+                            // const draw = result === 'draw'
 
                             const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
                             const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
@@ -212,8 +212,8 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
     const errorsContext = useContext(ErrorsContext)
     const analyzeContext = useContext(AnalyzeContext)
 
-    const [errors, setErrors] = errorsContext.errors
-    const [data, setData] = analyzeContext.data
+    const setErrors = errorsContext.errors[1]
+    const setData = analyzeContext.data[1]
 
     useEffect(() => {
         (async () => {
@@ -257,7 +257,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
 
                 setLoading(false)
                 setGamesInfo(newGamesInfo)
-            } catch (e) {
+            } catch {
                 unSelect()
                 await pushPageError(setErrors, GAMES_ERROR[0], GAMES_ERROR[1])
             }
@@ -283,7 +283,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
 
     const errorsContext = useContext(ErrorsContext)
 
-    const [errors, setErrors] = errorsContext.errors
+    const setErrors = errorsContext.errors[1]
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)
@@ -306,7 +306,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
 
                 setLoading(false)
                 setDates(newDates)
-            } catch (e) {
+            } catch {
                 stopSelecting()
                 await pushPageError(setErrors, USER_ERROR[0], USER_ERROR[0])
             }
@@ -315,7 +315,7 @@ export default function SelectChessComGame(props: { username: string, depth: num
 
     return (
         <div className={`overflow-x-hidden overflow-y-auto ${loading ? "flex flex-col justify-center flex-grow" : ''}`}>
-            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>'s games</h1>
+            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-backgroundBoxBoxHighlightedHover text-3xl font-bold">{username}</a>&apos;s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
                 {loading ? <Loading whatIsLoading="Archives" abort={stopSelecting} /> : null}

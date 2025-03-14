@@ -9,10 +9,10 @@ export default function BoardMenu() {
     const analyzeContext = useContext(AnalyzeContext)
     const configContext = useContext(ConfigContext)
 
-    const [white, setWhite] = analyzeContext.white
-    const [animation, setAnimation] = analyzeContext.animation
+    const setWhite = analyzeContext.white[1]
+    const setAnimation = analyzeContext.animation[1]
 
-    const [openedMenu, setOpenedMenu] = configContext.openedMenu
+    const setOpenedMenu = configContext.openedMenu[1]
     const boardMenuSettingsRef = configContext.boardMenuSettingsRef
 
     function flipBoard() {

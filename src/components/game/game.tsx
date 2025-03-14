@@ -46,21 +46,21 @@ export default function Game() {
     const [time, setTime] = analyzeContext.time
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
     const [game, setGame] = analyzeContext.game
-    const [data, setData] = analyzeContext.data
-    const [pageState, setPageState] = analyzeContext.pageState
+    const [data] = analyzeContext.data
+    const setPageState = analyzeContext.pageState[1]
     const [forward, setForward] = analyzeContext.forward
     const [animation, setAnimation] = analyzeContext.animation
     const [white, setWhite] = analyzeContext.white
     const [playing, setPlaying] = analyzeContext.playing
-    const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
+    const [materialAdvantage] = analyzeContext.materialAdvantage
     const [result, setResult] = analyzeContext.result
-    const [progress, setProgress] = analyzeContext.progress
+    const setProgress = analyzeContext.progress[1]
     const [tab, setTab] = analyzeContext.tab
     const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
 
-    const [errors, setErrors] = errorsContext.errors
+    const setErrors = errorsContext.errors[1]
 
-    const [boardSounds, setBoardSounds] = configContext.boardSounds
+    const [boardSounds] = configContext.boardSounds
 
     const componentRef = useRef<HTMLDivElement>(null)
     const gameRef = useRef<HTMLDivElement>(null)
@@ -383,7 +383,7 @@ export default function Game() {
     }, [])
 
     useEffect(() => {
-        let newCaptured: typeof captured = { white: [], black: [] }
+        const newCaptured: typeof captured = { white: [], black: [] }
         for (const i in game) {
             if (Number(i) > moveNumber) break
             const move = game[i]

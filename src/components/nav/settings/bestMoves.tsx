@@ -8,7 +8,7 @@ import { QUEEN, WHITE } from "chess.js"
 export default function BestMoves() {
     const configContext = useContext(ConfigContext)
 
-    const [boardTheme, setBoardTheme] = configContext.boardTheme
+    const [boardTheme] = configContext.boardTheme
     const [showArrows, setShowArrows] = configContext.showArrows
     const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
 

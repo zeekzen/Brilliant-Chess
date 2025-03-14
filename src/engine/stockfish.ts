@@ -245,7 +245,7 @@ async function getBestMove(program: Worker, depth: number, signal: AbortSignal):
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: any): { comment: string, moveRating: moveRating } {
+function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: {[key: string]: string}): { comment: string, moveRating: moveRating } {
     const reversePreviousStaticEvals = previousStaticEvals.toReversed()
 
     if (reversePreviousStaticEvals[0] === undefined) reversePreviousStaticEvals[0] = []
@@ -456,12 +456,11 @@ async function analyze(program: Worker, fen: string, depth: number, signal: Abor
     program.postMessage(`position fen ${fen}`)
 
     try {
-        var { bestMove, staticEval } = await getBestMove(program, depth, signal)
+        const { bestMove, staticEval } = await getBestMove(program, depth, signal)
+        return { bestMove, staticEval }
     } catch {
         throw new Error('cancelled')
     }
-
-    return { bestMove, staticEval }
 }
 
 function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
@@ -469,23 +468,24 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
     const legalAttackers = attackers.filter(attacker => chess.moves({ verbose: true }).findIndex(move => move.from === attacker && move.to === to) !== -1)
     const legalAttackersPieces = legalAttackers.map(attacker => chess.get(attacker))
 
+    let defenders, legalDefenders, legalDefendersPieces
     if (attackers.length === 1) {
         const testChess = new Chess(chess.fen())
         try {
             testChess.move({ from: attackers[0], to })
         } catch { }
 
-        var defenders = testChess.attackers(to, color)
-        var legalDefenders = defenders.filter(defender => {
+        defenders = testChess.attackers(to, color)
+        legalDefenders = defenders.filter(defender => {
             if (testChess.moves({ verbose: true }).findIndex(move => move.from === defender && move.to === to) === -1) {
                 return false
             }
             return true
         })
-        var legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+        legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
     } else {
-        var defenders = chess.attackers(to, color)
-        var legalDefenders = defenders.filter(defender => {
+        defenders = chess.attackers(to, color)
+        legalDefenders = defenders.filter(defender => {
             for (const attacker of legalAttackers) {
                 const testChess = new Chess(chess.fen())
                 try {
@@ -498,7 +498,7 @@ function getAttackersDefenders(chess: Chess, color: Color, to: Square) {
             }
             return true
         })
-        var legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
+        legalDefendersPieces = legalDefenders.map(defender => chess.get(defender))
     }
 
     return { attackers: { squares: legalAttackers, pieces: legalAttackersPieces, length: legalAttackers.length }, defenders: { squares: legalDefenders, pieces: legalDefendersPieces, length: legalDefenders.length } }
@@ -709,16 +709,17 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
 
             const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
+            let sacrifice, staticEval, bestMove: square[], forced
             if (chess.isCheckmate()) {
-                var sacrifice = false
-                var staticEval = ["mate"]
-                var bestMove: square[] = []
-                var forced = false
+                sacrifice = false
+                staticEval = ["mate"]
+                bestMove = []
+                forced = false
             } else {
-                var sacrifice = move.promotion ? false : isSacrifice(move)
+                sacrifice = move.promotion ? false : isSacrifice(move)
 
                 try {
-                    var { staticEval, bestMove } = await analyze(stockfish, move.after, depth, signal)
+                    ({ staticEval, bestMove } = await analyze(stockfish, move.after, depth, signal))
                 } catch {
                     handleAbort()
                     return
@@ -728,7 +729,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                     handleAbort()
                     return
                 }
-                var forced = isForced(move)
+                forced = isForced(move)
             }
 
             const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrice, openings)

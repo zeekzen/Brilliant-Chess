@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import Arrow from "../../svg/arrow"
 import { AnalyzeContext } from "@/context/analyze"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
 import { Chess } from "chess.js"
-import { API_BLOCKING_ERROR, capitalizeFirst, GAMES_ERROR, GamesUI, getMonthName, Loading, SimpleLoading, USER_ERROR } from "./selectChessCom"
+import { API_BLOCKING_ERROR, GAMES_ERROR, GamesUI, getMonthName, Loading, USER_ERROR } from "./selectChessCom"
 import { ErrorsContext } from "@/context/errors"
 
 interface Game {
@@ -56,8 +56,8 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
 
-    const [data, setData] = analyzeContext.data
-    const [errors, setErrors] = errorsContext.errors
+    const setData = analyzeContext.data[1]
+    const setErrors = errorsContext.errors[1]
 
     useEffect(() => {
         (async () => {
@@ -105,7 +105,7 @@ function Games(props: { url: string, username: string, depth: number, unSelect: 
 
                 setLoading(false)
                 setGamesInfo(newGamesInfo)
-            } catch (e) {
+            } catch {
                 unSelect()
                 await pushPageError(setErrors, GAMES_ERROR[0], GAMES_ERROR[1])
                 await pushPageWarning(setErrors, API_BLOCKING_ERROR[0], API_BLOCKING_ERROR[1])
@@ -132,7 +132,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
 
     const errorsContext = useContext(ErrorsContext)
 
-    const [errors, setErrors] = errorsContext.errors
+    const setErrors = errorsContext.errors[1]
 
     const toggleSelected = (number: number) => {
         setSelected(prev => prev === number ? NaN : number)
@@ -170,7 +170,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
 
                 setLoading(false)
                 setDates(newDates.toReversed())
-            } catch (e) {
+            } catch {
                 stopSelecting()
                 await pushPageError(setErrors, USER_ERROR[0], USER_ERROR[1])
                 await pushPageWarning(setErrors, API_BLOCKING_ERROR[0], API_BLOCKING_ERROR[1])
@@ -180,7 +180,7 @@ export default function SelectLichessOrgGame(props: { username: string, depth: n
 
     return (
         <div className={`overflow-x-hidden overflow-y-auto ${loading ? " flex flex-col justify-center flex-grow" : ''}`}>
-            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-foregroundHighlighted text-3xl font-bold">{username}</a>'s games</h1>
+            <h1 style={{display: loading ? 'none' : ''}} className="text-2xl py-4 px-8 sticky text-foreground"><a target="_blank" href={`${PLAYER_URL}${username}`} className="hover:underline text-foregroundHighlighted text-3xl font-bold">{username}</a>&apos;s games</h1>
             <hr style={{display: loading ? 'none' : ''}} className="border-border" />
             <div className="flex flex-col w-full">
                 {loading ? <Loading whatIsLoading="Archives" abort={stopSelecting} /> : null}

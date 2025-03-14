@@ -49,8 +49,8 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     const analyzeContext = useContext(AnalyzeContext)
 
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
-    const [animation, setAnimation] = analyzeContext.animation
-    const [forward, setForward] = analyzeContext.forward
+    const setAnimation = analyzeContext.animation[1]
+    const setForward = analyzeContext.forward[1]
 
     const componentRef = useRef<HTMLDivElement>(null)
     const commentsRef = useRef<HTMLDivElement>(null)

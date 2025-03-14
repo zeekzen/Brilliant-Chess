@@ -12,9 +12,8 @@ export default function GameButtons() {
 
     const [playing, setPlaying] = analyzeContext.playing
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
-    const [game, setGame] = analyzeContext.game
-    const [forward, setForward] = analyzeContext.forward
-    const [animation, setAnimation] = analyzeContext.animation
+    const [game] = analyzeContext.game
+    const setForward = analyzeContext.forward[1]
 
     const moveNumberRef = useRef(moveNumber)
 

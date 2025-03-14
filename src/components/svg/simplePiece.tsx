@@ -1,4 +1,4 @@
-import { BISHOP, Color, KING, KNIGHT, PAWN, PieceSymbol, QUEEN, ROOK, WHITE } from "chess.js"
+import { BISHOP, Color, KNIGHT, PAWN, PieceSymbol, QUEEN, ROOK, WHITE } from "chess.js"
 import { Dataset, getPropsDataset } from "./piece"
 
 function Pawn({ color, size }: { color: Color, size: number }) {

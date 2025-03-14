@@ -20,7 +20,7 @@ export default function Summary(props: { moves: move[], container: HTMLElement }
 
     const analyzeContext = useContext(AnalyzeContext)
 
-    const [players, setPlayers] = analyzeContext.players
+    const [players] = analyzeContext.players
 
     useEffect(() => {
         const observer = new ResizeObserver(entries => {

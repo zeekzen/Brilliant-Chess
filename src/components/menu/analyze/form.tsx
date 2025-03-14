@@ -25,7 +25,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
 
     const errorsContext = useContext(ErrorsContext)
 
-    const [errors, setErrors] = errorsContext.errors
+    const setErrors = errorsContext.errors[1]
 
     const [isSelecting, setSelecting] = useState(false)
     const [value, setValue] = useState("")

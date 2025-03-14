@@ -27,8 +27,8 @@ export default function GameChart(props: { moves: move[], container: HTMLElement
     const analyzeContext = useContext(AnalyzeContext)
 
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
-    const [animation, setAnimation] = analyzeContext.animation
-    const [forward, setForward] = analyzeContext.forward
+    const setAnimation = analyzeContext.animation[1]
+    const setForward = analyzeContext.forward[1]
 
     const totalMoves = moves.length - 1
     const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width

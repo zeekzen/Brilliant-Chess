@@ -571,7 +571,7 @@ function King({ color, size }: { color: Color, size: number } ) {
     )
 }
 
-export type Dataset = { [key: string]: any }
+export type Dataset = { [key: string]: (string|boolean|number|undefined|null|object) }
 
 export function getPropsDataset(dataset: Dataset) {
     const propsDatasetEntries = Object.entries(dataset).map(([key, value]) => {

@@ -95,7 +95,7 @@ function adaptSquare(square: square): square {
     return { col: square.col, row: 7 - square.row }
 }
 
-function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean, position: position): square | undefined {
+function getCastleRookFromSquare(castle: 'k' | 'q' | undefined, whiteMoving: boolean): square | undefined {
     if (!castle) return
     return { col: castle === 'k' ? 7 : 0, row: whiteMoving ? 7 : 0 }
 }
@@ -270,7 +270,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
             document.body.style.cursor = ''
         }
 
-        function pieceDragCancel(e: MouseEvent) {
+        function pieceDragCancel() {
             setMovement({ x: 0, y: 0 })
             setDrag({ is: false, id: '' })
 
@@ -367,18 +367,18 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const configContext = useContext(ConfigContext)
     const analyzeContext = useContext(AnalyzeContext)
 
-    const [errors, setErrors] = errorsContext.errors
+    const setErrors = errorsContext.errors[1]
 
-    const [boardTheme, setBoardTheme] = configContext.boardTheme
-    const [usedRatings, setUsedRatings] = configContext.usedRatings
-    const [highlightByRating, setHighlightByRating] = configContext.highlightByRating
-    const [showArrows, setShowArrows] = configContext.showArrows
-    const [arrowAfterMove, setArrowAfterMove] = configContext.arrowAfterMove
-    const [showLegalMoves, setShowLegalMoves] = configContext.showLegalMoves
-    const [animateMoves, setAnimateMoves] = configContext.animateMoves
-    const [boardSounds, setBoardSounds] = configContext.boardSounds
+    const [boardTheme] = configContext.boardTheme
+    const [usedRatings] = configContext.usedRatings
+    const [highlightByRating] = configContext.highlightByRating
+    const [showArrows] = configContext.showArrows
+    const [arrowAfterMove] = configContext.arrowAfterMove
+    const [showLegalMoves] = configContext.showLegalMoves
+    const [animateMoves] = configContext.animateMoves
+    const [boardSounds] = configContext.boardSounds
 
-    const [materialAdvantage, setMaterialAdvantage] = analyzeContext.materialAdvantage
+    const setMaterialAdvantage = analyzeContext.materialAdvantage[1]
 
     const boardRef = useRef<HTMLDivElement>(null)
 
@@ -404,7 +404,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const whiteMoving = !(chess.turn() === 'w')
 
-    const castleRookFrom = getCastleRookFromSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving, board)
+    const castleRookFrom = getCastleRookFromSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving)
     const castleRookTo = getCastleRookToSquare(forward ? castle : nextCastle, forward ? whiteMoving : !whiteMoving)
 
     const castleRookMove: square[] = castleRookFrom && castleRookTo ? [castleRookFrom, castleRookTo] : []
@@ -503,7 +503,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         return filteredHighlightStyle
     }
 
-    function handleMovePiece(e: React.MouseEvent, toSquare: string) {
+    function handleMovePiece(e: React.MouseEvent/*, toSquare: string*/) {
         if (e.button !== 0) return
         if (!drag.id) return
 
@@ -716,9 +716,9 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
                             const legalMove = legalMoves.includes(squareId as Square) ? (
                                 piece ?
-                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab pointer-events-auto"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e/*, squareId*/)} onMouseUp={(e) => handleMovePiece(e, /*squareId*/)} className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab pointer-events-auto"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
                                 :
-                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} style={{ opacity: showLegalMoves ? '' : 0 }} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e/*, squareId*/)} onMouseUp={(e) => handleMovePiece(e/*, squareId*/)} style={{ opacity: showLegalMoves ? '' : 0 }} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
                             ) : null
 
                             const col = columnNumber
@@ -748,9 +748,11 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                 }
                             }
 
-                            white ? columnNumber++ : columnNumber--
+                            if (white) columnNumber++
+                            else columnNumber--
                         }
-                        white ? rowNumber++ : rowNumber--
+                        if (white) rowNumber++
+                        else rowNumber--
                     }
                     return squares
                 })()

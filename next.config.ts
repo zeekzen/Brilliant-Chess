@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   // reactStrictMode: false,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH,
+  distDir: "dist",
   async headers() {
     return [
       {

@@ -11,7 +11,7 @@ export default function Moves() {
 
     const configContext = useContext(ConfigContext)
 
-    const [boardTheme, setBoardTheme] = configContext.boardTheme
+    const [boardTheme] = configContext.boardTheme
     const [showLegalMoves, setShowLegalMoves] = configContext.showLegalMoves
     const [animateMoves, setAnimateMoves] = configContext.animateMoves
     const [boardSounds, setBoardSounds] = configContext.boardSounds

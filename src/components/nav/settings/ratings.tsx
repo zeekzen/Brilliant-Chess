@@ -48,7 +48,7 @@ export default function Ratings() {
     const configContext = useContext(ConfigContext)
     
     const [usedRatings, setUsedRatings] = configContext.usedRatings
-    const [boardTheme, setBoardTheme] = configContext.boardTheme
+    const [boardTheme] = configContext.boardTheme
     const [highlightByRating, setHighlightByRating] = configContext.highlightByRating
 
     useEffect(() => {
