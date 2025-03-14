@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist -t"
   },
   "dependencies": {
     "@types/howler": "^2.2.12",
