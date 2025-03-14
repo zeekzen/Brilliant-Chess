@@ -8,49 +8,16 @@ const roboto = Roboto({
   weight: ['400', '700', '900'],
 })
 
-export const dynamic = 'force-dynamic'
-
 export const metadata: Metadata = {
   title: "Brilliant Chess - Free Chess Analyzer",
   description: "Analyze your chess games and improve your skills completely free.",
-  keywords: ["chess", "chess analysis", "free chess analyzer", "free chess.com analyzer", "analyze chess for free", "analyze chess games", "brilliant move chess", "brilliant chess", "brilliant-chess", "brilliant-chess.com"],
+  keywords: ["chess", "chess analysis", "free chess analyzer", "free chess.com analyzer", "analyze chess for free", "analyze chess games", "brilliant move chess", "brilliant chess", "brilliant-chess"],
   authors: [{ name: 'Delo', url: "https://github.com/wdeloo" }],
   applicationName: "Brilliant Chess",
-  metadataBase: new URL("https://brilliant-chess.com"),
-
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-  },
-
-  alternates: {
-    canonical: "https://brilliant-chess.com"
-  },
 
   icons: {
     icon: "favicon.ico"
   },
-
-  openGraph: {
-    title: "Brilliant Chess - Free Chess Analyzer",
-    description: "Analyze your chess games and improve your skills completely free.",
-    url: "https://brilliant-chess.com",
-    siteName: "Brilliant Chess",
-    locale: "en_US",
-    type: "website",
-  },
-
-  twitter: {
-    title: "Brilliant Chess - Free Chess Analyzer",
-    description: "Analyze your chess games and improve your skills completely free.",
-    card: "summary",
-    site: "@BrilliantChess_",
-  },
-
-  other: {
-    "google-adsense-account": process.env.PUBLISHER_ID ?? ''
-  }
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
