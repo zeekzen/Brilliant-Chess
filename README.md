@@ -2,6 +2,8 @@
 
 ![screenshot](images/screenshot.png)
 
+**Brilliant Chess** is a **free** **open source** app to analyse chess games in a similar way **Chess.com** does.
+
 ## Self Hosting
 
 1. Clone the repository:
@@ -16,4 +18,10 @@ cd Brilliant-Chess
 ```
 npm install
 npm run build
+```
+
+3. Start the server:
+
+```
+npm run start
 ```
