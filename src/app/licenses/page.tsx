@@ -27,7 +27,7 @@ export default function Licenses() {
                 <section className="bg-backgroundBox p-6 w-full rounded-borderRoundness">
                     <h1 className="text-2xl font-bold flex flex-row items-center mx-auto mb-8 w-fit gap-2">
                         <div draggable className="flex flex-row mr-2 select-none">
-                            <Image draggable={false} className="rotate-[-20deg]" alt="megaphone" src="/images/sound.svg" width={50} height={0} />
+                            <Image draggable={false} className="rotate-[-20deg]" alt="megaphone" src="/images/megaphone.svg" width={50} height={0} />
                         </div>
                         Board Sounds
                     </h1>
