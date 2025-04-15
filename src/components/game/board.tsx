@@ -509,7 +509,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
         setTimeout(() => setDrag({ is: false, id: '' }), 0)
 
-        pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
+        // pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
 
         // const from = drag.id
         // const to = toSquare
