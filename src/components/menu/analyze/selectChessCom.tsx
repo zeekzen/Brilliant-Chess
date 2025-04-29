@@ -152,7 +152,7 @@ export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, userna
     const { gamesInfo, loading, username, depth, setData } = props
 
     return (
-<>
+        <>
             {loading ? <SimpleLoading whatIsLoading="games" /> : null}
             <div className="w-full overflow-auto max-h-[400px]">
                 <table className="w-full">
