@@ -26,13 +26,13 @@ export function wasmThreadsSupported() {
         return false;
     }
 
-    // // Growable shared memory (optional)
-    // try {
-    //     mem.grow(8);
-    // } catch (e) {
-    //     // console.log(`Browser Error ${e}`);
-    //     return false;
-    // }
+    // Growable shared memory (optional)
+    try {
+        mem.grow(8);
+    } catch (e) {
+        // console.log(`Browser Error ${e}`);
+        return false;
+    }
 
     return true;
 }
