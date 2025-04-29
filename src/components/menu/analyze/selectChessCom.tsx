@@ -171,8 +171,8 @@ export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, userna
                             const blackWon = result === 'black'
                             // const draw = result === 'draw'
 
-                            const isWin = (whiteWon && whiteName === username) || (blackWon && blackName === username)
-                            const isLoss = (whiteWon && whiteName !== username) || (blackWon && blackName !== username)
+                            const isWin = (whiteWon && whiteName.toLowerCase() === username.toLowerCase()) || (blackWon && blackName.toLowerCase() === username.toLowerCase())
+                            const isLoss = (whiteWon && whiteName.toLowerCase() !== username.toLowerCase()) || (blackWon && blackName.toLowerCase() !== username.toLowerCase())
 
                             const date = new Date(timestamp)
 
@@ -185,7 +185,7 @@ export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, userna
                                     <td className="py-2 pl-3 pr-4">
                                         <div className="flex flex-row items-center gap-2">
                                             <div className="flex w-4 flex-col text-foregroundGrey font-bold text-base"><span>{whiteWon ? 1 : blackWon ? 0 : <>&#189;</>}</span><span>{blackWon ? 1 : whiteWon ? 0 : <>&#189;</>}</span></div>
-                                            <div style={{ mixBlendMode: 'screen' }} className={`h-4 w-4 rounded-borderRoundness text-lg font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit ml-[-1px]">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
+                                            <div style={{ mixBlendMode: 'screen' }} className={`h-4 w-4 rounded-borderRoundness text-lg font-extrabold flex justify-center items-center text-black ${isWin ? 'bg-winGreen' : isLoss ? 'bg-lossRed' : 'bg-foregroundGrey'}`}><div className="w-fit h-fit ml-px">{isWin ? '+' : isLoss ? '-' : '='}</div></div>
                                         </div>
                                     </td>
                                     <td className="py-4 pr-4 notFullDate:pr-8 text-nowrap text-sm">
