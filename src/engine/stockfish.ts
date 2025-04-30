@@ -22,6 +22,7 @@ export interface move {
     movement?: square[],
     staticEval: string[],
     bestMove: square[],
+    bestMoveSan: string,
     moveRating?: moveRating,
     comment?: string,
     color: Color,
@@ -182,12 +183,18 @@ function getResult(headers: Record<string, string>): result {
 }
 
 function formatSquare(square: string): square {
-    const letters = 'abcdefghijklmnopqrstuvwxyz'.split('')
+    const letters = 'abcdefgh'.split('')
 
     const col = letters.indexOf(square[0])
     const row = Number(square[1]) - 1
 
     return { col, row }
+}
+
+function deformatSquare(square: square) {
+    const letters = 'abcdefgh'.split('')
+
+    return `${letters[square.col]}${square.row + 1}`
 }
 
 function formatMove(evaluation: string) {
@@ -607,6 +614,14 @@ function clearPgn(pgn: string) {
     return pgn.replace(/^%.*/gm, '')
 }
 
+function moveToSan(move: square[], fen: string) {
+    if (!move.length) return ""
+
+    const chess = new Chess(fen)
+    const moveObject = chess.move({from: deformatSquare(move[0]), to: deformatSquare(move[1])})
+    return moveObject.san
+}
+
 export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
     return new Promise(async (resolve, reject) => {
         function handleAbort() {
@@ -685,16 +700,20 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                     return
                 }
 
-                const { bestMove, staticEval } = analyzeObject
-
                 if (signal.aborted) {
                     handleAbort()
                     return
                 }
+
+                const { bestMove, staticEval } = analyzeObject
+
+                const bestMoveSan = moveToSan(bestMove, fen)
+
                 moves.push({
                     fen,
                     staticEval,
                     bestMove,
+                    bestMoveSan,
                     color,
                 })
                 previousBestMove = bestMove
@@ -709,7 +728,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
 
             const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
-            let sacrifice, staticEval, bestMove: square[], forced
+            let sacrifice, staticEval, bestMove: square[], bestMoveSan, forced
             if (chess.isCheckmate()) {
                 sacrifice = false
                 staticEval = ["mate"]
@@ -738,6 +757,8 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 bestMove = []
             }
 
+            bestMoveSan = moveToSan(bestMove, fen)
+
             moves.push({
                 fen,
                 movement,
@@ -749,6 +770,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 capture,
                 castle,
                 san,
+                bestMoveSan
             })
 
             previousBestMove = bestMove

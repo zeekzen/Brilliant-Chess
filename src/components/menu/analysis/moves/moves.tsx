@@ -1,7 +1,7 @@
 import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/engine/stockfish"
 import { useContext, useEffect, useRef, useState } from "react"
-import Comments from "./comments"
+import Comments, { FormatEval } from "./comments"
 import { WHITE } from "chess.js"
 import GameChart from "../gameChart"
 import RatingSVG from "@/components/svg/rating"
@@ -141,6 +141,13 @@ export default function Moves(props: { moves: move[], overallGameComment: string
         <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">
             <div ref={commentsRef} className="w-full flex flex-col items-center">
                 <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
+            </div>
+            <div style={{ display: moves[moveNumber - 1] ? '' : 'none' }} className="bg-backgroundBoxDarker w-full">
+                <div className="w-[85%] font-extrabold text-highlightBest mx-auto flex flex-row items-center gap-2 py-2">
+                    <FormatEval best smaller evaluation={moves[moveNumber - 1]?.staticEval ?? ""} white={(moves[moveNumber - 1]?.color ?? WHITE) === WHITE} />
+                    <RatingSVG rating="best" size={22} />
+                    {moves[moveNumber - 1]?.bestMoveSan} is best
+                </div>
             </div>
             <ul style={{height: (movesHeight || '100%')}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">
                 {turns.map((turn, i) => {

@@ -23,8 +23,8 @@ const RATING_FORMATS = {
     blunder: RATING_FORMATS_GUIDE._isA_,
 }
 
-function FormatEval(props: {evaluation: string[], white: boolean}) {
-    const { evaluation, white } = props
+export function FormatEval(props: {evaluation: string[], white: boolean, smaller?: boolean, best?: boolean}) {
+    const { evaluation, white, smaller, best } = props
 
     const number = (Number(evaluation[1]) / 100) * (white ? 1 : -1)
             
@@ -33,10 +33,10 @@ function FormatEval(props: {evaluation: string[], white: boolean}) {
     if (number < 0) prevChar = '-'
 
     return (
-        <div style={{backgroundColor: prevChar === '-' ? 'var(--evaluationBarBlack)' : 'var(--evaluationBarWhite)', color: prevChar === '-' ? 'var(--foreground)' : 'var(--foregroundBlack)', filter: prevChar === '-' ? '' : 'brightness(0.9)'}} className="rounded-borderRoundness px-2 py-1 font-extrabold w-[61px] text-center">
+        <div style={{ fontSize: smaller ? "14px" : "", padding: smaller ? "2px" : "", width: smaller ? "46px" : "", backgroundColor: prevChar === '-' ? 'var(--evaluationBarBlack)' : 'var(--evaluationBarWhite)', color: prevChar === '-' ? 'var(--foreground)' : 'var(--foregroundBlack)', filter: prevChar === '-' ? '' : 'brightness(0.9)'}} className="rounded-borderRoundness py-1 font-extrabold w-[61px] text-center">
             {(() => {
                 if (evaluation[0] === 'mate' && evaluation[1]) {
-                    return prevChar + "M" + Math.abs(Number(evaluation[1]))
+                    return prevChar + "M" + (Math.abs(Number(evaluation[1])) - Number(Boolean(best)))
                 } else if (!evaluation[1]) {
                     if (white) return '0-1'
                     else return '1-0'
