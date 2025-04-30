@@ -23,7 +23,9 @@ const RATING_FORMATS = {
     blunder: RATING_FORMATS_GUIDE._isA_,
 }
 
-function formatEval(evaluation: string[], white: boolean) {
+function FormatEval(props: {evaluation: string[], white: boolean}) {
+    const { evaluation, white } = props
+
     const number = (Number(evaluation[1]) / 100) * (white ? 1 : -1)
             
     let prevChar = ''
@@ -62,7 +64,7 @@ export default function Comments(props: { comment?: string, rating?: moveRating,
                     <RatingSVG draggable rating={rating} size={32} />
                     <span>{moveSan} {RATING_FORMATS[rating].replace('_', rating)}</span>
                 </div>
-                {formatEval(evaluation, white)}
+                <FormatEval evaluation={evaluation} white={white} />
             </div>
             <div>
                 {comment}
