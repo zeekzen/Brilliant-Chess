@@ -29,7 +29,7 @@ export function wasmThreadsSupported() {
     // Growable shared memory (optional)
     try {
         mem.grow(8);
-    } catch (e) {
+    } catch /*(e)*/ {
         // console.log(`Browser Error ${e}`);
         return false;
     }

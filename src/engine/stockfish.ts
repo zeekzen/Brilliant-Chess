@@ -728,7 +728,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
 
             const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
 
-            let sacrifice, staticEval, bestMove: square[], bestMoveSan, forced
+            let sacrifice, staticEval, bestMove: square[], forced
             if (chess.isCheckmate()) {
                 sacrifice = false
                 staticEval = ["mate"]
@@ -757,7 +757,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 bestMove = []
             }
 
-            bestMoveSan = moveToSan(bestMove, fen)
+            const bestMoveSan = moveToSan(bestMove, fen)
 
             moves.push({
                 fen,
