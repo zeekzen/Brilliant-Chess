@@ -617,9 +617,13 @@ function clearPgn(pgn: string) {
 function moveToSan(move: square[], fen: string) {
     if (!move.length) return ""
 
-    const chess = new Chess(fen)
-    const moveObject = chess.move({from: deformatSquare(move[0]), to: deformatSquare(move[1])})
-    return moveObject.san
+    try {
+        const chess = new Chess(fen)
+        const moveObject = chess.move({from: deformatSquare(move[0]), to: deformatSquare(move[1])})
+        return moveObject.san
+    } catch {
+        return ""
+    }
 }
 
 export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
