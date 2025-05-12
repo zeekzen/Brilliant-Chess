@@ -13,14 +13,14 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: `${process.env.NEXT_PUBLIC_BASE_PATH}/(.*)`,
         headers: [
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
           { key: "Cross-Origin-Embedder-Policy", value: "require-corp" },
         ],
       },
       {
-        source: "/engine/(.*)",
+        source: `${process.env.NEXT_PUBLIC_BASE_PATH}/engine/(.*)`,
         headers: [
           { key: "Cross-Origin-Resource-Policy", value: "same-origin" },
         ],
