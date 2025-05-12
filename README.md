@@ -2,7 +2,7 @@
 
 ![screenshot](images/screenshot.png)
 
-**Brilliant Chess** is a **free** **open source** app to analyse chess games in a similar way **Chess.com** does.
+**Brilliant Chess** is a **free** **open source** app to analyze chess games in a similar way **Chess.com** does.
 
 ## Self Hosting
 
