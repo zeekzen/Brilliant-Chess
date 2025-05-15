@@ -1,7 +1,7 @@
 "use client"
 
 import { move, result } from "@/engine/stockfish"
-import { createContext, useState, Dispatch, SetStateAction } from 'react'
+import { createContext, useState, Dispatch, SetStateAction, useRef, useEffect } from 'react'
 
 export type players = {
     name: string;
@@ -12,6 +12,21 @@ export interface Data {
     format: "pgn" | "fen",
     string: string,
     depth: number,
+}
+
+export interface Controller {
+    back: () => void
+    forward: () => void
+    first: () => void
+    last: () => void
+    play: () => void
+    pause: () => void
+    togglePlay: () => void
+}
+
+interface CustomLine {
+    moveNumber: number
+    moves: move[]
 }
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -36,6 +51,8 @@ export const AnalyzeContext = createContext<{
     progress: [number, Dispatch<SetStateAction<number>>],
     tab: [tabs, Dispatch<SetStateAction<tabs>>],
     analyzeController: [AbortController, Dispatch<SetStateAction<AbortController>>],
+    customLine: [CustomLine, Dispatch<SetStateAction<CustomLine>>],
+    gameController: Controller,
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
     pageState: ["analyze", () => { }],
@@ -52,6 +69,8 @@ export const AnalyzeContext = createContext<{
     progress: [0, () => { }],
     tab: ['analyze', () => { }],
     analyzeController: [abortControllerInstance, () => { }],
+    customLine: [{ moveNumber: 0, moves: [] }, () => { }],
+    gameController: { back: () => { }, forward: () => { }, last: () => { }, first: () => { }, play: () => { }, pause: () => { }, togglePlay: () => { } },
 })
 
 export default function AnalyzeContextProvider(props: { children: React.ReactNode }) {
@@ -70,9 +89,81 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [progress, setProgress] = useState(0)
     const [tab, setTab] = useState<tabs>('analyze')
     const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)
+    const [customLine, setCustomLine] = useState<CustomLine>({ moveNumber: -1, moves: [] })
+
+    const moveNumberRef = useRef(moveNumber)
+    const customLineRef = useRef(customLine)
+    const gameLengthRef = useRef(game.length)
+
+    useEffect(() => {
+        customLineRef.current = customLine
+    }, [customLine])
+
+    useEffect(() => {
+        moveNumberRef.current = moveNumber
+    }, [moveNumber])
+
+    useEffect(() => {
+        gameLengthRef.current = game.length
+    }, [game.length])
+
+    const gameController: Controller = {
+        back: () => {
+            if (customLineRef.current.moveNumber > 0) {
+                setForward(false)
+                setAnimation(true)
+                setCustomLine(prev => ({ ...prev, moveNumber: prev.moveNumber - 1 }))
+            } else if (customLineRef.current.moveNumber === 0) {
+                setForward(false)
+                setAnimation(true)
+                setCustomLine({ moveNumber: -1, moves: [] })
+            } else if (moveNumberRef.current > 0) {
+                setForward(false)
+                setAnimation(true)
+                setMoveNumber(prev => prev - 1)
+            }
+        },
+        forward: () => {
+            if (customLineRef.current.moveNumber >= 0) {
+                if (customLineRef.current.moveNumber < customLineRef.current.moves.length - 1) {
+                    setForward(true)
+                    setAnimation(true)
+                    setCustomLine(prev => ({ ...prev, moveNumber: prev.moveNumber + 1 }))
+                }
+                return
+            } else if (moveNumberRef.current < gameLengthRef.current - 1) {
+                setForward(true)
+                setAnimation(true)
+                setMoveNumber(prev => prev + 1)
+            }
+        },
+        first: () => {
+            if (customLineRef.current.moveNumber >= 0) {
+                setCustomLine({ moveNumber: -1, moves: [] })
+            } else {
+                setMoveNumber(0)
+            }
+        },
+        last: () => {
+            if (customLineRef.current.moveNumber >= 0) {
+                setCustomLine(prev => ({ ...prev, moveNumber: prev.moves.length - 1 }))
+            } else {
+                setMoveNumber(gameLengthRef.current - 1)
+            }
+        },
+        togglePlay: () => {
+            setPlaying(prev => !prev)
+        },
+        play: () => {
+            setPlaying(true)
+        },
+        pause: () => {
+            setPlaying(false)
+        }
+    }
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab], analyzeController: [analyzeController, setAnalyzeController] }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab], analyzeController: [analyzeController, setAnalyzeController], customLine: [customLine, setCustomLine], gameController }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

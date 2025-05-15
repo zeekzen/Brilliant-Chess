@@ -1,12 +1,12 @@
-import { moveRating, position, result, square } from "@/engine/stockfish";
+import { move, moveRating, position, result, square } from "@/engine/stockfish";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
-import { AnalyzeContext } from "@/context/analyze";
+import { AnalyzeContext, Controller } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
 import { maxVertical } from "../../../tailwind.config";
-import { arrow, Controller } from "./game";
+import { arrow } from "./game";
 import { pushPageWarning } from "../errors/pageErrors";
 import { ErrorsContext } from "@/context/errors";
 import PieceSVG from "../svg/piece";
@@ -359,7 +359,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (fen: string, movement: { from: string, to: string }) => Promise<move> }) {
     const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
     const [hoverDrag, setHoverDrag] = useState('')
 
@@ -377,8 +377,9 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [showLegalMoves] = configContext.showLegalMoves
     const [animateMoves] = configContext.animateMoves
     const [boardSounds] = configContext.boardSounds
-
+    
     const setMaterialAdvantage = analyzeContext.materialAdvantage[1]
+    const setCustomLine = analyzeContext.customLine[1]
 
     const boardRef = useRef<HTMLDivElement>(null)
 
@@ -387,7 +388,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { pushArrow, cleanArrows, arrows, controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result } = props
+    const { pushArrow, cleanArrows, arrows, controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -503,7 +504,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         return filteredHighlightStyle
     }
 
-    function handleMovePiece(e: React.MouseEvent/*, toSquare: string*/) {
+    async function handleMovePiece(e: React.MouseEvent, toSquare: string) {
         if (e.button !== 0) return
         if (!drag.id) return
 
@@ -511,10 +512,11 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
         pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
 
-        // const from = drag.id
-        // const to = toSquare
+        const from = drag.id
+        const to = toSquare
 
-        // chess.move({ from, to })
+        const move = await analyzeMove(fen, { from, to })
+        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves, move] }))
     }
 
     function cleanDrag(target: HTMLElement) {
@@ -716,9 +718,9 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
                             const legalMove = legalMoves.includes(squareId as Square) ? (
                                 piece ?
-                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e/*, squareId*/)} onMouseUp={(e) => handleMovePiece(e, /*squareId*/)} className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab pointer-events-auto"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} className="absolute w-full h-full z-[40] top-0 left-0 cursor-grab pointer-events-auto"><div style={{ borderWidth: squareSize * 0.12 }} className="border-black opacity-[15%] w-full h-full rounded-full" /></div>
                                 :
-                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e/*, squareId*/)} onMouseUp={(e) => handleMovePiece(e/*, squareId*/)} style={{ opacity: showLegalMoves ? '' : 0 }} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
+                                    <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} style={{ opacity: showLegalMoves ? '' : 0 }} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
                             ) : null
 
                             const col = columnNumber
