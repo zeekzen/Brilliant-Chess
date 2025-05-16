@@ -182,7 +182,7 @@ function getResult(headers: Record<string, string>): result {
     return result as result
 }
 
-function formatSquare(square: string): square {
+export function formatSquare(square: string): square {
     const letters = 'abcdefgh'.split('')
 
     const col = letters.indexOf(square[0])

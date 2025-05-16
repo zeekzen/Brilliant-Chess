@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext } from "@/context/analyze"
-import { move, parseMove, parsePGN, prepareStockfish, square } from "@/engine/stockfish"
+import { formatSquare, move, parseMove, parsePGN, prepareStockfish, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -48,6 +48,7 @@ export default function Game() {
     const [tab, setTab] = analyzeContext.tab
     const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
     const [customLine] = analyzeContext.customLine
+    const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
 
     const gameController = analyzeContext.gameController
 
@@ -403,11 +404,32 @@ export default function Game() {
         return noTime
     }
 
+    const previousMove = (() => {
+        if (customLine.moveNumber === 0) {
+            return game[moveNumber]
+        }
+        if (customLine.moveNumber > 0) {
+            return customLine.moves[customLine.moveNumber - 1]
+        }
+        return game[moveNumber - 1]
+    })()
+
     const move = (() => {
         if (customLine.moveNumber >= 0) {
             return customLine.moves[customLine.moveNumber]
         }
         return game[moveNumber]
+    })()
+
+    const nextMove = (() => {
+        if (customLine.moveNumber >= 0) {
+            return customLine.moves[customLine.moveNumber + 1]
+        }
+        if (returnedToNormalGame) {
+            const { from, to } = new Chess(game[moveNumber].fen).move(returnedToNormalGame)
+            return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
+        }
+        return game[moveNumber + 1]
     })()
 
     return (
@@ -427,19 +449,19 @@ export default function Game() {
                     forward={forward}
                     moveRating={move?.moveRating}
                     bestMove={move?.bestMove[0] ? move?.bestMove : undefined}
-                    previousBestMove={game[moveNumber - 1]?.bestMove}
+                    previousBestMove={previousMove?.bestMove}
                     move={move?.movement}
-                    nextMove={game[moveNumber + 1]?.movement}
+                    nextMove={nextMove?.movement}
                     fen={move?.fen}
-                    nextFen={game[moveNumber + 1]?.fen}
+                    nextFen={nextMove?.fen}
                     boardSize={boardSize}
                     white={white}
                     animation={animation}
                     gameEnded={moveNumber === game.length - 1}
                     capture={move?.capture}
-                    nextCapture={game[moveNumber + 1]?.capture}
+                    nextCapture={nextMove?.capture}
                     castle={move?.castle}
-                    nextCastle={game[moveNumber + 1]?.castle}
+                    nextCastle={nextMove?.castle}
                     setAnimation={setAnimation}
                     result={result}
                     pushArrow={pushArrow}
