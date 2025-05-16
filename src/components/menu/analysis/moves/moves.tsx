@@ -5,6 +5,7 @@ import Comments, { FormatEval } from "./comments"
 import { WHITE } from "chess.js"
 import GameChart from "../gameChart"
 import RatingSVG from "@/components/svg/rating"
+import { getMoves } from "@/components/game/game"
 
 export const RATING_TEXT_COLORS = {
     forced: "",
@@ -51,6 +52,8 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
     const setAnimation = analyzeContext.animation[1]
     const setForward = analyzeContext.forward[1]
+    const [customLine] = analyzeContext.customLine
+    const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
 
     const componentRef = useRef<HTMLDivElement>(null)
     const commentsRef = useRef<HTMLDivElement>(null)
@@ -137,16 +140,18 @@ export default function Moves(props: { moves: move[], overallGameComment: string
 
     const lastBookMove = getLastBookMove(moves)
 
+    const { previousMove, move } = getMoves(moves, moveNumber, customLine, returnedToNormalGame)
+
     return (
         <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">
             <div ref={commentsRef} className="w-full flex flex-col items-center">
-                <Comments comment={moves[moveNumber]?.comment} rating={moves[moveNumber]?.moveRating} moveSan={moves[moveNumber]?.san} evaluation={moves[moveNumber].staticEval} white={moves[moveNumber].color === WHITE} overallGameComment={overallGameComment} />
+                <Comments comment={move?.comment} rating={move?.moveRating} moveSan={move?.san} evaluation={move.staticEval} white={move.color === WHITE} overallGameComment={overallGameComment} />
             </div>
-            <div style={{ display: moves[moveNumber - 1] ? '' : 'none' }} className="bg-backgroundBoxDarker w-full">
+            <div style={{ display: previousMove ? '' : 'none' }} className="bg-backgroundBoxDarker w-full">
                 <div className="w-[85%] font-extrabold text-highlightBest mx-auto flex flex-row items-center gap-2 py-2">
-                    <FormatEval best smaller evaluation={moves[moveNumber - 1]?.staticEval ?? ""} white={(moves[moveNumber - 1]?.color ?? WHITE) === WHITE} />
+                    <FormatEval best smaller evaluation={previousMove?.staticEval ?? ""} white={(previousMove?.color ?? WHITE) === WHITE} />
                     <RatingSVG rating="best" size={22} />
-                    {moves[moveNumber - 1]?.bestMoveSan} is best
+                    {previousMove?.bestMoveSan} is best
                 </div>
             </div>
             <ul style={{height: (movesHeight || '100%')}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">

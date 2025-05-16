@@ -24,7 +24,7 @@ export interface Controller {
     togglePlay: () => void
 }
 
-interface CustomLine {
+export interface CustomLine {
     moveNumber: number
     moves: move[]
 }

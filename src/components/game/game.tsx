@@ -6,7 +6,7 @@ import Board, { gameStartSound } from "./board"
 import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
-import { AnalyzeContext } from "@/context/analyze"
+import { AnalyzeContext, CustomLine } from "@/context/analyze"
 import { formatSquare, move, parseMove, parsePGN, prepareStockfish, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
@@ -20,6 +20,38 @@ const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs th
 
 export type arrow = square[]
 export interface AllGameArrows { [key: number]: arrow[] }
+
+export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null) {
+    const previousMove = (() => {
+        if (customLine.moveNumber === 0) {
+            return game[moveNumber]
+        }
+        if (customLine.moveNumber > 0) {
+            return customLine.moves[customLine.moveNumber - 1]
+        }
+        return game[moveNumber - 1]
+    })()
+
+    const move = (() => {
+        if (customLine.moveNumber >= 0) {
+            return customLine.moves[customLine.moveNumber]
+        }
+        return game[moveNumber]
+    })()
+
+    const nextMove = (() => {
+        if (customLine.moveNumber >= 0) {
+            return customLine.moves[customLine.moveNumber + 1]
+        }
+        if (returnedToNormalGame) {
+            const { from, to } = new Chess(game[moveNumber].fen).move(returnedToNormalGame)
+            return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
+        }
+        return game[moveNumber + 1]
+    })()
+
+    return { previousMove, move, nextMove }
+}
 
 export default function Game() {
     const [boardSize, setBoardSize] = useState(750)
@@ -404,38 +436,12 @@ export default function Game() {
         return noTime
     }
 
-    const previousMove = (() => {
-        if (customLine.moveNumber === 0) {
-            return game[moveNumber]
-        }
-        if (customLine.moveNumber > 0) {
-            return customLine.moves[customLine.moveNumber - 1]
-        }
-        return game[moveNumber - 1]
-    })()
-
-    const move = (() => {
-        if (customLine.moveNumber >= 0) {
-            return customLine.moves[customLine.moveNumber]
-        }
-        return game[moveNumber]
-    })()
-
-    const nextMove = (() => {
-        if (customLine.moveNumber >= 0) {
-            return customLine.moves[customLine.moveNumber + 1]
-        }
-        if (returnedToNormalGame) {
-            const { from, to } = new Chess(game[moveNumber].fen).move(returnedToNormalGame)
-            return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
-        }
-        return game[moveNumber + 1]
-    })()
+    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
 
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={game[moveNumber]?.staticEval ?? ['cp', 0]} whiteMoving={(game[moveNumber]?.color ?? WHITE) === WHITE} />
+                <Evaluation height={boardSize} white={white} advantage={move?.staticEval ?? ['cp', 0]} whiteMoving={(move?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
