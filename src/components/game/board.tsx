@@ -359,7 +359,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (fen: string, movement: { from: string, to: string }) => Promise<move> }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice: boolean, previousStaticEvals: string[][], boardSize: number, fen?: string, nextFen?: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => Promise<move> }) {
     const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
     const [hoverDrag, setHoverDrag] = useState('')
 
@@ -388,7 +388,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { pushArrow, cleanArrows, arrows, controller, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
+    const { pushArrow, cleanArrows, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen ?? DEFAULT_POSITION
     const nextFen = props.nextFen ?? DEFAULT_POSITION
     const move = props.move ?? []
@@ -515,8 +515,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         const from = drag.id
         const to = toSquare
 
-        const move = await analyzeMove(fen, { from, to })
-        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves, move] }))
+        const move = await analyzeMove(fen, { from, to }, sacrifice, previousStaticEvals, bestMove)
+        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), move] }))
     }
 
     function cleanDrag(target: HTMLElement) {

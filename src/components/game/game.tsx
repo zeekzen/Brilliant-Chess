@@ -345,7 +345,7 @@ export default function Game() {
         return Math.round(boardSize / 8) * 8
     }
 
-    function analyzeMove(fen: string, movement: { from: string, to: string }): Promise<move> {
+    function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]): Promise<move> {
         return new Promise(async (resolve, reject) => {
             const signal = analyzeController.signal
 
@@ -360,10 +360,10 @@ export default function Game() {
     
             const { depth } = data
     
-            const chess = new Chess(fen)
+            const chess = new Chess(previousFen)
             const move = chess.move(movement)
     
-            const analyzedMovement = await parseMove(stockfish, depth, move, chess, [], undefined, false, {}, handleAbort, signal)
+            const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, {}, handleAbort, signal)
             resolve(analyzedMovement)
         })
     }
@@ -445,6 +445,7 @@ export default function Game() {
                 <Board
                     cleanArrows={cleanCurrentArrows}
                     arrows={arrows[moveNumber] ?? []}
+                    sacrifice={move?.sacrifice}
                     controller={gameController}
                     forward={forward}
                     moveRating={move?.moveRating}
@@ -466,6 +467,7 @@ export default function Game() {
                     result={result}
                     pushArrow={pushArrow}
                     analyzeMove={analyzeMove}
+                    previousStaticEvals={move?.previousStaticEvals}
                 />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>

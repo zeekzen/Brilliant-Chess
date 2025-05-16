@@ -29,6 +29,8 @@ export interface move {
     capture?: PieceSymbol,
     castle?: 'k' | 'q',
     san?: string,
+    sacrifice: boolean,
+    previousStaticEvals: string[][],
 }
 
 const COMMENTS = {
@@ -626,7 +628,7 @@ function moveToSan(move: square[], fen: string) {
     }
 }
 
-export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: any, handleAbort: () => void, signal: AbortSignal): Promise< move & { sacrifice: boolean }> {
+export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: any, handleAbort: () => void, signal: AbortSignal): Promise<move> {
     if (signal.aborted) handleAbort()
     const movement: square[] = [move.from, move.to].map(square => {
         const { col, row } = formatSquare(square)
@@ -670,6 +672,8 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
 
     const bestMoveSan = moveToSan(bestMove, fen)
 
+    const newPreviousStaticEval = [...previousStaticEvals, staticEval]
+
     return {
         color,
         capture,
@@ -682,7 +686,8 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
         fen,
         staticEval,
         sacrifice,
-        movement
+        movement,
+        previousStaticEvals: newPreviousStaticEval,
     }
 }
 
@@ -733,8 +738,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
 
         if (signal.aborted) handleAbort()
 
-        let moveNumber = 0, previousBestMove, previousSacrifice = false
-        const previousStaticEvals: string[][] = []
+        let moveNumber = 0, previousBestMove, previousSacrifice = false, previousStaticEvals: string[][] = []
         for (const move of history) {
             if (moveNumber === 0) {
                 const fen = move.before
@@ -754,6 +758,8 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 const { bestMove, staticEval } = analyzeObject
         
                 const bestMoveSan = moveToSan(bestMove, fen)
+
+                previousStaticEvals = [staticEval]
         
                 moves.push({
                     fen,
@@ -761,9 +767,10 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                     bestMove,
                     bestMoveSan,
                     color,
+                    sacrifice: false,
+                    previousStaticEvals,
                 })
                 previousBestMove = bestMove
-                previousStaticEvals.push(staticEval)
             }
 
             const {
@@ -779,6 +786,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 san,
                 bestMoveSan,
                 sacrifice,
+                previousStaticEvals: newPreviousStaticEvals,
             } = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, openings, handleAbort, signal)
 
             moves.push({
@@ -792,11 +800,15 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 capture,
                 castle,
                 san,
-                bestMoveSan
+                bestMoveSan,
+                sacrifice,
+                previousStaticEvals: newPreviousStaticEvals,
             })
 
+            previousStaticEvals = newPreviousStaticEvals
+
             previousBestMove = bestMove
-            previousStaticEvals.push(staticEval)
+
             moveNumber++
             previousSacrifice = sacrifice
     
