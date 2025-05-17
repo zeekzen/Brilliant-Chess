@@ -35,8 +35,13 @@ export default function Menu() {
     const [game] = analyzeContext.game
     const [players] = analyzeContext.players
     const [result] = analyzeContext.result
-    const [moveNumber] = analyzeContext.moveNumber
+    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
     const [analyzeController] = analyzeContext.analyzeController
+    const [analyzingMove] = analyzeContext.analyzingMove
+    const setAnimation = analyzeContext.animation[1]
+    const setForward = analyzeContext.forward[1]
+    const [customLine] = analyzeContext.customLine
+    const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -103,8 +108,8 @@ export default function Menu() {
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} analyzeController={analyzeController} /> : ''}
 
-                {pageState === 'analyze' && tab === 'summary' ? <Summary moves={game} container={menuRef.current as HTMLElement} /> : ''}
-                {pageState === 'analyze' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={game} overallGameComment={overallGameComment} /> : ''}
+                {pageState === 'analyze' && tab === 'summary' ? <Summary setAnimation={setAnimation} setForward={setForward} setMoveNumber={setMoveNumber} moveNumber={moveNumber} players={players} moves={game} container={menuRef.current as HTMLElement} /> : ''}
+                {pageState === 'analyze' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={game} overallGameComment={overallGameComment} moveNumber={moveNumber} setMoveNumber={setMoveNumber} analyzingMove={analyzingMove} setAnimation={setAnimation} setForward={setForward} customLine={customLine} returnedToNormalGame={returnedToNormalGame} /> : ''}
             </div>
             {pageState === 'analyze' ? (
                 <div className="flex-col gap-1 pb-1 items-center hidden vertical:flex">

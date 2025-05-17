@@ -17,18 +17,12 @@ function isImportantMove(moveNumber: number, rating: moveRating | undefined, pre
     return
 }
 
-export default function GameChart(props: { moves: move[], container: HTMLElement }) {
-    const { moves, container } = props
+export default function GameChart(props: { moves: move[], container: HTMLElement, moveNumber: number, setMoveNumber: (moveNumber: number) => void, setAnimation: (animation: boolean) => void, setForward: (forward: boolean) => void }) {
+    const { moves, container, moveNumber, setMoveNumber, setAnimation, setForward } = props
 
     const [hoveredMove, setHoveredMove] = useState(NaN)
     const [importantMoves, setImportantMoves] = useState<{color: (string|undefined), move: move}[]>([])
     const [size, setSize] = useState({ width: 400, height: 96 })
-
-    const analyzeContext = useContext(AnalyzeContext)
-
-    const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
-    const setAnimation = analyzeContext.animation[1]
-    const setForward = analyzeContext.forward[1]
 
     const totalMoves = moves.length - 1
     const hoveredMoveX = getMoveX(hoveredMove, totalMoves) * size.width
@@ -90,7 +84,7 @@ export default function GameChart(props: { moves: move[], container: HTMLElement
         const OLD_PERCENTS = [-400, 400]
         const NEW_PERCENTS = [0.075, 0.925]
 
-        const advantage = move.staticEval ?? ['cp', 0]
+        const advantage = move.previousStaticEvals?.[0] ?? ['cp', "0"]
         const whiteMoving = moveNumber % 2 === 0
 
         const advantageAmount = Number(advantage[1]) * (whiteMoving ? 1 : -1)

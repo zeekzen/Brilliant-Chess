@@ -20,7 +20,6 @@ export type moveRating = "forced" | "brilliant" | "great" | "best" | "excellent"
 export interface move {
     fen: string,
     movement?: square[],
-    staticEval?: string[],
     bestMove?: square[],
     bestMoveSan?: string,
     moveRating?: moveRating,
@@ -259,15 +258,13 @@ async function getBestMove(program: Worker, depth: number, signal: AbortSignal):
 }
 
 function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: openings): { comment: string, moveRating: moveRating } {
-    const reversePreviousStaticEvals = previousStaticEvals.toReversed()
-
-    if (reversePreviousStaticEvals[0] === undefined) reversePreviousStaticEvals[0] = []
-    if (reversePreviousStaticEvals[1] === undefined) reversePreviousStaticEvals[1] = []
-    if (reversePreviousStaticEvals[2] === undefined) reversePreviousStaticEvals[2] = []
-    if (reversePreviousStaticEvals[3] === undefined) reversePreviousStaticEvals[3] = []
+    if (previousStaticEvals[0] === undefined) previousStaticEvals[0] = []
+    if (previousStaticEvals[1] === undefined) previousStaticEvals[1] = []
+    if (previousStaticEvals[2] === undefined) previousStaticEvals[2] = []
+    if (previousStaticEvals[3] === undefined) previousStaticEvals[3] = []
 
     const winning = Number(staticEval[1]) < 0
-    const previousWinig = Number(reversePreviousStaticEvals[0][1]) > 0
+    const previousWinig = Number(previousStaticEvals[0][1]) > 0
 
     const previousColor = invertColor(color)
 
@@ -324,16 +321,16 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
 
     function getPreviousStaticEvalAmount(number: number) {
         const checkColor = number % 2 === 0 ? 'b' : 'w'
-        return Number(reversePreviousStaticEvals[number][1]) / 100 * (color === checkColor ? -1 : 1)
+        return Number(previousStaticEvals[number][1]) / 100 * (color === checkColor ? -1 : 1)
     }
 
     const staticEvalAmount = Number(staticEval[1]) / 100 * (color === 'w' ? -1 : 1)
 
     function getWasNotMateRelated(number: number) {
-        return reversePreviousStaticEvals[number][0] !== 'mate' && reversePreviousStaticEvals[number + 1][0] !== 'mate'
+        return previousStaticEvals[number][0] !== 'mate' && previousStaticEvals[number + 1][0] !== 'mate'
     }
 
-    const isNotMateRelated = staticEval[0] !== 'mate' && reversePreviousStaticEvals[0][0] !== 'mate'
+    const isNotMateRelated = staticEval[0] !== 'mate' && previousStaticEvals[0][0] !== 'mate'
 
     // book
     const openingName = openings[fen]
@@ -389,10 +386,10 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     ) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - start mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
+    if (sacrifice && previousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // brilliant - right move to mate
-    if (sacrifice && reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
+    if (sacrifice && previousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'brilliant', comment: COMMENTS.brilliant[commentNumber] }
 
     // great - gaining advantage
     if (
@@ -419,19 +416,19 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'excellent', comment: COMMENTS.mate[commentNumber] }
 
     // excellent - start mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
+    if (previousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
 
     // excellent - right move to mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
+    if (previousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'excellent', comment: COMMENTS.mateIn[commentNumber] }
 
     // good - delay mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'good', comment: COMMENTS.delayMate[commentNumber] }
+    if (previousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !keepMating(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && winning) return { moveRating: 'good', comment: COMMENTS.delayMate[commentNumber] }
 
     // good - advance mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: COMMENTS.advanceMate[commentNumber] }
+    if (previousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && advanceMate(staticEvalAmount, getPreviousStaticEvalAmount(0), color) && !winning) return { moveRating: 'good', comment: COMMENTS.advanceMate[commentNumber] }
 
     // miss - mate
-    if (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate[commentNumber] }
+    if (previousStaticEvals[0][0] === 'mate' && staticEval[0] !== 'mate' && previousWinig) return { moveRating: 'miss', comment: COMMENTS.missMate[commentNumber] }
 
     // miss - gain advantage
     if (
@@ -453,13 +450,13 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     if (isNotMateRelated && standardRating === "inaccuracy" && evaluationDiff >= 1.2 && givingGeatAdvantage(staticEvalAmount, getPreviousStaticEvalAmount(0), color)) return { moveRating: 'mistake', comment: COMMENTS.giveAdvantage[commentNumber] }
 
     // mistake - mate
-    if (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning && (color === WHITE ? getPreviousStaticEvalAmount(0) <= -2 : getPreviousStaticEvalAmount(0) >= 2)) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
+    if (previousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning && (color === WHITE ? getPreviousStaticEvalAmount(0) <= -2 : getPreviousStaticEvalAmount(0) >= 2)) return { moveRating: 'mistake', comment: COMMENTS.gettingMated[commentNumber] }
 
     // blunder - mate
     if (
-        (reversePreviousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning)
+        (previousStaticEvals[0][0] !== 'mate' && staticEval[0] === 'mate' && !winning)
         ||
-        (reversePreviousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !winning && previousWinig)
+        (previousStaticEvals[0][0] === 'mate' && staticEval[0] === 'mate' && !winning && previousWinig)
     ) return { moveRating: 'blunder', comment: COMMENTS.gettingMated[commentNumber] }
 
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
@@ -680,7 +677,7 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
 
     const bestMoveSan = bestMove ? moveToSan(bestMove, fen) : undefined
 
-    const newPreviousStaticEval = [...previousStaticEvals, staticEval]
+    const newPreviousStaticEval = [staticEval, ...previousStaticEvals]
 
     return {
         color,
@@ -692,7 +689,6 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
         bestMove,
         bestMoveSan,
         fen,
-        staticEval,
         sacrifice,
         movement,
         previousStaticEvals: newPreviousStaticEval,
@@ -721,7 +717,6 @@ export async function parsePosition(stockfish: Worker, chess: Chess, depth: numb
 
     return {
         fen,
-        staticEval,
         bestMove,
         bestMoveSan,
         color,
@@ -779,7 +774,6 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
                 chess.load(move.before)
                 const {
                     fen,
-                    staticEval,
                     bestMove,
                     bestMoveSan,
                     color,
@@ -791,7 +785,6 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
 
                 moves.push({
                     fen,
-                    staticEval,
                     bestMove,
                     bestMoveSan,
                     color,
@@ -807,7 +800,6 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
             const {
                 fen,
                 movement,
-                staticEval,
                 bestMove,
                 moveRating,
                 comment,
@@ -823,7 +815,6 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
             moves.push({
                 fen,
                 movement,
-                staticEval,
                 bestMove,
                 moveRating,
                 comment,

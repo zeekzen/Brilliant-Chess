@@ -507,7 +507,7 @@ export default function Game() {
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.staticEval ?? ["cp", "0"] : move?.staticEval ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
+                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.previousStaticEvals?.[0] ?? ["cp", "0"] : move?.previousStaticEvals?.[0] ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
