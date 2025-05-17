@@ -141,7 +141,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
 
     const lastBookMove = getLastBookMove(moves)
 
-    const { previousMove, move } = getMoves(moves, moveNumber, customLine, returnedToNormalGame)
+    const { previousMove, move } = getMoves(moves, moveNumber, customLine, returnedToNormalGame, undefined)
 
     return (
         <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">

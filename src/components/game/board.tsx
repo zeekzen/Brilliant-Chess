@@ -15,8 +15,6 @@ interface filteredHighlightStyle {
     [key: string]: { color: string, rating: moveRating }
 }
 
-export const FREE_MOVING_DEVELOPMENT_WARNING = ['Feature in Development', 'The free movement of pieces is not yet implemented.']
-
 const HIGHLIGHT_COLORS = {
     forced: "",
     brilliant: "var(--highlightBrilliant)",

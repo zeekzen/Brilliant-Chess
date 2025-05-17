@@ -1,11 +1,8 @@
-import { useContext, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Arrow from "../../svg/arrow"
 import Image from "next/image"
 import { Data } from "@/context/analyze"
 import { platform } from "../menu"
-import { pushPageWarning } from "@/components/errors/pageErrors"
-import { FREE_MOVING_DEVELOPMENT_WARNING } from "@/components/game/board"
-import { ErrorsContext } from "@/context/errors"
 
 export const FORMATS = [
     ["Chess.com", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/chesscom.svg`, "platform"],
@@ -22,10 +19,6 @@ export const TYPES = [
 
 export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
     const { setData, selectGame } = props
-
-    const errorsContext = useContext(ErrorsContext)
-
-    const setErrors = errorsContext.errors[1]
 
     const [isSelecting, setSelecting] = useState(false)
     const [value, setValue] = useState("")
@@ -88,6 +81,7 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     function analyze(e: React.FormEvent) {
         e.preventDefault()
 
+        const depth = TYPES[type][2]
         switch (FORMATS[selected][0]) {
             case "Chess.com":
                 localStorage.setItem("chesscom", value)
@@ -98,11 +92,10 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                 selectGame(value, "lichessOrg")
                 break
             case "PGN":
-                const depth = TYPES[type][2]
-                setData({format: "pgn", depth, string: value})
+                setData({ format: "pgn", depth, string: value })
                 break
             case "FEN":
-                pushPageWarning(setErrors, FREE_MOVING_DEVELOPMENT_WARNING[0], FREE_MOVING_DEVELOPMENT_WARNING[1])
+                setData({ format: "fen", depth, string: value })
                 break
         }
     }

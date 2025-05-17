@@ -21,7 +21,7 @@ const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs th
 export type arrow = square[]
 export interface AllGameArrows { [key: number]: arrow[] }
 
-export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null) {
+export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null, initialFEN: string | undefined) {
     const previousMove = (() => {
         if (customLine.moveNumber === 0) {
             return game[moveNumber]
@@ -44,7 +44,7 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
             return customLine.moves[customLine.moveNumber + 1]
         }
         if (returnedToNormalGame) {
-            const { from, to } = new Chess(game[moveNumber]?.fen).move(returnedToNormalGame)
+            const { from, to } = new Chess(game[moveNumber]?.fen ?? initialFEN).move(returnedToNormalGame)
             return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
         }
         return game[moveNumber + 1]
@@ -59,6 +59,7 @@ export default function Game() {
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
     const [arrows, setArrows] = useState<AllGameArrows>({0: []})
     const [gap, setGap] = useState(10)
+    const [initialFEN, setInitialFEN] = useState<string|undefined>(undefined)
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -273,6 +274,7 @@ export default function Game() {
             setAnimation(false)
             setArrows(createArrowsObject(moves.length))
             setCustomLine({ moveNumber: -1, moves: [] })
+            setInitialFEN(undefined)
     
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
@@ -293,29 +295,32 @@ export default function Game() {
         setMoveNumber(0)
     }
 
+    async function handleFEN(fen: string) {
+        setTime(0)
+        setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
+        setGame([])
+        setWhite(true)
+        setPlaying(false)
+        setMoveNumber(0)
+        setResult('1/2-1/2')
+        setProgress(0)
+        setCustomLine({ moveNumber: -1, moves: [] })
+        cleanArrows()
+
+        setPageState('default')
+
+        setInitialFEN(fen ? fen : undefined)
+    }
+
     useEffect(() => {
         const { format, depth, string } = data
-        if (string) {
-            switch (format) {
-                case "pgn":
-                    handlePGN(string, depth)
-                    break
-                case "fen":
-                    // parseFEN()
-                    break
-            }
-        } else {
-            setTime(0)
-            setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
-            setGame([])
-            setWhite(true)
-            setPlaying(false)
-            setMoveNumber(0)
-            setResult('1/2-1/2')
-            setProgress(0)
-            cleanArrows()
-
-            setPageState('default')
+        switch (format) {
+            case "pgn":
+                handlePGN(string, depth)
+                break
+            case "fen":
+                handleFEN(string)
+                break
         }
     }, [data])
 
@@ -438,7 +443,7 @@ export default function Game() {
         return noTime
     }
 
-    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
+    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame, initialFEN)
 
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
@@ -461,7 +466,7 @@ export default function Game() {
                     previousBestMove={previousMove?.bestMove}
                     move={move?.movement}
                     nextMove={nextMove?.movement}
-                    fen={move?.fen}
+                    fen={move?.fen ?? initialFEN}
                     nextFen={nextMove?.fen}
                     boardSize={boardSize}
                     white={white}
