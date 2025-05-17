@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext, CustomLine } from "@/context/analyze"
-import { formatSquare, move, openings, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
+import { move, openings, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -21,7 +21,7 @@ const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs th
 export type arrow = square[]
 export interface AllGameArrows { [key: number]: arrow[] }
 
-export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null) {
+export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: square[] | null) {
     const previousMove = (() => {
         if (customLine.moveNumber === 0) {
             return game[moveNumber]
@@ -44,8 +44,7 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
             return customLine.moves[customLine.moveNumber + 1]
         }
         if (returnedToNormalGame) {
-            const { from, to } = new Chess(game[moveNumber]?.fen).move(returnedToNormalGame)
-            return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
+            return { ...game[moveNumber], movement: returnedToNormalGame }
         }
         return game[moveNumber + 1]
     })()
@@ -503,7 +502,7 @@ export default function Game() {
     }
 
     const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
-    const customResult = getCustomResult(move)
+    const shownResult = customLine.moveNumber < 0 ? result : getCustomResult(move)
 
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
@@ -531,13 +530,13 @@ export default function Game() {
                     boardSize={boardSize}
                     white={white}
                     animation={animation}
-                    gameEnded={(moveNumber === game.length - 1 && customLine.moveNumber < 0) || (customLine.moveNumber >= 0 && Boolean(customResult))}
+                    gameEnded={(moveNumber === game.length - 1 && customLine.moveNumber < 0) || (customLine.moveNumber >= 0 && Boolean(shownResult))}
                     capture={move?.capture}
                     nextCapture={nextMove?.capture}
                     castle={move?.castle}
                     nextCastle={nextMove?.castle}
                     setAnimation={setAnimation}
-                    result={customLine.moveNumber < 0 ? result : customResult}
+                    result={shownResult}
                     pushArrow={pushArrow}
                     analyzeMove={analyzeMove}
                     previousStaticEvals={move?.previousStaticEvals}

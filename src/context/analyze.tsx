@@ -1,6 +1,6 @@
 "use client"
 
-import { move, result } from "@/engine/stockfish"
+import { move, result, square } from "@/engine/stockfish"
 import { createContext, useState, Dispatch, SetStateAction, useRef, useEffect } from 'react'
 
 export type players = {
@@ -52,7 +52,7 @@ export const AnalyzeContext = createContext<{
     tab: [tabs, Dispatch<SetStateAction<tabs>>],
     analyzeController: [AbortController, Dispatch<SetStateAction<AbortController>>],
     customLine: [CustomLine, Dispatch<SetStateAction<CustomLine>>],
-    returnedToNormalGame: [string|null, Dispatch<SetStateAction<string|null>>]
+    returnedToNormalGame: [square[]|null, Dispatch<SetStateAction<square[]|null>>]
     analyzingMove: [boolean, Dispatch<SetStateAction<boolean>>],
     gameController: Controller,
 }>({
@@ -94,7 +94,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [tab, setTab] = useState<tabs>('analyze')
     const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)
     const [customLine, setCustomLine] = useState<CustomLine>({ moveNumber: -1, moves: [] })
-    const [returnedToNormalGame, setReturnedToNormalGame] = useState<string|null>(null)
+    const [returnedToNormalGame, setReturnedToNormalGame] = useState<square[]|null>(null)
     const [analyzingMove, setAnalyzingMove] = useState(false)
 
     const moveNumberRef = useRef(moveNumber)
@@ -123,7 +123,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
             } else if (customLineRef.current.moveNumber === 0) {
                 setForward(false)
                 setAnimation(true)
-                setReturnedToNormalGame(customLineRef.current.moves[0].san ?? null)
+                setReturnedToNormalGame(customLineRef.current.moves[0].movement ?? null)
                 setCustomLine({ moveNumber: -1, moves: [] })
             } else if (moveNumberRef.current > 0) {
                 setForward(false)
@@ -150,7 +150,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
         first: () => {
             if (customLineRef.current.moveNumber >= 0) {
                 setAnimation(false)
-                setReturnedToNormalGame(customLineRef.current.moves[0].san ?? null)
+                setReturnedToNormalGame(customLineRef.current.moves[0].movement ?? null)
                 setCustomLine({ moveNumber: -1, moves: [] })
             } else {
                 setAnimation(false)
