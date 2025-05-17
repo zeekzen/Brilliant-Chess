@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext, CustomLine } from "@/context/analyze"
-import { formatSquare, move, parseMove, parsePGN, prepareStockfish, result, square } from "@/engine/stockfish"
+import { analyze, formatSquare, move, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -21,7 +21,7 @@ const NOT_SUPPORTED_WASM_ERROR = ['WebAssembly not supported', 'The app needs th
 export type arrow = square[]
 export interface AllGameArrows { [key: number]: arrow[] }
 
-export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null, initialFEN: string | undefined) {
+export function getMoves(game: move[], moveNumber: number, customLine: CustomLine, returnedToNormalGame: string | null) {
     const previousMove = (() => {
         if (customLine.moveNumber === 0) {
             return game[moveNumber]
@@ -44,7 +44,7 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
             return customLine.moves[customLine.moveNumber + 1]
         }
         if (returnedToNormalGame) {
-            const { from, to } = new Chess(game[moveNumber]?.fen ?? initialFEN).move(returnedToNormalGame)
+            const { from, to } = new Chess(game[moveNumber]?.fen).move(returnedToNormalGame)
             return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
         }
         return game[moveNumber + 1]
@@ -192,7 +192,7 @@ export default function Game() {
     useEffect(() => {
         let lastPressed = 0
         function handleKeyDown(e: KeyboardEvent) {
-            
+
             const element = e.target as HTMLElement
             const focusableInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url']
             if (element.tagName === 'INPUT' && focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
@@ -260,7 +260,15 @@ export default function Game() {
     }, [])
 
     async function handlePGN(pgn: string, depth: number) {
+        const PGN_ERROR = ['Error reading PGN', 'Please, provide a valid PGN.']
+
         setPageState('loading')
+
+        if (!pgn) {
+            pushPageError(setErrors, PGN_ERROR[0], PGN_ERROR[1])
+            setPageState('default')
+            return
+        }
 
         if (!wasmThreadsSupported()) {
             if (!wasmSupported()) {
@@ -286,20 +294,20 @@ export default function Game() {
             setArrows(createArrowsObject(moves.length))
             setCustomLine({ moveNumber: -1, moves: [] })
             setInitialFEN(undefined)
-    
+
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
         } catch (e: any) {
             switch (e.message) {
                 case 'pgn':
-                    pushPageError(setErrors, 'Error reading PGN', 'Please, provide a valid PGN.')
+                    pushPageError(setErrors, PGN_ERROR[0], PGN_ERROR[1])
                     break
                 case 'canceled':
+                    setAnalyzeController(new AbortController())
                     break
             }
 
             setPageState('default')
-            setAnalyzeController(new AbortController())
         }
 
         setProgress(0)
@@ -307,20 +315,51 @@ export default function Game() {
     }
 
     async function handleFEN(fen: string) {
-        setTime(0)
-        setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
-        setGame([])
-        setWhite(true)
-        setPlaying(false)
-        setMoveNumber(0)
-        setResult('1/2-1/2')
-        setProgress(0)
-        setCustomLine({ moveNumber: -1, moves: [] })
-        cleanArrows()
+        let move
+        try {
+            move = await new Promise<move>(async (resolve, reject) => {
+                setPageState('loading')
+    
+                setTime(0)
+                setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
+                setWhite(true)
+                setPlaying(false)
+                setMoveNumber(0)
+                setResult("")
+                setProgress(0)
+                setCustomLine({ moveNumber: -1, moves: [] })
+                cleanArrows()
+    
+                if (!fen) {
+                    setGame([])
+                    setPageState('default')
+                    return
+                }
+    
+                const stockfish = engineWorkerRef.current
+                if (!stockfish) return
+    
+                const chess = new Chess(fen)
+                const signal = analyzeController.signal
+    
+                function handleAbort() {
+                    reject(new Error('canceled'))
+                    signal.removeEventListener('abort', handleAbort)
+                    setProgress(0)
+                }
+    
+                const move = await parsePosition(stockfish, chess, data.depth, signal, handleAbort)
+    
+                resolve(move)
+            })
+        } catch {
+            setAnalyzeController(new AbortController())
+            setPageState('default')
+            return
+        }
 
+        setGame([move])
         setPageState('default')
-
-        setInitialFEN(fen ? fen : undefined)
     }
 
     useEffect(() => {
@@ -407,12 +446,12 @@ export default function Game() {
 
             const stockfish = engineWorkerRef.current
             if (!stockfish) return
-    
+
             const { depth } = data
-    
+
             const chess = new Chess(previousFen)
             const move = chess.move(movement)
-    
+
             const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, {}, handleAbort, signal)
             resolve(analyzedMovement)
         })
@@ -424,21 +463,21 @@ export default function Game() {
         const toTwoDigits = (num: number) => {
             return String(num).padStart(2, '0')
         }
-    
+
         const getMinutes = (seconds: number) => {
             return [Math.floor(seconds / 60), seconds % 60]
         }
-    
+
         const getHours = (minutes: number) => {
             return Math.ceil(minutes / 60)
         }
-    
+
         const getDays = (hours: number) => {
             return Math.ceil(hours / 24)
         }
-    
+
         const [minutes, restSeconds] = getMinutes(seconds)
-    
+
         if (minutes) {
             const hours = getHours(minutes)
             if (hours > 2) {
@@ -454,7 +493,7 @@ export default function Game() {
         return noTime
     }
 
-    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame, initialFEN)
+    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
     const customResult = getCustomResult(move)
 
     return (

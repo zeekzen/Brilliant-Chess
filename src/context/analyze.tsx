@@ -67,7 +67,7 @@ export const AnalyzeContext = createContext<{
     playing: [false, () => { }],
     time: [0, () => { }],
     materialAdvantage: [0, () => { }],
-    result: ['1/2-1/2', () => { }],
+    result: ['', () => { }],
     progress: [0, () => { }],
     tab: ['analyze', () => { }],
     analyzeController: [abortControllerInstance, () => { }],
@@ -89,7 +89,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [playing, setPlaying] = useState(false)
     const [time, setTime] = useState(0)
     const [materialAdvantage, setMaterialAdvantage] = useState(0)
-    const [result, setResult] = useState<result>('1/2-1/2')
+    const [result, setResult] = useState<result>('')
     const [progress, setProgress] = useState(0)
     const [tab, setTab] = useState<tabs>('analyze')
     const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)

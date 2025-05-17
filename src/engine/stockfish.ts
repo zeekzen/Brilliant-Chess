@@ -461,7 +461,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
 
-async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
+export async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
     program.postMessage(`position fen ${fen}`)
 
     try {
@@ -695,6 +695,36 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
     }
 }
 
+export async function parsePosition(stockfish: Worker, chess: Chess, depth: number, signal: AbortSignal, handleAbort: () => void): Promise<move> {
+    const fen = chess.fen()
+    const color = chess.turn()
+
+    let analyzeObject
+    try {
+        analyzeObject = await analyze(stockfish, fen, depth, signal)
+    } catch {
+        handleAbort()
+        analyzeObject = { bestMove: [], staticEval: [] }
+    }
+
+    if (signal.aborted) handleAbort()
+
+    const { bestMove, staticEval } = analyzeObject
+
+    const bestMoveSan = moveToSan(bestMove, fen)
+
+    const previousStaticEvals = [staticEval]
+
+    return {
+        fen,
+        staticEval,
+        bestMove,
+        bestMoveSan,
+        color,
+        previousStaticEvals,
+    }
+}
+
 export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
     return new Promise(async (resolve, reject) => {
         function handleAbort() {
@@ -745,35 +775,31 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
         let moveNumber = 0, previousBestMove, previousSacrifice = false, previousStaticEvals: string[][] = []
         for (const move of history) {
             if (moveNumber === 0) {
-                const fen = move.before
-                chess.load(fen)
-                const color = move.color
-        
-                let analyzeObject
-                try {
-                    analyzeObject = await analyze(stockfish, move.before, depth, signal)
-                } catch {
-                    handleAbort()
-                    analyzeObject = { bestMove: [], staticEval: [] }
-                }
-        
-                if (signal.aborted) handleAbort()
-        
-                const { bestMove, staticEval } = analyzeObject
-        
-                const bestMoveSan = moveToSan(bestMove, fen)
+                chess.load(move.before)
+                const {
+                    fen,
+                    staticEval,
+                    bestMove,
+                    bestMoveSan,
+                    color,
+                    sacrifice,
+                    previousStaticEvals: newPreviousStaticEvals,
+                } = await parsePosition(stockfish, chess, depth, signal, handleAbort)
 
-                previousStaticEvals = [staticEval]
-        
+                if (!newPreviousStaticEvals) return
+
                 moves.push({
                     fen,
                     staticEval,
                     bestMove,
                     bestMoveSan,
                     color,
-                    sacrifice: false,
-                    previousStaticEvals,
+                    sacrifice,
+                    previousStaticEvals
                 })
+
+                previousStaticEvals = newPreviousStaticEvals
+                previousSacrifice = false
                 previousBestMove = bestMove
             }
 
