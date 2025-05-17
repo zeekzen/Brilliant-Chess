@@ -33,6 +33,10 @@ export interface move {
     previousStaticEvals?: string[][],
 }
 
+export interface openings {
+    [key: string]: string,
+}
+
 const COMMENTS = {
     brilliant: [
         'You found a brilliant way to sacrifice a piece.',
@@ -254,7 +258,7 @@ async function getBestMove(program: Worker, depth: number, signal: AbortSignal):
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: {[key: string]: string}): { comment: string, moveRating: moveRating } {
+function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: openings): { comment: string, moveRating: moveRating } {
     const reversePreviousStaticEvals = previousStaticEvals.toReversed()
 
     if (reversePreviousStaticEvals[0] === undefined) reversePreviousStaticEvals[0] = []
@@ -461,7 +465,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     return { moveRating: standardRating, comment: COMMENTS[standardRating][commentNumber] }
 }
 
-export async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
+async function analyze(program: Worker, fen: string, depth: number, signal: AbortSignal) {
     program.postMessage(`position fen ${fen}`)
 
     try {
@@ -632,7 +636,7 @@ export function getCastle(san: string) {
     return san === 'O-O' ? 'k' : san === 'O-O-O' ? 'q' : undefined
 }
 
-export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: any, handleAbort: () => void, signal: AbortSignal): Promise<move> {
+export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: openings, handleAbort: () => void, signal: AbortSignal): Promise<move> {
     if (signal.aborted) handleAbort()
     const movement: square[] = [move.from, move.to].map(square => {
         const { col, row } = formatSquare(square)
@@ -725,7 +729,7 @@ export async function parsePosition(stockfish: Worker, chess: Chess, depth: numb
     }
 }
 
-export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
+export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openings: openings, setProgress: React.Dispatch<SetStateAction<number>>, signal: AbortSignal): Promise<{ metadata: { time: number, players: players, result: result }, moves: move[] }> {
     return new Promise(async (resolve, reject) => {
         function handleAbort() {
             reject(new Error('canceled'))
@@ -744,9 +748,6 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
         } catch {
             reject(new Error('pgn'))
         }
-
-        const openingsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/openings/openings.json`)
-        const openings = await openingsRes.json()
 
         const headers = chess.header()
 

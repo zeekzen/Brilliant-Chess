@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext, CustomLine } from "@/context/analyze"
-import { analyze, formatSquare, move, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
+import { formatSquare, move, openings, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -94,6 +94,7 @@ export default function Game() {
     const [customLine, setCustomLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
     const [analyzingMove, setAnalyzingMove] = analyzeContext.analyzingMove
+    const [openings, setOpenings] = useState<openings>({ })
 
     const gameController = analyzeContext.gameController
 
@@ -108,6 +109,14 @@ export default function Game() {
     const tabRef = useRef(tab)
 
     const engineWorkerRef = useRef<Worker | null>(null)
+
+    useEffect(() => {
+        (async () => {
+            const openingsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/openings/openings.json`)
+            const openings = await openingsRes.json()
+            setOpenings(openings as openings)
+        })()
+    }, [])
 
     useEffect(() => {
         if (!wasmThreadsSupported()) {
@@ -284,7 +293,7 @@ export default function Game() {
         if (!stockfish) return
 
         try {
-            const { metadata, moves } = await parsePGN(stockfish, pgn, depth, setProgress, analyzeController.signal)
+            const { metadata, moves } = await parsePGN(stockfish, pgn, depth, openings, setProgress, analyzeController.signal)
 
             setTime(metadata.time)
             setPlayers(metadata.players)
@@ -452,7 +461,7 @@ export default function Game() {
             const chess = new Chess(previousFen)
             const move = chess.move(movement)
 
-            const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, {}, handleAbort, signal)
+            const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, openings, handleAbort, signal)
             resolve(analyzedMovement)
         })
     }
