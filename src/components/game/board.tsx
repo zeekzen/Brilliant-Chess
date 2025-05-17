@@ -1,4 +1,4 @@
-import { formatSquare, getCastle, move, moveRating, position, result, square } from "@/engine/stockfish";
+import { formatSquare, getCastle, invertColor, move, moveRating, position, result, square } from "@/engine/stockfish";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
@@ -412,8 +412,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const selfTurn = !(soundChessInstance.turn() === 'w' ? white : !white)
 
-    const isLastMove = !nextMove.length && move.length
-
     useEffect(() => {
         if (drag.is) return
         if (!drag.id) return
@@ -512,7 +510,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         const unanalyzedMove: move = {
             fen: moveObj.after,
             movement: [formatSquare(from), formatSquare(to)],
-            color: moveObj.color,
+            color: invertColor(moveObj.color),
             capture: moveObj.captured,
             castle: getCastle(moveObj.san),
             san: moveObj.san,
@@ -680,7 +678,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             }
 
                             let resultIcon
-                            if (isLastMove) {
+                            if (gameEnded) {
                                 if (square?.type === KING) {
                                     if (result === '1/2-1/2') {
                                         resultIcon = <ResultSVG className="absolute top-0 right-0 z-[60]" style={{ transform: `translateX(${iconTranslateX}%) translateY(${iconTranslateY}%)` }} size={iconSize} result="draw" />

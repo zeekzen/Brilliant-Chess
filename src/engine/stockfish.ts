@@ -2,7 +2,7 @@ import { players } from "@/context/analyze";
 import { BISHOP, Chess, Color, KNIGHT, Move, PAWN, PieceSymbol, QUEEN, ROOK, Square, WHITE } from "chess.js";
 import { SetStateAction } from "react";
 
-export type result = '1-0' | '0-1' | '1/2-1/2' | ''
+export type result = '1-0' | '0-1' | '1/2-1/2' | '*' | ''
 
 export type position = ({
     square: Square,
@@ -153,7 +153,7 @@ export async function prepareStockfish(stockfish: Worker, threads: number, hash:
     await setHashValue(stockfish, hash)
 }
 
-function invertColor(color: Color): Color {
+export function invertColor(color: Color): Color {
     return color === 'w' ? 'b' : 'w'
 }
 
@@ -179,9 +179,9 @@ function getTime(headers: Record<string, string>) {
     return Number(seconds)
 }
 
-function getResult(headers: Record<string, string>): result {
-    const result = headers.result ?? ""
-    return result as result
+function getResult(headers: Record<string, string>, pgn: string): result {
+    if (headers.Result) return headers.Result as result
+    return (pgn.split(' ').pop() ?? "") as result
 }
 
 export function formatSquare(square: string): square {
@@ -722,7 +722,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
 
         const players = getPlayers(headers)
         const time = getTime(headers)
-        const result = getResult(headers)
+        const result = getResult(headers, pgn)
 
         const history = chess.history({ verbose: true })
 

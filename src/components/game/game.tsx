@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext, CustomLine } from "@/context/analyze"
-import { formatSquare, move, parseMove, parsePGN, prepareStockfish, square } from "@/engine/stockfish"
+import { formatSquare, move, parseMove, parsePGN, prepareStockfish, result, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -51,6 +51,17 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
     })()
 
     return { previousMove, move, nextMove }
+}
+
+function getCustomResult(move?: move): result {
+    if (!move) return ""
+
+    const chess = new Chess(move.fen)
+    const color = move.color
+
+    if (chess.isCheckmate()) return color === WHITE ? "0-1" : "1-0"
+    if (chess.isDraw()) return "1/2-1/2"
+    return ""
 }
 
 export default function Game() {
@@ -444,11 +455,12 @@ export default function Game() {
     }
 
     const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame, initialFEN)
+    const customResult = getCustomResult(move)
 
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.staticEval ?? ["cp", "0"] :move?.staticEval ?? ['cp', "0"]} whiteMoving={(move?.color ?? WHITE) === WHITE} />
+                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.staticEval ?? ["cp", "0"] : move?.staticEval ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
@@ -471,13 +483,13 @@ export default function Game() {
                     boardSize={boardSize}
                     white={white}
                     animation={animation}
-                    gameEnded={moveNumber === game.length - 1}
+                    gameEnded={(moveNumber === game.length - 1 && customLine.moveNumber < 0) || (customLine.moveNumber >= 0 && Boolean(customResult))}
                     capture={move?.capture}
                     nextCapture={nextMove?.capture}
                     castle={move?.castle}
                     nextCastle={nextMove?.castle}
                     setAnimation={setAnimation}
-                    result={result}
+                    result={customLine.moveNumber < 0 ? result : customResult}
                     pushArrow={pushArrow}
                     analyzeMove={analyzeMove}
                     previousStaticEvals={move?.previousStaticEvals}
