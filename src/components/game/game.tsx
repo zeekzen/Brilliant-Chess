@@ -79,7 +79,7 @@ export default function Game() {
     const setProgress = analyzeContext.progress[1]
     const [tab, setTab] = analyzeContext.tab
     const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
-    const [customLine] = analyzeContext.customLine
+    const [customLine, setCustomLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
     const [analyzingMove, setAnalyzingMove] = analyzeContext.analyzingMove
 
@@ -272,6 +272,7 @@ export default function Game() {
             setResult(metadata.result)
             setAnimation(false)
             setArrows(createArrowsObject(moves.length))
+            setCustomLine({ moveNumber: -1, moves: [] })
     
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
