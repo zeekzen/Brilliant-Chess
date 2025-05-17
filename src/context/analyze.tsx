@@ -53,6 +53,7 @@ export const AnalyzeContext = createContext<{
     analyzeController: [AbortController, Dispatch<SetStateAction<AbortController>>],
     customLine: [CustomLine, Dispatch<SetStateAction<CustomLine>>],
     returnedToNormalGame: [string|null, Dispatch<SetStateAction<string|null>>]
+    analyzingMove: [boolean, Dispatch<SetStateAction<boolean>>],
     gameController: Controller,
 }>({
     data: [{format: "fen", string: "", depth: 18}, () => { }],
@@ -72,6 +73,7 @@ export const AnalyzeContext = createContext<{
     analyzeController: [abortControllerInstance, () => { }],
     customLine: [{ moveNumber: 0, moves: [] }, () => { }],
     returnedToNormalGame: [null, () => { }],
+    analyzingMove: [false, () => { }],
     gameController: { back: () => { }, forward: () => { }, last: () => { }, first: () => { }, play: () => { }, pause: () => { }, togglePlay: () => { } },
 })
 
@@ -93,6 +95,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)
     const [customLine, setCustomLine] = useState<CustomLine>({ moveNumber: -1, moves: [] })
     const [returnedToNormalGame, setReturnedToNormalGame] = useState<string|null>(null)
+    const [analyzingMove, setAnalyzingMove] = useState(false)
 
     const moveNumberRef = useRef(moveNumber)
     const customLineRef = useRef(customLine)
@@ -177,7 +180,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     }
 
     return (
-        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab], analyzeController: [analyzeController, setAnalyzeController], customLine: [customLine, setCustomLine], returnedToNormalGame: [returnedToNormalGame, setReturnedToNormalGame], gameController }}>
+        <AnalyzeContext.Provider value={{ data: [data, setData], pageState: [pageState, setPageState], game: [game, setGame], players: [players, setPlayers], moveNumber: [moveNumber, setMoveNumber], forward: [forward, setForward], white: [white, setWhite], animation: [animation, setAnimation], playing: [playing, setPlaying], time: [time, setTime], materialAdvantage: [materialAdvantage, setMaterialAdvantage], result: [result, setResult], progress: [progress, setProgress], tab: [tab, setTab], analyzeController: [analyzeController, setAnalyzeController], customLine: [customLine, setCustomLine], returnedToNormalGame: [returnedToNormalGame, setReturnedToNormalGame], analyzingMove: [analyzingMove, setAnalyzingMove], gameController }}>
             {props.children}
         </AnalyzeContext.Provider>
     )

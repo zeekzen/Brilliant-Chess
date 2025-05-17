@@ -20,17 +20,17 @@ export type moveRating = "forced" | "brilliant" | "great" | "best" | "excellent"
 export interface move {
     fen: string,
     movement?: square[],
-    staticEval: string[],
-    bestMove: square[],
-    bestMoveSan: string,
+    staticEval?: string[],
+    bestMove?: square[],
+    bestMoveSan?: string,
     moveRating?: moveRating,
     comment?: string,
     color: Color,
     capture?: PieceSymbol,
     castle?: 'k' | 'q',
     san?: string,
-    sacrifice: boolean,
-    previousStaticEvals: string[][],
+    sacrifice?: boolean,
+    previousStaticEvals?: string[][],
 }
 
 const COMMENTS = {
@@ -628,6 +628,10 @@ function moveToSan(move: square[], fen: string) {
     }
 }
 
+export function getCastle(san: string) {
+    return san === 'O-O' ? 'k' : san === 'O-O-O' ? 'q' : undefined
+}
+
 export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: any, handleAbort: () => void, signal: AbortSignal): Promise<move> {
     if (signal.aborted) handleAbort()
     const movement: square[] = [move.from, move.to].map(square => {
@@ -643,13 +647,13 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
     const capture = move.captured
     const san = move.san
 
-    const castle: 'k' | 'q' | undefined = move.san === 'O-O' ? 'k' : move.san === 'O-O-O' ? 'q' : undefined
+    const castle = getCastle(move.san)
 
-    let sacrifice, staticEval: string[], bestMove: square[], forced
+    let sacrifice, staticEval: string[], bestMove: square[] | undefined, forced
     if (chess.isCheckmate()) {
         sacrifice = false
         staticEval = ["mate"]
-        bestMove = []
+        bestMove = undefined
         forced = false
     } else {
         sacrifice = move.promotion ? false : isSacrifice(move)
@@ -658,7 +662,7 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
             ({ staticEval, bestMove } = await analyze(stockfish, move.after, depth, signal))
         } catch {
             handleAbort()
-            bestMove = []
+            bestMove = undefined
             staticEval = []
         }
 
@@ -668,9 +672,9 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
 
     const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrifice, openings)
 
-    if (chess.isGameOver()) bestMove = []
+    if (chess.isGameOver()) bestMove = undefined
 
-    const bestMoveSan = moveToSan(bestMove, fen)
+    const bestMoveSan = bestMove ? moveToSan(bestMove, fen) : undefined
 
     const newPreviousStaticEval = [...previousStaticEvals, staticEval]
 
@@ -804,6 +808,8 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, setPr
                 sacrifice,
                 previousStaticEvals: newPreviousStaticEvals,
             })
+
+            if (!newPreviousStaticEvals || sacrifice === undefined) continue
 
             previousStaticEvals = newPreviousStaticEvals
 

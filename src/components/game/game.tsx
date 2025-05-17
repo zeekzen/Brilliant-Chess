@@ -44,7 +44,7 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
             return customLine.moves[customLine.moveNumber + 1]
         }
         if (returnedToNormalGame) {
-            const { from, to } = new Chess(game[moveNumber].fen).move(returnedToNormalGame)
+            const { from, to } = new Chess(game[moveNumber]?.fen).move(returnedToNormalGame)
             return { ...game[moveNumber], movement: [formatSquare(from), formatSquare(to)] }
         }
         return game[moveNumber + 1]
@@ -81,6 +81,7 @@ export default function Game() {
     const [analyzeController, setAnalyzeController] = analyzeContext.analyzeController
     const [customLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
+    const [analyzingMove, setAnalyzingMove] = analyzeContext.analyzingMove
 
     const gameController = analyzeContext.gameController
 
@@ -441,7 +442,7 @@ export default function Game() {
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
             <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={move?.staticEval ?? ['cp', 0]} whiteMoving={(move?.color ?? WHITE) === WHITE} />
+                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.staticEval ?? ["cp", "0"] :move?.staticEval ?? ['cp', "0"]} whiteMoving={(move?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
@@ -455,7 +456,7 @@ export default function Game() {
                     controller={gameController}
                     forward={forward}
                     moveRating={move?.moveRating}
-                    bestMove={move?.bestMove[0] ? move?.bestMove : undefined}
+                    bestMove={move?.bestMove}
                     previousBestMove={previousMove?.bestMove}
                     move={move?.movement}
                     nextMove={nextMove?.movement}
@@ -474,6 +475,8 @@ export default function Game() {
                     pushArrow={pushArrow}
                     analyzeMove={analyzeMove}
                     previousStaticEvals={move?.previousStaticEvals}
+                    analyzingMove={analyzingMove}
+                    setAnalyzingMove={setAnalyzingMove}
                 />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>

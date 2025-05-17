@@ -54,6 +54,7 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     const setForward = analyzeContext.forward[1]
     const [customLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
+    const [analyzingMove] = analyzeContext.analyzingMove
 
     const componentRef = useRef<HTMLDivElement>(null)
     const commentsRef = useRef<HTMLDivElement>(null)
@@ -145,11 +146,11 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     return (
         <div ref={componentRef} className="flex flex-col gap-3 items-center h-full">
             <div ref={commentsRef} className="w-full flex flex-col items-center">
-                <Comments comment={move?.comment} rating={move?.moveRating} moveSan={move?.san} evaluation={move.staticEval} white={move.color === WHITE} overallGameComment={overallGameComment} />
+                <Comments comment={analyzingMove ? previousMove?.comment : move?.comment} rating={analyzingMove ? previousMove?.moveRating : move?.moveRating} moveSan={analyzingMove ? previousMove?.san :move?.san} evaluation={analyzingMove ? previousMove?.staticEval ?? ["cp", "0"] : move?.staticEval ?? ["cp", "0"]} white={analyzingMove ? previousMove?.color === WHITE : move?.color === WHITE} overallGameComment={overallGameComment} />
             </div>
             <div style={{ display: previousMove ? '' : 'none' }} className="bg-backgroundBoxDarker w-full">
                 <div className="w-[85%] font-extrabold text-highlightBest mx-auto flex flex-row items-center gap-2 py-2">
-                    <FormatEval best smaller evaluation={previousMove?.staticEval ?? ""} white={(previousMove?.color ?? WHITE) === WHITE} />
+                    <FormatEval best smaller evaluation={previousMove?.staticEval ?? ["cp", "0"]} white={(previousMove?.color ?? WHITE) === WHITE} />
                     <RatingSVG rating="best" size={22} />
                     {previousMove?.bestMoveSan} is best
                 </div>
