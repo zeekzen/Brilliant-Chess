@@ -7,7 +7,7 @@ import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
 import { AnalyzeContext, CustomLine } from "@/context/analyze"
-import { move, openings, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
+import { formatSquare, getCastle, invertColor, move, openings, parseMove, parsePGN, parsePosition, prepareStockfish, result, square } from "@/engine/stockfish"
 import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageError, pushPageWarning } from "@/components/errors/pageErrors"
@@ -94,7 +94,8 @@ export default function Game() {
     const [customLine, setCustomLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
     const [analyzingMove, setAnalyzingMove] = analyzeContext.analyzingMove
-    const [depth, setDepth] = analyzeContext.depth
+    const [depth] = analyzeContext.depth
+    const setMaterialAdvantage = analyzeContext.materialAdvantage[1]
 
     const gameController = analyzeContext.gameController
 
@@ -449,8 +450,23 @@ export default function Game() {
         return Math.round(boardSize / 8) * 8
     }
 
-    function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]): Promise<move> {
-        return new Promise(async (resolve, reject) => {
+    async function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) {
+        const chess = new Chess(previousFen)
+        const unanalyzedMoveObj = chess.move({ from: movement.from, to: movement.to })
+
+        const unanalyzedMove: move = {
+            fen: unanalyzedMoveObj.after,
+            movement: [formatSquare(movement.from), formatSquare(movement.to)],
+            color: invertColor(unanalyzedMoveObj.color),
+            capture: unanalyzedMoveObj.captured,
+            castle: getCastle(unanalyzedMoveObj.san),
+            san: unanalyzedMoveObj.san,
+        }
+
+        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove] }))
+        setAnalyzingMove(true)
+
+        const move = await new Promise<move>(async (resolve, reject) => {
             const signal = analyzeController.signal
 
             function handleAbort() {
@@ -468,6 +484,9 @@ export default function Game() {
             const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, openings, handleAbort, signal)
             resolve(analyzedMovement)
         })
+
+        setAnalyzingMove(false)
+        setCustomLine(prev => ({ moveNumber: prev.moveNumber, moves: [...prev.moves.slice(0, prev.moveNumber), move] }))
     }
 
     function formatTime(seconds: number): string {
@@ -543,7 +562,7 @@ export default function Game() {
                     analyzeMove={analyzeMove}
                     previousStaticEvals={move?.previousStaticEvals}
                     analyzingMove={analyzingMove}
-                    setAnalyzingMove={setAnalyzingMove}
+                    setMaterialAdvantage={setMaterialAdvantage}
                 />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>

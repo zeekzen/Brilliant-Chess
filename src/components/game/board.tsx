@@ -1,8 +1,8 @@
-import { formatSquare, getCastle, invertColor, move, moveRating, position, result, square } from "@/engine/stockfish";
+import { moveRating, position, result, square } from "@/engine/stockfish";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
-import { AnalyzeContext, Controller } from "@/context/analyze";
+import { Controller } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
 import { maxVertical } from "../../../tailwind.config";
@@ -353,12 +353,11 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => Promise<move>, analyzingMove: boolean, setAnalyzingMove: (analyzingMove: boolean) => void }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void }) {
     const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
     const [hoverDrag, setHoverDrag] = useState('')
 
     const configContext = useContext(ConfigContext)
-    const analyzeContext = useContext(AnalyzeContext)
 
     const [boardTheme] = configContext.boardTheme
     const [usedRatings] = configContext.usedRatings
@@ -369,9 +368,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
     const [animateMoves] = configContext.animateMoves
     const [boardSounds] = configContext.boardSounds
     
-    const setMaterialAdvantage = analyzeContext.materialAdvantage[1]
-    const setCustomLine = analyzeContext.customLine[1]
-
     const boardRef = useRef<HTMLDivElement>(null)
 
     const pieceRef = useRef<HTMLDivElement>(null)
@@ -379,7 +375,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { pushArrow, cleanArrows, analyzingMove, setAnalyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
+    const { pushArrow, cleanArrows, setMaterialAdvantage, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen
     const nextFen = props.nextFen
     const move = props.move ?? []
@@ -504,24 +500,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         const from = drag.id
         const to = toSquare
 
-        const chess = new Chess(fen)
-        const moveObj = chess.move({from, to})
-
-        const unanalyzedMove: move = {
-            fen: moveObj.after,
-            movement: [formatSquare(from), formatSquare(to)],
-            color: invertColor(moveObj.color),
-            capture: moveObj.captured,
-            castle: getCastle(moveObj.san),
-            san: moveObj.san,
-        }
-
-        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove] }))
-        setAnalyzingMove(true)
-
-        const move = await analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], bestMove)
-        setAnalyzingMove(false)
-        setCustomLine(prev => ({ moveNumber: prev.moveNumber, moves: [...prev.moves.slice(0, prev.moveNumber), move] }))
+        await analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], bestMove)
     }
 
     function cleanDrag(target: HTMLElement) {
