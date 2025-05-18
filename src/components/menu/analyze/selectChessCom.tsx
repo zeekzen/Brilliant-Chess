@@ -149,7 +149,7 @@ interface gameInfo {
 }
 
 export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, username: string, setData: (data: Data) => void, depth: number }) {
-    const { gamesInfo, loading, username, depth, setData } = props
+    const { gamesInfo, loading, username, setData } = props
 
     return (
         <>
@@ -177,7 +177,7 @@ export function GamesUI(props: { gamesInfo: gameInfo[], loading: boolean, userna
                             const date = new Date(timestamp)
 
                             return (
-                                <tr title={`Time Class: ${capitalizeFirst(timeClass)}`} onClick={() => setData({format: 'pgn', string: pgn, depth})} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
+                                <tr title={`Time Class: ${capitalizeFirst(timeClass)}`} onClick={() => setData({format: 'pgn', string: pgn })} className="border-b-[1px] cursor-pointer select-none border-border transition-colors hover:bg-backgroundBoxHover" key={i}>
                                     <td className="text-base flex flex-col py-4 w-60 overflow-hidden pl-8">
                                         <div className="flex flex-row items-center gap-2"><div className={`h-4 min-h-4 w-4 min-w-4 bg-evaluationBarWhite rounded-borderRoundness ${whiteWon ? 'border-[3px] border-winGreen' : ''}`} />{whiteName} ({whiteElo})</div>
                                         <div className="flex flex-row items-center gap-2"><div className={`h-4 w-4 bg-evaluationBarBlack rounded-borderRoundness ${blackWon ? 'border-[3px] border-winGreen' : ''}`} />{blackName} ({blackElo})</div>
