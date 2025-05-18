@@ -54,9 +54,9 @@ export default function getOverallGameComment(playerNames: [string, string], res
             randomBool = Boolean(Math.floor(Math.random() * 2))
             comment = getComment(COMMENTS.draw, randomBool ? white : black, randomBool ? black : white)
             break
-        case '':
+        case '*': case '':
             randomBool = Boolean(Math.floor(Math.random() * 2))
-            comment = getComment(COMMENTS.draw, randomBool ? white : black, randomBool ? black : white)
+            comment = getComment(COMMENTS.unknown, randomBool ? white : black, randomBool ? black : white)
             break
     }
 
