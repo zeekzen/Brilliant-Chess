@@ -376,6 +376,8 @@ export default function Game() {
     }
 
     async function handleFEN(fen: string) {
+        const FEN_ERROR = ['Error reading FEN', 'Please, provide a valid FEN.']
+
         let move
         try {
             move = await new Promise<move>(async (resolve, reject) => {
@@ -401,7 +403,13 @@ export default function Game() {
                 const stockfish = engineWorkerRef.current
                 if (!stockfish) return
 
-                const chess = new Chess(fen)
+                let chess
+                try {
+                    chess = new Chess(fen)
+                } catch {
+                    reject(new Error("fen"))
+                    return
+                }
                 const signal = analyzeController.signal
 
                 function handleAbort() {
@@ -413,8 +421,16 @@ export default function Game() {
 
                 resolve(move)
             })
-        } catch {
-            setAnalyzeController(new AbortController())
+        } catch (e: any) {
+            switch (e.message) {
+                case 'fen':
+                    pushPageError(setErrors, FEN_ERROR[0], FEN_ERROR[1])
+                    break
+                case 'canceled':
+                    setAnalyzeController(new AbortController())
+                    break
+            }
+
             setPageState('default')
             return
         }
