@@ -345,6 +345,7 @@ export default function Game() {
             setArrows(createArrowsObject(moves.length))
             setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
             setInitialFEN(undefined)
+            setAnalyzingMove(false)
 
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
             setPageState('analyze')
@@ -379,6 +380,7 @@ export default function Game() {
                 setResult("")
                 setProgress(0)
                 setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
+                setAnalyzingMove(false)
                 cleanArrows()
     
                 if (!fen) {
@@ -498,9 +500,9 @@ export default function Game() {
         return newArrows
     }
 
-    async function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) {
+    async function analyzeMove(previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) {
         const chess = new Chess(previousFen)
-        const unanalyzedMoveObj = chess.move({ from: movement.from, to: movement.to })
+        const unanalyzedMoveObj = chess.move(movement)
 
         const unanalyzedMove: move = {
             fen: unanalyzedMoveObj.after,

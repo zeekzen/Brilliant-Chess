@@ -196,7 +196,7 @@ export function formatSquare(square: string): square {
     return { col, row }
 }
 
-function deformatSquare(square: square) {
+export function deformatSquare(square: square) {
     const letters = 'abcdefgh'.split('')
 
     return `${letters[square.col]}${square.row + 1}`

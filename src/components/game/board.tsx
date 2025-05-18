@@ -1,6 +1,6 @@
-import { moveRating, position, result, square } from "@/engine/stockfish";
+import { deformatSquare, formatSquare, moveRating, position, result, square } from "@/engine/stockfish";
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
-import { Chess, Color, KING, PieceSymbol, Square, WHITE } from "chess.js";
+import { BISHOP, BLACK, Chess, Color, KING, KNIGHT, PAWN, PieceSymbol, QUEEN, ROOK, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
 import { Controller } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
@@ -10,6 +10,7 @@ import { arrow } from "./game";
 import PieceSVG from "../svg/piece";
 import RatingSVG from "../svg/rating";
 import ResultSVG from "../svg/result";
+import Image from "next/image";
 
 interface filteredHighlightStyle {
     [key: string]: { color: string, rating: moveRating }
@@ -18,6 +19,11 @@ interface filteredHighlightStyle {
 export interface drag {
     is: boolean,
     id: string,
+}
+
+interface coronation {
+    choosing: boolean
+    movement: square[]
 }
 
 const HIGHLIGHT_COLORS = {
@@ -245,12 +251,40 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceColor: Color, pieceSymbol: PieceSymbol, drag: drag, setDrag: (dragging: drag) => void, id: string, boardRef: RefObject<HTMLDivElement>, setPlaying: (playing: boolean) => void }) {
-    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceColor, pieceSymbol, drag, setDrag, id, squareSize, setPlaying } = props
+function Coronation(props: { white: boolean, column: number, coroningWhite: boolean, squareSize: number, clearCoronation: () => void, coronate: (piece: PieceSymbol) => void }) {
+    const { white, column, coroningWhite, squareSize, clearCoronation, coronate } = props
+
+    const pieces: PieceSymbol[] = [
+        QUEEN,
+        KNIGHT,
+        ROOK,
+        BISHOP,
+    ]
+
+    const color = coroningWhite ? WHITE : BLACK
+    const top = (white && coroningWhite) || (!white && !coroningWhite)
+
+    return (
+        <div className="flex absolute bg-white z-[90] shadow-lg shadow-black/50 cursor-pointer" style={{ flexDirection: top ? 'column' : 'column-reverse', top: top ? 0 : undefined, bottom: !top ? 0 : undefined, left: white ? column * squareSize : undefined, right: !white ? column * squareSize : undefined }}>
+            {pieces.map((piece, i) => (
+                <div onClick={() => {coronate(piece)}} key={i}>
+                    <PieceSVG piece={piece} color={color} size={squareSize} />
+                </div>
+            ))}
+            <div onClick={clearCoronation} className="bg-neutral-200 w-full flex justify-center items-center" style={{ height: squareSize / 2 }}>
+                <Image draggable={false} src="/images/cross.svg" alt="cancel" width={squareSize / 4.5} height={squareSize / 4.5} />
+            </div>
+        </div>
+    )
+}
+
+function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceColor: Color, pieceSymbol: PieceSymbol, drag: drag, setDrag: (dragging: drag) => void, id: string, boardRef: RefObject<HTMLDivElement>, setPlaying: (playing: boolean) => void, isCoronating: boolean }) {
+    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceColor, pieceSymbol, drag, setDrag, id, squareSize, setPlaying, isCoronating } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
-
     const wasSelectedRef = useRef(false)
+
+    if (isCoronating) return
 
     function handlePieceDragStart(e: React.MouseEvent) {
         if (e.button !== 0) return
@@ -351,15 +385,16 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
             onMouseDown={handlePieceDragStart}
             ref={moved ? pieceRef : (isCastleRook ? castleRookRef : null)}
             className="w-full relative h-full z-[20] cursor-grab"
-            style={{ top: movement.y || '', left: movement.x || '', zIndex: drag.is && drag.id === id ? 90 : '' }}
+            style={{ top: movement.y || '', left: movement.x || '', zIndex: drag.is && drag.id === id ? 100 : '' }}
         >
             <PieceSVG className="*:pointer-events-none" dataset={{"dontcleandrag": true}} piece={pieceSymbol} color={pieceColor} size={squareSize} />
         </div>
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
     const [hoverDrag, setHoverDrag] = useState('')
+    const [coronation, setCoronation] = useState<coronation>({ choosing: false, movement: [] })
 
     const configContext = useContext(ConfigContext)
 
@@ -506,7 +541,14 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         const from = drag.id
         const to = toSquare
 
-        analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], animation, bestMove)
+        const formattedFrom = formatSquare(from)
+        const formattedTo = formatSquare(to)
+
+        if (chess.get(from as Square)?.type === PAWN && [0, 7].includes(formattedTo.row)) {
+            setCoronation({ choosing: true, movement: [formattedFrom, formattedTo] })
+        } else {
+            analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], animation, bestMove)
+        }
     }
 
     function cleanDrag(target: HTMLElement) {
@@ -599,6 +641,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const boardColors = [boardThemes[boardTheme].white, boardThemes[boardTheme].black]
 
+    const adaptedCoronationSquare = coronation.movement[0] ? adaptSquare(coronation.movement[0]) : null
+
     return (
         <div ref={boardRef} onContextMenu={e => e.preventDefault()} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} className="grid w-fit h-fit relative" style={{ gridTemplateColumns: `repeat(8, ${squareSize}px)`, pointerEvents: drag.is ? 'none' : 'unset' }}>
             {
@@ -657,7 +701,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                 }
                             })
 
-                            if (squareId === drag.id && !highlighted) {
+                            if ((squareId === drag.id && !highlighted) || (coronation.choosing && adaptedCoronationSquare?.col === columnNumber && adaptedCoronationSquare?.row === rowNumber)) {
                                 highlighted = <div style={{ backgroundColor: boardThemes[boardTheme].highlight }} className={`absolute top-0 left-0 w-full h-full opacity-50 ${rounded}`} />
                             }
 
@@ -701,6 +745,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                     pieceColor={pieceColor}
                                     pieceSymbol={pieceType}
                                     boardRef={boardRef}
+                                    isCoronating={coronation.choosing && adaptedCoronationSquare?.col === columnNumber && adaptedCoronationSquare?.row === rowNumber}
                                 />
                             }
 
@@ -767,6 +812,23 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
                     return <Arrow key={i} move={singleSquare ? [move[0]] : move} squareSize={squareSize} class={singleSquare ? "bg-badArrow" : "fill-normalArrow stroke-normalArrow"} white={white} />
                 })
+            }
+            {
+                (() => {
+                    if (!coronation.choosing) return
+
+                    function coronate(piece: PieceSymbol) {
+                        const from = deformatSquare(coronation.movement[0])
+                        const to = deformatSquare(coronation.movement[1])
+
+                        analyzeMove(fen, { from, to, promotion: piece }, sacrifice ?? false, previousStaticEvals ?? [], false, bestMove)
+                        setCoronation({ choosing: false, movement: [] })
+                    }
+
+                    const to = coronation.movement[1]
+
+                    return <Coronation white={white} squareSize={squareSize} column={to.col} coroningWhite={!whiteMoving} clearCoronation={() => setCoronation({ choosing: false, movement: [] })} coronate={coronate} />
+                })()
             }
         </div>
     )
