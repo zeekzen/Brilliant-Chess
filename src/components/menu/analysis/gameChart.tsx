@@ -1,6 +1,5 @@
-import { AnalyzeContext } from "@/context/analyze"
 import { move, moveRating } from "@/engine/stockfish"
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { getLastBookMove } from "./moves/moves"
 
 function isImportantMove(moveNumber: number, rating: moveRating | undefined, prevRating: moveRating | undefined, nextRating: moveRating | undefined, lastBookMove: number): string | undefined {

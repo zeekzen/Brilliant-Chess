@@ -86,7 +86,7 @@ export default function Moves() {
         <div>
             <section>
             <h1 className="block bg-backgroundBoxBox font-bold text-nowrap p-3 text-foreground">Moves</h1>
-                <button onClick={toggleShowLegalMoves} role="switch" type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+                <button onClick={toggleShowLegalMoves} type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
                     <div className="grid grid-cols-2 w-fit">
                         {Array.from({ length: 4 }).map((_, i) => {
                             const isEvenCol = i % 2 === 0
@@ -108,7 +108,7 @@ export default function Moves() {
                     <span className="font-bold text-lg">Show legal moves</span>
                     <div style={{backgroundColor: "var(--foreground)", display: showLegalMoves ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
                 </button>
-                <button onClick={toggleAnimateMoves} role="switch" type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+                <button onClick={toggleAnimateMoves} type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
                     <div className="grid grid-cols-2 w-fit">
                         {Array.from({ length: 4 }).map((_, i) => {
                             const isEvenCol = i % 2 === 0
@@ -130,7 +130,7 @@ export default function Moves() {
                     <span className="font-bold text-lg">Animate moves</span>
                     <div style={{backgroundColor: "var(--foreground)", display: animateMoves ? '' : 'none'}} className="w-3 h-3 rounded-full absolute right-3" />
                 </button>
-                <button onClick={toggleBoardSounds} role="switch" type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
+                <button onClick={toggleBoardSounds} type="button" className="flex flex-row gap-2 items-center hover:text-foregroundHighlighted hover:bg-black transition-colors w-full relative p-2">
                     <div className="w-[40px] h-[40px] flex justify-center items-center">
                         <SoundMax display={boardSounds} size={35} />
                         <SoundMute display={!boardSounds} size={35} />

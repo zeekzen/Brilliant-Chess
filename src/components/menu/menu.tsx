@@ -2,7 +2,6 @@
 
 import { useContext, useEffect, useRef, useState } from "react"
 import { AnalyzeContext } from "@/context/analyze"
-import { TYPES } from "./analyze/form"
 
 import Lens from "../svg/lens"
 import Form from "./analyze/form"
