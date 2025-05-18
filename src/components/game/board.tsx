@@ -797,6 +797,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
             {
                 (() => {
                     if (!showArrows) return
+                    if ((highlightRating === 'book' && arrowAfterMove) || highlightRating === undefined) return
 
                     const move = arrowAfterMove ? previousBestMove : bestMove
                     const adaptedMove = move?.map(square => {
