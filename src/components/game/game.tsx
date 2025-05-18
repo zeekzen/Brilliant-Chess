@@ -120,8 +120,14 @@ export default function Game() {
 
     const engineWorkerRef = useRef<Worker | null>(null)
 
+    const analyzingMoveRef = useRef<boolean>(analyzingMove)
+
     const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
     const shownResult = customLine.moveNumber < 0 ? result : getCustomResult(move)
+
+    useEffect(() => {
+        analyzingMoveRef.current = analyzingMove
+    }, [analyzingMove])
 
     useEffect(() => {
         dragRef.current = drag
@@ -252,6 +258,7 @@ export default function Game() {
                     e.preventDefault()
                     if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
+                    if (analyzingMoveRef.current) return
 
                     gameController.back()
 
@@ -261,6 +268,7 @@ export default function Game() {
                     e.preventDefault()
                     if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
+                    if (analyzingMoveRef.current) return
 
                     gameController.forward()
 
@@ -270,6 +278,7 @@ export default function Game() {
                     e.preventDefault()
                     if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
+                    if (analyzingMoveRef.current) return
 
                     gameController.first()
 
@@ -279,6 +288,7 @@ export default function Game() {
                     e.preventDefault()
                     if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
+                    if (analyzingMoveRef.current) return
 
                     gameController.last()
 
@@ -288,6 +298,7 @@ export default function Game() {
                     e.preventDefault()
                     if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
+                    if (analyzingMoveRef.current) return
 
                     gameController.togglePlay()
 
