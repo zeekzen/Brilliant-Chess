@@ -76,7 +76,6 @@ export default function Game() {
     const [captured, setCaptured] = useState<{ white: PieceSymbol[], black: PieceSymbol[] }>({ white: [], black: [] })
     const [arrows, setArrows] = useState<AllGameArrows>({0: []})
     const [gap, setGap] = useState(10)
-    const [initialFEN, setInitialFEN] = useState<string|undefined>(undefined)
     const [openings, setOpenings] = useState<openings>({ })
     const [drag, setDrag] = useState<drag>({is: false, id: ''})
 
@@ -344,7 +343,6 @@ export default function Game() {
             setAnimation(false)
             setArrows(createArrowsObject(moves.length))
             setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
-            setInitialFEN(undefined)
             setAnalyzingMove(false)
 
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
@@ -598,7 +596,7 @@ export default function Game() {
                     previousBestMove={previousMove?.bestMove}
                     move={move?.movement}
                     nextMove={nextMove?.movement}
-                    fen={move?.fen ?? initialFEN}
+                    fen={move?.fen}
                     nextFen={nextMove?.fen}
                     boardSize={boardSize}
                     white={white}
