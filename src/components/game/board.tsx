@@ -254,6 +254,8 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
 function Coronation(props: { white: boolean, column: number, coroningWhite: boolean, squareSize: number, clearCoronation: () => void, coronate: (piece: PieceSymbol) => void }) {
     const { white, column, coroningWhite, squareSize, clearCoronation, coronate } = props
 
+    const coronationRef = useRef<HTMLDivElement>(null)
+
     const pieces: PieceSymbol[] = [
         QUEEN,
         KNIGHT,
@@ -261,11 +263,23 @@ function Coronation(props: { white: boolean, column: number, coroningWhite: bool
         BISHOP,
     ]
 
+    useEffect(() => {
+        function clickClearCoronation(e: MouseEvent) {
+            if (coronationRef.current?.contains(e.target as Node)) return
+
+            clearCoronation()
+        }
+
+        document.addEventListener('mousedown', clickClearCoronation)
+
+        return () => document.removeEventListener('mousedown', clickClearCoronation)
+    }, [])
+
     const color = coroningWhite ? WHITE : BLACK
     const top = (white && coroningWhite) || (!white && !coroningWhite)
 
     return (
-        <div className="flex absolute bg-white z-[90] shadow-lg shadow-black/50 cursor-pointer" style={{ flexDirection: top ? 'column' : 'column-reverse', top: top ? 0 : undefined, bottom: !top ? 0 : undefined, left: white ? column * squareSize : undefined, right: !white ? column * squareSize : undefined }}>
+        <div ref={coronationRef} className="flex absolute bg-white z-[90] shadow-lg shadow-black/50 cursor-pointer" style={{ flexDirection: top ? 'column' : 'column-reverse', top: top ? 0 : undefined, bottom: !top ? 0 : undefined, left: white ? column * squareSize : undefined, right: !white ? column * squareSize : undefined }}>
             {pieces.map((piece, i) => (
                 <div onClick={() => {coronate(piece)}} key={i}>
                     <PieceSVG piece={piece} color={color} size={squareSize} />
