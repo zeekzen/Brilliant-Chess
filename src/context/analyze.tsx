@@ -1,5 +1,6 @@
 "use client"
 
+import { AllGameArrows } from "@/components/game/game";
 import { move, result, square } from "@/engine/stockfish"
 import { createContext, useState, Dispatch, SetStateAction, useRef, useEffect } from 'react'
 
@@ -26,6 +27,7 @@ export interface Controller {
 export interface CustomLine {
     moveNumber: number
     moves: move[]
+    arrows: AllGameArrows
 }
 
 type pageState = 'default' | 'loading' | 'analyze'
@@ -71,7 +73,7 @@ export const AnalyzeContext = createContext<{
     progress: [0, () => { }],
     tab: ['analyze', () => { }],
     analyzeController: [abortControllerInstance, () => { }],
-    customLine: [{ moveNumber: 0, moves: [] }, () => { }],
+    customLine: [{ moveNumber: -1, moves: [], arrows: {} }, () => { }],
     returnedToNormalGame: [null, () => { }],
     analyzingMove: [false, () => { }],
     depth: [18, () => { }],
@@ -94,7 +96,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
     const [progress, setProgress] = useState(0)
     const [tab, setTab] = useState<tabs>('analyze')
     const [analyzeController, setAnalyzeController] = useState<AbortController>(abortControllerInstance)
-    const [customLine, setCustomLine] = useState<CustomLine>({ moveNumber: -1, moves: [] })
+    const [customLine, setCustomLine] = useState<CustomLine>({ moveNumber: -1, moves: [], arrows: {} })
     const [returnedToNormalGame, setReturnedToNormalGame] = useState<square[]|null>(null)
     const [analyzingMove, setAnalyzingMove] = useState(false)
     const [depth, setDepth] = useState(18)
@@ -126,7 +128,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
                 setForward(false)
                 setAnimation(true)
                 setReturnedToNormalGame(customLineRef.current.moves[0].movement ?? null)
-                setCustomLine({ moveNumber: -1, moves: [] })
+                setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
             } else if (moveNumberRef.current > 0) {
                 setForward(false)
                 setAnimation(true)
@@ -153,7 +155,7 @@ export default function AnalyzeContextProvider(props: { children: React.ReactNod
             if (customLineRef.current.moveNumber >= 0) {
                 setAnimation(false)
                 setReturnedToNormalGame(customLineRef.current.moves[0].movement ?? null)
-                setCustomLine({ moveNumber: -1, moves: [] })
+                setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
             } else {
                 setAnimation(false)
                 setReturnedToNormalGame(null)

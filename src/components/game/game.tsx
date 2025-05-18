@@ -52,6 +52,13 @@ export function getMoves(game: move[], moveNumber: number, customLine: CustomLin
     return { previousMove, move, nextMove }
 }
 
+function getArrows(arrows: AllGameArrows, moveNumber: number, customLine: CustomLine) {
+    if (customLine.moveNumber < 0) {
+        return arrows[moveNumber]
+    }
+    return customLine.arrows[customLine.moveNumber]
+}
+
 function getCustomResult(move?: move): result {
     if (!move) return ""
 
@@ -193,21 +200,41 @@ export default function Game() {
     }
 
     function cleanCurrentArrows() {
-        setArrows(prev => {return {...prev, [moveNumber]: []}})
+        if (customLine.moveNumber < 0) {
+            setArrows(prev => {return {...prev, [moveNumber]: []}})
+        } else {
+            setCustomLine(prev => ({ ...prev, arrows: { ...prev.arrows, [prev.moveNumber]: [] } }))
+        }
     }
 
     function pushArrow(currentArrow: arrow) {
-        const repeatedIndex = arrows[moveNumber].findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
-        const isRepeated = repeatedIndex !== -1
+        if (customLine.moveNumber < 0) {
+            const repeatedIndex = arrows[moveNumber].findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
+            const isRepeated = repeatedIndex !== -1
 
-        const newArrows = [...arrows[moveNumber]]
-        if (isRepeated) {
-            newArrows.splice(repeatedIndex, 1)
+            const newArrows = [...arrows[moveNumber]]
+
+            if (isRepeated) {
+                newArrows.splice(repeatedIndex, 1)
+            } else {
+                newArrows.push(currentArrow)
+            }
+
+            setArrows(prev => {return {...prev, [moveNumber]: newArrows}})
         } else {
-            newArrows.push(currentArrow)
-        }
+            const repeatedIndex = customLine.arrows[customLine.moveNumber].findIndex(arrow => JSON.stringify(arrow) === JSON.stringify(currentArrow))
+            const isRepeated = repeatedIndex !== -1
 
-        setArrows(prev => {return {...prev, [moveNumber]: newArrows}})
+            const newArrows = [...customLine.arrows[customLine.moveNumber]]
+
+            if (isRepeated) {
+                newArrows.splice(repeatedIndex, 1)
+            } else {
+                newArrows.push(currentArrow)
+            }
+
+            setCustomLine(prev => ({ ...prev, arrows: { ...prev.arrows, [customLine.moveNumber]: newArrows } }))
+        }
     }
 
     useEffect(() => {
@@ -316,7 +343,7 @@ export default function Game() {
             setResult(metadata.result)
             setAnimation(false)
             setArrows(createArrowsObject(moves.length))
-            setCustomLine({ moveNumber: -1, moves: [] })
+            setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
             setInitialFEN(undefined)
 
             if (boardSounds) setTimeout(() => gameStartSound.play(), 100)
@@ -351,7 +378,7 @@ export default function Game() {
                 setMoveNumber(0)
                 setResult("")
                 setProgress(0)
-                setCustomLine({ moveNumber: -1, moves: [] })
+                setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
                 cleanArrows()
     
                 if (!fen) {
@@ -461,6 +488,16 @@ export default function Game() {
         return Math.round(boardSize / 8) * 8
     }
 
+    function sliceCustomArrows(arrows: AllGameArrows, moveNumber: number) {
+        const newArrows: AllGameArrows = {}
+        for (let i = 0; i <= moveNumber; i++) {
+            if (!arrows[i]) newArrows[i] = []
+            else newArrows[i] = arrows[i]
+        }
+
+        return newArrows
+    }
+
     async function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) {
         const chess = new Chess(previousFen)
         const unanalyzedMoveObj = chess.move({ from: movement.from, to: movement.to })
@@ -476,7 +513,7 @@ export default function Game() {
 
         setAnimation(true)
         setForward(true)
-        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove] }))
+        setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove], arrows: sliceCustomArrows(prev.arrows, prev.moveNumber + 1) }))
         setAnalyzingMove(true)
 
         const move = await new Promise<move>(async (resolve, reject) => {
@@ -500,7 +537,7 @@ export default function Game() {
 
         setAnimation(false)
         setAnalyzingMove(false)
-        setCustomLine(prev => ({ moveNumber: prev.moveNumber, moves: [...prev.moves.slice(0, prev.moveNumber), move] }))
+        setCustomLine(prev => ({ ...prev, moveNumber: prev.moveNumber, moves: [...prev.moves.slice(0, prev.moveNumber), move] }))
     }
 
     function formatTime(seconds: number): string {
@@ -552,7 +589,7 @@ export default function Game() {
                 <Board
                     setPlaying={setPlaying}
                     cleanArrows={cleanCurrentArrows}
-                    arrows={arrows[moveNumber] ?? []}
+                    arrows={getArrows(arrows, moveNumber, customLine)}
                     sacrifice={move?.sacrifice}
                     controller={gameController}
                     forward={forward}
