@@ -205,14 +205,17 @@ export function deformatSquare(square: square) {
 function formatMove(evaluation: string) {
     const line = evaluation.split('\n').filter(line => line.startsWith('bestmove'))[0]
     const move = line?.split(/\s+/)[1]
-    if (move === '(none)') return []
+    if (move === '(none)') return { }
 
     const movement = move ? [move.slice(0, 2), move.slice(2, 4)].map(square => {
         const { col, row } = formatSquare(square)
 
         return { col, row }
     }) : undefined
-    return movement
+
+    const coronation = move ? move[4] as PieceSymbol : undefined
+
+    return { movement, coronation }
 }
 
 function formatStaticEval(evaluation: string) {
@@ -224,7 +227,7 @@ function formatStaticEval(evaluation: string) {
     return staticEval
 }
 
-async function getBestMove(program: Worker, depth: number, signal: AbortSignal): Promise<{ bestMove: square[], staticEval: string[] }> {
+async function getBestMove(program: Worker, depth: number, signal: AbortSignal): Promise<{ bestMove: square[], coronation?: PieceSymbol, staticEval: string[] }> {
     program.postMessage(`go depth ${depth}`)
 
     let staticEval: string[]
@@ -237,12 +240,12 @@ async function getBestMove(program: Worker, depth: number, signal: AbortSignal):
         function readMessage(e: MessageEvent) {
             const line = e.data
 
-            const bestMove = formatMove(line)
+            const { movement: bestMove, coronation } = formatMove(line)
             staticEval = formatStaticEval(line) ?? staticEval
 
             if (bestMove) {
                 cleanUp()
-                resolve({ bestMove, staticEval })
+                resolve({ bestMove, coronation, staticEval })
             }
         }
 
@@ -257,7 +260,7 @@ async function getBestMove(program: Worker, depth: number, signal: AbortSignal):
     })
 }
 
-function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMove: square[], movement: square[], fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: openings): { comment: string, moveRating: moveRating } {
+function getMoveRating(staticEval: string[], previousStaticEvals: string[][], bestMoveSan: string, moveSan: string, fen: string, color: Color, sacrifice: boolean, previousSacrice: boolean, openings: openings): { comment: string, moveRating: moveRating } {
     if (previousStaticEvals[0] === undefined) previousStaticEvals[0] = []
     if (previousStaticEvals[1] === undefined) previousStaticEvals[1] = []
     if (previousStaticEvals[2] === undefined) previousStaticEvals[2] = []
@@ -405,9 +408,7 @@ function getMoveRating(staticEval: string[], previousStaticEvals: string[][], be
     ) return { moveRating: 'great', comment: COMMENTS.great[commentNumber] }
 
     // best
-    const isBest = movement.every((move, i) => {
-        return JSON.stringify(move) === JSON.stringify(bestMove[i])
-    })
+    const isBest = bestMoveSan === moveSan
     if (isBest && staticEval[0] === 'mate' && !staticEval[1]) return { moveRating: 'best', comment: COMMENTS.mate[commentNumber] }
 
     if (isBest) return { moveRating: 'best', comment: COMMENTS.best[commentNumber] }
@@ -466,8 +467,8 @@ async function analyze(program: Worker, fen: string, depth: number, signal: Abor
     program.postMessage(`position fen ${fen}`)
 
     try {
-        const { bestMove, staticEval } = await getBestMove(program, depth, signal)
-        return { bestMove, staticEval }
+        const { bestMove, staticEval, coronation } = await getBestMove(program, depth, signal)
+        return { bestMove, staticEval, bestMoveCoronation: coronation }
     } catch {
         throw new Error('cancelled')
     }
@@ -617,12 +618,12 @@ function clearPgn(pgn: string) {
     return pgn.replace(/^%.*/gm, '')
 }
 
-function moveToSan(move: square[], fen: string) {
+export function moveToSan(move: square[], coronation: PieceSymbol | undefined, fen: string) {
     if (!move.length) return ""
 
     try {
         const chess = new Chess(fen)
-        const moveObject = chess.move({from: deformatSquare(move[0]), to: deformatSquare(move[1])})
+        const moveObject = chess.move({ from: deformatSquare(move[0]), to: deformatSquare(move[1]), promotion: coronation })
         return moveObject.san
     } catch {
         return ""
@@ -633,7 +634,7 @@ export function getCastle(san: string) {
     return san === 'O-O' ? 'k' : san === 'O-O-O' ? 'q' : undefined
 }
 
-export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMove: square[] | undefined, previousSacrifice: boolean, openings: openings, handleAbort: () => void, signal: AbortSignal): Promise<move> {
+export async function parseMove(stockfish: Worker, depth: number, move: Move, chess: Chess, previousStaticEvals: string[][], previousBestMoveSan: string | undefined, previousSacrifice: boolean, openings: openings, handleAbort: () => void, signal: AbortSignal): Promise<move> {
     if (signal.aborted) handleAbort()
     const movement: square[] = [move.from, move.to].map(square => {
         const { col, row } = formatSquare(square)
@@ -650,32 +651,34 @@ export async function parseMove(stockfish: Worker, depth: number, move: Move, ch
 
     const castle = getCastle(move.san)
 
-    let sacrifice, staticEval: string[], bestMove: square[] | undefined, forced
+    let sacrifice, staticEval: string[], bestMove: square[] | undefined, forced, bestMoveCoronation
     if (chess.isCheckmate()) {
         sacrifice = false
         staticEval = ["mate"]
         bestMove = undefined
         forced = false
+        bestMoveCoronation = undefined
     } else {
         sacrifice = move.promotion ? false : isSacrifice(move)
 
         try {
-            ({ staticEval, bestMove } = await analyze(stockfish, move.after, depth, signal))
+            ({ staticEval, bestMove, bestMoveCoronation } = await analyze(stockfish, move.after, depth, signal))
         } catch {
             handleAbort()
             bestMove = undefined
             staticEval = []
+            bestMoveCoronation = undefined
         }
 
         if (signal.aborted) handleAbort()
         forced = isForced(move)
     }
 
-    const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMove ?? [], movement, move.after, move.color, sacrifice, previousSacrifice, openings)
+    const { moveRating, comment } = forced ? { moveRating: 'forced', comment: COMMENTS.forced[getRandomNumber(3)] } as { moveRating: moveRating, comment: string } : getMoveRating(staticEval, previousStaticEvals, previousBestMoveSan ?? "", move.san, move.after, move.color, sacrifice, previousSacrifice, openings)
 
     if (chess.isGameOver()) bestMove = undefined
 
-    const bestMoveSan = bestMove ? moveToSan(bestMove, fen) : undefined
+    const bestMoveSan = bestMove ? moveToSan(bestMove, bestMoveCoronation, fen) : undefined
 
     const newPreviousStaticEval = [staticEval, ...previousStaticEvals]
 
@@ -709,9 +712,9 @@ export async function parsePosition(stockfish: Worker, chess: Chess, depth: numb
 
     if (signal.aborted) handleAbort()
 
-    const { bestMove, staticEval } = analyzeObject
+    const { bestMove, staticEval, bestMoveCoronation } = analyzeObject
 
-    const bestMoveSan = moveToSan(bestMove, fen)
+    const bestMoveSan = moveToSan(bestMove, bestMoveCoronation, fen)
 
     const previousStaticEvals = [staticEval]
 
@@ -768,7 +771,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
 
         if (signal.aborted) handleAbort()
 
-        let moveNumber = 0, previousBestMove, previousSacrifice = false, previousStaticEvals: string[][] = []
+        let moveNumber = 0, previousBestMoveSan, previousSacrifice = false, previousStaticEvals: string[][] = []
         for (const move of history) {
             if (moveNumber === 0) {
                 chess.load(move.before)
@@ -794,7 +797,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
 
                 previousStaticEvals = newPreviousStaticEvals
                 previousSacrifice = false
-                previousBestMove = bestMove
+                previousBestMoveSan = bestMoveSan
             }
 
             const {
@@ -810,7 +813,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
                 bestMoveSan,
                 sacrifice,
                 previousStaticEvals: newPreviousStaticEvals,
-            } = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, openings, handleAbort, signal)
+            } = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMoveSan, previousSacrifice, openings, handleAbort, signal)
 
             moves.push({
                 fen,
@@ -831,7 +834,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
 
             previousStaticEvals = newPreviousStaticEvals
 
-            previousBestMove = bestMove
+            previousBestMoveSan = bestMoveSan
 
             moveNumber++
             previousSacrifice = sacrifice

@@ -392,7 +392,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], bestMoveSan?: string, previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMoveSan?: string) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
     const [hoverDrag, setHoverDrag] = useState('')
     const [coronation, setCoronation] = useState<coronation>({ choosing: false, movement: [] })
 
@@ -414,7 +414,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { drag, setDrag, pushArrow, cleanArrows, setMaterialAdvantage, setPlaying, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
+    const { drag, bestMoveSan, setDrag, pushArrow, cleanArrows, setMaterialAdvantage, setPlaying, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen
     const nextFen = props.nextFen
     const move = props.move ?? []
@@ -547,7 +547,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         if (chess.get(from as Square)?.type === PAWN && [0, 7].includes(formattedTo.row)) {
             setCoronation({ choosing: true, movement: [formattedFrom, formattedTo] })
         } else {
-            analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], animation, bestMove)
+            analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], animation, bestMoveSan)
         }
     }
 
@@ -821,7 +821,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                         const from = deformatSquare(coronation.movement[0])
                         const to = deformatSquare(coronation.movement[1])
 
-                        analyzeMove(fen, { from, to, promotion: piece }, sacrifice ?? false, previousStaticEvals ?? [], false, bestMove)
+                        analyzeMove(fen, { from, to, promotion: piece }, sacrifice ?? false, previousStaticEvals ?? [], false, bestMoveSan)
                         setCoronation({ choosing: false, movement: [] })
                     }
 

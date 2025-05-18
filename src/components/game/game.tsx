@@ -500,7 +500,7 @@ export default function Game() {
         return newArrows
     }
 
-    async function analyzeMove(previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) {
+    async function analyzeMove(previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMoveSan?: string) {
         const chess = new Chess(previousFen)
         const unanalyzedMoveObj = chess.move(movement)
 
@@ -533,7 +533,7 @@ export default function Game() {
             const chess = new Chess(previousFen)
             const move = chess.move(movement)
 
-            const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMove, previousSacrifice, openings, handleAbort, signal)
+            const analyzedMovement = await parseMove(stockfish, depth, move, chess, previousStaticEvals, previousBestMoveSan, previousSacrifice, openings, handleAbort, signal)
             resolve(analyzedMovement)
         })
 
@@ -619,6 +619,7 @@ export default function Game() {
                     setMaterialAdvantage={setMaterialAdvantage}
                     drag={drag}
                     setDrag={setDrag}
+                    bestMoveSan={move?.bestMoveSan}
                 />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>
