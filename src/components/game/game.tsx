@@ -371,7 +371,7 @@ export default function Game() {
         try {
             move = await new Promise<move>(async (resolve, reject) => {
                 setPageState('loading')
-    
+
                 setTime(0)
                 setPlayers([{ name: 'White', elo: '?' }, { name: 'Black', elo: '?' }])
                 setWhite(true)
@@ -382,27 +382,26 @@ export default function Game() {
                 setCustomLine({ moveNumber: -1, moves: [], arrows: {} })
                 setAnalyzingMove(false)
                 cleanArrows()
-    
+
                 if (!fen) {
                     setGame([])
                     setPageState('default')
                     return
                 }
-    
+
                 const stockfish = engineWorkerRef.current
                 if (!stockfish) return
-    
+
                 const chess = new Chess(fen)
                 const signal = analyzeController.signal
-    
+
                 function handleAbort() {
                     reject(new Error('canceled'))
                     signal.removeEventListener('abort', handleAbort)
-                    setProgress(0)
                 }
-    
+
                 const move = await parsePosition(stockfish, chess, depth, signal, handleAbort)
-    
+
                 resolve(move)
             })
         } catch {
@@ -524,7 +523,6 @@ export default function Game() {
             function handleAbort() {
                 reject(new Error('canceled'))
                 signal.removeEventListener('abort', handleAbort)
-                setProgress(0)
             }
 
             const stockfish = engineWorkerRef.current
