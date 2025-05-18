@@ -22,7 +22,6 @@ export type platform = "chessCom" | "lichessOrg"
 export default function Menu() {
     const [username, setUsername] = useState<{platform: platform, username: string}>({platform: "chessCom", username: ""})
 
-    const [type, setType] = useState(1)
     const [selected, select] = useState(0)
 
     const [overallGameComment, setOverallGameComment] = useState("")
@@ -42,6 +41,7 @@ export default function Menu() {
     const setForward = analyzeContext.forward[1]
     const [customLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
+    const [depth, setDepth] = analyzeContext.depth
 
     const menuRef = useRef<HTMLDivElement>(null)
 
@@ -85,7 +85,7 @@ export default function Menu() {
     }
 
     const tabs: Tab[] = [
-        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "", depth: 18 }); if (tab === 'selectGame') stopSelecting() } },
+        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "" }); if (tab === 'selectGame') stopSelecting() } },
         { label: "Choose Game", state: "selectGame", icon: (className: string) => <Pawn class={className} size={20} />, show: tab === 'selectGame', onClick: () => { } },
         { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
         { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
@@ -102,9 +102,9 @@ export default function Menu() {
                 })}
             </menu>
             <div className="overflow-y-auto h-full flex flex-col">
-                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string, platform: platform) => { setUsername({platform, username}) }} type={[type, setType]} selected={[selected, select]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" && username.username ? <SelectChessComGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
-                {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" && username.username ? <SelectLichessOrgGame stopSelecting={stopSelecting} username={username.username} depth={TYPES[type][2]} /> : ''}
+                {pageState === 'default' && tab === 'analyze' ? <Form setData={setData} selectGame={(username: string, platform: platform) => { setUsername({platform, username}) }} depth={[depth, setDepth]} selected={[selected, select]} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "chessCom" && username.username ? <SelectChessComGame stopSelecting={stopSelecting} username={username.username} depth={depth} /> : ''}
+                {pageState === 'default' && tab === 'selectGame' && username.platform === "lichessOrg" && username.username ? <SelectLichessOrgGame stopSelecting={stopSelecting} username={username.username} depth={depth} /> : ''}
 
                 {pageState === 'loading' && tab === 'analyze' ? <Loading format={format} analyzeController={analyzeController} /> : ''}
 

@@ -4,26 +4,30 @@ import Image from "next/image"
 import { Data } from "@/context/analyze"
 import { platform } from "../menu"
 
-export const FORMATS = [
+type format = [string, string, string]
+
+export const FORMATS: format[] = [
     ["Chess.com", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/chesscom.svg`, "platform"],
     ["Lichess.org", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/lichess.svg`, "platform"],
     ["PGN", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/pgn.svg`, "format"],
     ["FEN", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/json.svg`, "format"],
-] as const
+]
 
-export const TYPES = [
-    ["Quick", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/quick.svg`, 15, "Depth: 15"],
-    ["Basic", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/standard.svg`, 18, "Depth: 18"],
-    ["Deep", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/deep.svg`, 21, "Depth: 21"],
-] as const
+type type = [string, string, number]
 
-export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, type: [number, (type: number) => void], selected: [number, (selected: number) => void] }) {
+export const TYPES: type[] = [
+    ["Quick", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/quick.svg`, 15],
+    ["Basic", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/standard.svg`, 18],
+    ["Deep", `${process.env.NEXT_PUBLIC_BASE_PATH}/images/deep.svg`, 21],
+]
+
+export default function Form(props: { setData: (data: Data) => void, selectGame: (username: string, platform: platform ) => void, depth: [number, (depth: number) => void], selected: [number, (selected: number) => void] }) {
     const { setData, selectGame } = props
 
     const [isSelecting, setSelecting] = useState(false)
     const [value, setValue] = useState("")
-    const [type, setType] = props.type
     const [selected, select] = props.selected
+    const [depth, setDepth] = props.depth
 
     const formRef = useRef<HTMLFormElement>(null)
     const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -31,16 +35,16 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     const shiftPressed = useRef(false)
 
     useEffect(() => {
-        const previousType = localStorage.getItem('type')
-        if (!previousType) return
+        const previousDepth = localStorage.getItem('depth')
+        if (!previousDepth) return
 
-        const previousTypeNumber = Number(previousType)
+        const previousDepthNumber = Number(previousDepth)
 
-        if (TYPES[previousTypeNumber] != null) {
-            setType(previousTypeNumber)
+        if (TYPES.some(type => type[2] === previousDepthNumber)) {
+            setDepth(previousDepthNumber)
         } else {
-            setType(1)
-            localStorage.setItem('type', String(1))
+            setDepth(18)
+            localStorage.setItem('depth', String(18))
         }
     }, [])
 
@@ -81,7 +85,6 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
     function analyze(e: React.FormEvent) {
         e.preventDefault()
 
-        const depth = TYPES[type][2]
         switch (FORMATS[selected][0]) {
             case "Chess.com":
                 localStorage.setItem("chesscom", value)
@@ -92,10 +95,10 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                 selectGame(value, "lichessOrg")
                 break
             case "PGN":
-                setData({ format: "pgn", depth, string: value })
+                setData({ format: "pgn", string: value })
                 break
             case "FEN":
-                setData({ format: "fen", depth, string: value })
+                setData({ format: "fen", string: value })
                 break
         }
     }
@@ -110,10 +113,10 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
         input?.focus()
     }
 
-    function changeType(i: number) {
-        setType(i)
+    function changeDepth(depth: number) {
+        setDepth(depth)
 
-        localStorage.setItem('type', String(i))
+        localStorage.setItem('depth', String(depth))
     }
 
     function handleKeyDown(e: React.KeyboardEvent) {
@@ -169,12 +172,12 @@ export default function Form(props: { setData: (data: Data) => void, selectGame:
                     </ul>
                     <h6 className="mt-2 font-bold flex flex-row gap-2"><Image priority alt="depth" src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/type.svg`} width={20} height={0} />Analysis Type</h6>
                     <ul className="grid grid-cols-3 gap-3">
-                        {TYPES.map((depth, i) => {
+                        {TYPES.map((type, i) => {
                             return (
                                 <li key={i}>
-                                    <button title={depth[3]} type="button" onClick={() => changeType(i)} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${type === i ? "border-[2px]" : ""}`}>
-                                        <Image draggable={false} alt="format" src={depth[1]} width={150} height={0} className="h-5 w-fit" priority />
-                                        {depth[0]}
+                                    <button title={`Depth: ${type[2]}`} type="button" onClick={() => changeDepth(type[2])} style={{ gap: i !== 0 ? '.4rem' : '0' }} className={`flex flex-row items-center justify-center h-10 w-full hover:text-foregroundHighlighted rounded-borderRoundness text-md bg-backgroundBoxBox hover:bg-backgroundBoxBoxHover transition-colors font-bold border-backgroundBoxBoxHighlighted ${depth === type[2] ? "border-[2px]" : ""}`}>
+                                        <Image draggable={false} alt="format" src={type[1]} width={150} height={0} className="h-5 w-fit" priority />
+                                        {type[0]}
                                     </button>
                                 </li>
                             )

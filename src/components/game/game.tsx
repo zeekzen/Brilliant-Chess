@@ -70,6 +70,7 @@ export default function Game() {
     const [arrows, setArrows] = useState<AllGameArrows>({0: []})
     const [gap, setGap] = useState(10)
     const [initialFEN, setInitialFEN] = useState<string|undefined>(undefined)
+    const [openings, setOpenings] = useState<openings>({ })
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -93,7 +94,7 @@ export default function Game() {
     const [customLine, setCustomLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
     const [analyzingMove, setAnalyzingMove] = analyzeContext.analyzingMove
-    const [openings, setOpenings] = useState<openings>({ })
+    const [depth, setDepth] = analyzeContext.depth
 
     const gameController = analyzeContext.gameController
 
@@ -356,7 +357,7 @@ export default function Game() {
                     setProgress(0)
                 }
     
-                const move = await parsePosition(stockfish, chess, data.depth, signal, handleAbort)
+                const move = await parsePosition(stockfish, chess, depth, signal, handleAbort)
     
                 resolve(move)
             })
@@ -371,7 +372,7 @@ export default function Game() {
     }
 
     useEffect(() => {
-        const { format, depth, string } = data
+        const { format, string } = data
         switch (format) {
             case "pgn":
                 handlePGN(string, depth)
@@ -454,8 +455,6 @@ export default function Game() {
 
             const stockfish = engineWorkerRef.current
             if (!stockfish) return
-
-            const { depth } = data
 
             const chess = new Chess(previousFen)
             const move = chess.move(movement)
