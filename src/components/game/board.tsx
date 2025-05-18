@@ -358,7 +358,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
     const [hoverDrag, setHoverDrag] = useState('')
 
     const configContext = useContext(ConfigContext)
@@ -497,6 +497,8 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         if (e.button !== 0) return
         if (!drag.id) return
 
+        const animation = e.type === "mousedown" ? true : false
+
         setTimeout(() => setDrag({ is: false, id: '' }), 0)
 
         if (analyzingMove) return
@@ -504,7 +506,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         const from = drag.id
         const to = toSquare
 
-        await analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], bestMove)
+        analyzeMove(fen, { from, to }, sacrifice ?? false, previousStaticEvals ?? [], animation, bestMove)
     }
 
     function cleanDrag(target: HTMLElement) {

@@ -498,7 +498,7 @@ export default function Game() {
         return newArrows
     }
 
-    async function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) {
+    async function analyzeMove(previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMove?: square[]) {
         const chess = new Chess(previousFen)
         const unanalyzedMoveObj = chess.move({ from: movement.from, to: movement.to })
 
@@ -511,7 +511,7 @@ export default function Game() {
             san: unanalyzedMoveObj.san,
         }
 
-        setAnimation(true)
+        setAnimation(animation)
         setForward(true)
         setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove], arrows: sliceCustomArrows(prev.arrows, prev.moveNumber + 1) }))
         setAnalyzingMove(true)
