@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useContext } from "react"
 
-import Board, { gameStartSound } from "./board"
+import Board, { drag, gameStartSound } from "./board"
 import Clock from "./clock"
 import Name from "./name"
 import Evaluation from "./evaluation"
@@ -71,6 +71,7 @@ export default function Game() {
     const [gap, setGap] = useState(10)
     const [initialFEN, setInitialFEN] = useState<string|undefined>(undefined)
     const [openings, setOpenings] = useState<openings>({ })
+    const [drag, setDrag] = useState<drag>({is: false, id: ''})
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -109,10 +110,16 @@ export default function Game() {
     const intervalRef = useRef<NodeJS.Timeout>()
     const tabRef = useRef(tab)
 
+    const dragRef = useRef(drag)
+
     const engineWorkerRef = useRef<Worker | null>(null)
 
     const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
     const shownResult = customLine.moveNumber < 0 ? result : getCustomResult(move)
+
+    useEffect(() => {
+        dragRef.current = drag
+    }, [drag])
 
     useEffect(() => {
         (async () => {
@@ -158,6 +165,7 @@ export default function Game() {
     }, [tab])
 
     useEffect(() => {
+        clearInterval(intervalRef.current)
         if (playing) {
             function nextMove() {
                 gameController.forward()
@@ -205,7 +213,6 @@ export default function Game() {
     useEffect(() => {
         let lastPressed = 0
         function handleKeyDown(e: KeyboardEvent) {
-
             const element = e.target as HTMLElement
             const focusableInputTypes = ['text', 'number', 'password', 'email', 'search', 'tel', 'url']
             if (element.tagName === 'INPUT' && focusableInputTypes.includes(element.getAttribute('type') ?? '')) return
@@ -217,6 +224,7 @@ export default function Game() {
             switch (e.key) {
                 case 'ArrowLeft':
                     e.preventDefault()
+                    if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
 
                     gameController.back()
@@ -225,6 +233,7 @@ export default function Game() {
                     break
                 case 'ArrowRight':
                     e.preventDefault()
+                    if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
 
                     gameController.forward()
@@ -233,6 +242,7 @@ export default function Game() {
                     break
                 case 'ArrowUp':
                     e.preventDefault()
+                    if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
 
                     gameController.first()
@@ -241,6 +251,7 @@ export default function Game() {
                     break
                 case 'ArrowDown':
                     e.preventDefault()
+                    if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
 
                     gameController.last()
@@ -249,6 +260,7 @@ export default function Game() {
                     break
                 case ' ':
                     e.preventDefault()
+                    if (dragRef.current.is) return
                     if (now - lastPressed < minPressInterval) return
 
                     gameController.togglePlay()
@@ -263,7 +275,6 @@ export default function Game() {
 
                     if (tab === 'summary') setTab('moves')
                     else if (tab === 'moves') setTab('summary')
-
                     break
             }
         }
@@ -536,6 +547,7 @@ export default function Game() {
                     <Clock white={!white} colorMoving={game[moveNumber]?.color}>{formatTime(time)}</Clock>
                 </div>
                 <Board
+                    setPlaying={setPlaying}
                     cleanArrows={cleanCurrentArrows}
                     arrows={arrows[moveNumber] ?? []}
                     sacrifice={move?.sacrifice}
@@ -563,6 +575,8 @@ export default function Game() {
                     previousStaticEvals={move?.previousStaticEvals}
                     analyzingMove={analyzingMove}
                     setMaterialAdvantage={setMaterialAdvantage}
+                    drag={drag}
+                    setDrag={setDrag}
                 />
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
                     <Name materialAdvantage={materialAdvantage} captured={captured[white ? 'white' : 'black']} white={white}>{`${players[white ? 0 : 1].name} ${players[white ? 0 : 1].elo !== 'NOELO' ? `(${players[white ? 0 : 1].elo})` : ''}`}</Name>

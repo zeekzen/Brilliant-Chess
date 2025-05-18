@@ -15,6 +15,11 @@ interface filteredHighlightStyle {
     [key: string]: { color: string, rating: moveRating }
 }
 
+export interface drag {
+    is: boolean,
+    id: string,
+}
+
 const HIGHLIGHT_COLORS = {
     forced: "",
     brilliant: "var(--highlightBrilliant)",
@@ -240,8 +245,8 @@ export function Arrow(props: { move: square[], squareSize: number, class: string
     )
 }
 
-function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceColor: Color, pieceSymbol: PieceSymbol, drag: {is: boolean, id: string}, setDrag: (dragging: {is: boolean, id: string}) => void, id: string, boardRef: RefObject<HTMLDivElement> }) {
-    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceColor, pieceSymbol, drag, setDrag, id, squareSize } = props
+function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>, castleRookRef: RefObject<HTMLDivElement>, moved: boolean, isCastleRook: boolean, pieceColor: Color, pieceSymbol: PieceSymbol, drag: drag, setDrag: (dragging: drag) => void, id: string, boardRef: RefObject<HTMLDivElement>, setPlaying: (playing: boolean) => void }) {
+    const { boardRef, pieceRef, castleRookRef, moved, isCastleRook, pieceColor, pieceSymbol, drag, setDrag, id, squareSize, setPlaying } = props
 
     const [movement, setMovement] = useState({ x: 0, y: 0 })
 
@@ -297,7 +302,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
         }
 
         setMovement(movement)
-
+        setPlaying(false)
         setDrag({ is: true, id })
     }
 
@@ -353,8 +358,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void }) {
-    const [drag, setDrag] = useState<{is: boolean, id: string}>({is: false, id: ''})
+export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string }, previousSacrifice: boolean, previousStaticEvals: string[][], previousBestMove?: square[]) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
     const [hoverDrag, setHoverDrag] = useState('')
 
     const configContext = useContext(ConfigContext)
@@ -375,7 +379,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { pushArrow, cleanArrows, setMaterialAdvantage, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
+    const { drag, setDrag, pushArrow, cleanArrows, setMaterialAdvantage, setPlaying, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen
     const nextFen = props.nextFen
     const move = props.move ?? []
@@ -684,6 +688,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             let piece
                             if (pieceColor && pieceType) {
                                 piece = <Piece
+                                setPlaying={setPlaying}
                                     squareSize={squareSize}
                                     drag={drag}
                                     setDrag={setDrag}
