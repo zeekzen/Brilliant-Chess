@@ -83,7 +83,7 @@ export default function Game() {
     const [game, setGame] = analyzeContext.game
     const [data] = analyzeContext.data
     const setPageState = analyzeContext.pageState[1]
-    const [forward] = analyzeContext.forward
+    const [forward, setForward] = analyzeContext.forward
     const [animation, setAnimation] = analyzeContext.animation
     const [white, setWhite] = analyzeContext.white
     const [playing, setPlaying] = analyzeContext.playing
@@ -158,7 +158,7 @@ export default function Game() {
 
     useEffect(() => {
         setAnimation(false)
-    }, [moveNumber])
+    }, [moveNumber, customLine.moveNumber])
 
     useEffect(() => {
         tabRef.current = tab
@@ -474,6 +474,8 @@ export default function Game() {
             san: unanalyzedMoveObj.san,
         }
 
+        setAnimation(true)
+        setForward(true)
         setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove] }))
         setAnalyzingMove(true)
 
@@ -496,6 +498,7 @@ export default function Game() {
             resolve(analyzedMovement)
         })
 
+        setAnimation(false)
         setAnalyzingMove(false)
         setCustomLine(prev => ({ moveNumber: prev.moveNumber, moves: [...prev.moves.slice(0, prev.moveNumber), move] }))
     }

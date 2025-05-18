@@ -526,7 +526,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
             startArrow(e.clientX - elementRect.x, e.clientY - elementRect.y)
         } else {
             cleanArrows()
-            setAnimation(false)
         }
     }
 
@@ -688,7 +687,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                             let piece
                             if (pieceColor && pieceType) {
                                 piece = <Piece
-                                setPlaying={setPlaying}
+                                    setPlaying={setPlaying}
                                     squareSize={squareSize}
                                     drag={drag}
                                     setDrag={setDrag}
@@ -751,8 +750,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
             {
                 (() => {
                     if (!showArrows) return
-
-                    if (arrowAfterMove && moveRating === 'book') return
 
                     const move = arrowAfterMove ? previousBestMove : bestMove
                     const adaptedMove = move?.map(square => {
