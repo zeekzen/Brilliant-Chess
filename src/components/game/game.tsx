@@ -110,6 +110,9 @@ export default function Game() {
 
     const engineWorkerRef = useRef<Worker | null>(null)
 
+    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
+    const shownResult = customLine.moveNumber < 0 ? result : getCustomResult(move)
+
     useEffect(() => {
         (async () => {
             const openingsRes = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/openings/openings.json`)
@@ -431,13 +434,16 @@ export default function Game() {
 
     useEffect(() => {
         const newCaptured: typeof captured = { white: [], black: [] }
-        for (const i in game) {
-            if (Number(i) > moveNumber) break
+        for (let i = 0; i <= moveNumber && i < game.length; i++) {
             const move = game[i]
             if (move.capture) newCaptured[move.color === 'w' ? 'black' : 'white'].push(move.capture)
         }
+        for (let i = 0; i <= customLine.moveNumber; i++) {
+            const move = customLine.moves[i]
+            if (move.capture) newCaptured[move.color === 'w' ? 'black' : 'white'].push(move.capture)
+        }
         setCaptured(newCaptured)
-    }, [moveNumber])
+    }, [moveNumber, customLine.moveNumber])
 
     function roundBoardSize(boardSize: number) {
         return Math.round(boardSize / 8) * 8
@@ -499,9 +505,6 @@ export default function Game() {
         if (restSeconds) return `${toTwoDigits(minutes)}:${toTwoDigits(restSeconds)}`
         return noTime
     }
-
-    const { previousMove, move, nextMove } = getMoves(game, moveNumber, customLine, returnedToNormalGame)
-    const shownResult = customLine.moveNumber < 0 ? result : getCustomResult(move)
 
     return (
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
