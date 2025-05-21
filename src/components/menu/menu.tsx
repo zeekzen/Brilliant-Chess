@@ -38,7 +38,7 @@ export default function Menu() {
     const [analyzingMove] = analyzeContext.analyzingMove
     const setAnimation = analyzeContext.animation[1]
     const setForward = analyzeContext.forward[1]
-    const [customLine] = analyzeContext.customLine
+    const [customLine, setCustomLine] = analyzeContext.customLine
     const [returnedToNormalGame] = analyzeContext.returnedToNormalGame
     const [depth, setDepth] = analyzeContext.depth
 
@@ -48,6 +48,20 @@ export default function Menu() {
         if (pageState === 'default') setTab('analyze')
         if (pageState === 'loading') setTab('analyze')
         if (pageState === 'analyze') setTab('summary')
+        switch (pageState) {
+            case 'default':
+                setTab('analyze')
+                break
+            case 'loading':
+                setTab('analyze')
+                break
+            case 'analyze':
+                setTab('summary')
+                break
+            case 'analyzeCustom':
+                setTab('moves')
+                break
+        }
     }, [pageState])
 
     useEffect(() => {
@@ -84,10 +98,10 @@ export default function Menu() {
     }
 
     const tabs: Tab[] = [
-        { label: `Analize${pageState === 'analyze' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze') setData({ format: "fen", string: "" }); if (tab === 'selectGame') stopSelecting() } },
+        { label: `Analize${pageState === 'analyze' || pageState === 'analyzeCustom' ? ' new' : ''} Game`, state: "analyze", icon: (className: string) => <Lens class={className} size={20} />, show: true, onClick: () => { if (pageState === 'analyze' || pageState === 'analyzeCustom') setData({ format: "fen", string: "" }); if (tab === 'selectGame') stopSelecting() } },
         { label: "Choose Game", state: "selectGame", icon: (className: string) => <Pawn class={className} size={20} />, show: tab === 'selectGame', onClick: () => { } },
         { label: "Summary", state: "summary", icon: (className: string) => <Star class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } },
-        { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze', onClick: () => { } }
+        { label: "Moves", state: 'moves', icon: (className: string) => <BoardIcon class={className} size={20} />, show: pageState === 'analyze' || pageState === "analyzeCustom", onClick: () => { } }
     ]
 
     return (
@@ -109,8 +123,10 @@ export default function Menu() {
 
                 {pageState === 'analyze' && tab === 'summary' ? <Summary setAnimation={setAnimation} setForward={setForward} setMoveNumber={setMoveNumber} moveNumber={moveNumber} players={players} moves={game} container={menuRef.current as HTMLElement} /> : ''}
                 {pageState === 'analyze' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={game} overallGameComment={overallGameComment} moveNumber={moveNumber} setMoveNumber={setMoveNumber} analyzingMove={analyzingMove} setAnimation={setAnimation} setForward={setForward} customLine={customLine} returnedToNormalGame={returnedToNormalGame} /> : ''}
+
+                {pageState === 'analyzeCustom' && tab === 'moves' ? <Moves container={menuRef.current as HTMLElement} moves={[game[0], ...customLine.moves]} overallGameComment={overallGameComment} moveNumber={customLine.moveNumber + 1} setMoveNumber={moveNumber => setCustomLine(prev => ({ ...prev, moveNumber: moveNumber - 1 }))} analyzingMove={analyzingMove} setAnimation={setAnimation} setForward={setForward} customLine={customLine} returnedToNormalGame={returnedToNormalGame} /> : ''}
             </div>
-            {pageState === 'analyze' ? (
+            {pageState === 'analyze' || pageState === 'analyzeCustom' ? (
                 <div className="flex-col gap-1 pb-1 items-center hidden vertical:flex">
                     <hr className="border-neutral-600 w-[85%]" />
                     <GameButtons />

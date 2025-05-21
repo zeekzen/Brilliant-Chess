@@ -44,7 +44,6 @@ export function getLastBookMove(moves: move[]) {
 export default function Moves(props: { moves: move[], overallGameComment: string, container: HTMLElement, moveNumber: number, setMoveNumber: (moveNumber: number) => void, setAnimation: (animation: boolean) => void, setForward: (forward: boolean) => void, customLine: CustomLine, returnedToNormalGame: square[] | null, analyzingMove: boolean }) {
     const { moves, overallGameComment, container, moveNumber, setMoveNumber, setAnimation, setForward, customLine, returnedToNormalGame, analyzingMove } = props
 
-    const [turns, setTurns] = useState<[number, string, string | undefined][]>([])
     const [movesHeight, setMovesHeight] = useState(0)
 
     const componentRef = useRef<HTMLDivElement>(null)
@@ -52,23 +51,32 @@ export default function Moves(props: { moves: move[], overallGameComment: string
     const moveListRef = useRef<HTMLUListElement>(null)
     const gameChartRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
+    const firstMoveBlack = moves[1]?.color === WHITE
+
+    function getTurns() {
         const realMoves = moves.slice(1)
 
-        const newTurns: typeof turns = []
-        for (let i = 0; i < realMoves.length; i += 2) {
+        const turns: [number, string | undefined, string | undefined][] = []
+        let i = 0
+
+        if (firstMoveBlack) {
+            turns.push([1, undefined, realMoves[0].san ?? ''])
+            i += 1
+        }
+
+        for (; i < realMoves.length; i += 2) {
             const turn = realMoves.slice(i, i + 2) as [move, move]
-            const turnNumber = (i + 2) / 2
+            const turnNumber = Math.ceil((i + 2) / 2)
 
             if (turn[1]) {
-                newTurns.push([turnNumber, turn[0].san ?? '', turn[1].san ?? ''])
+                turns.push([turnNumber, turn[0].san ?? '', turn[1].san ?? ''])
             } else {
-                newTurns.push([turnNumber, turn[0].san ?? '', undefined])
+                turns.push([turnNumber, turn[0].san ?? '', undefined])
             }
         }
 
-        setTurns(newTurns)
-    }, [moves])
+        return turns
+    }
 
     function scrollToCurrentMove() {
         if (!moveListRef.current) return
@@ -147,41 +155,36 @@ export default function Moves(props: { moves: move[], overallGameComment: string
                 </div>
             </div>
             <ul style={{height: (movesHeight || '100%')}} ref={moveListRef} className="gap-y-1 overflow-y-auto overflow-x-hidden w-[85%] select-none flex flex-col">
-                {turns.map((turn, i) => {
-                    const currentMoveNumber = (i * 2) + 1
-                    return (
-                        <li key={i} className="flex flex-row text-foregroundGrey items-center w-full">
-                            <span className="font-bold w-[33px]">{turn[0]}.</span>
-                            <div className="flex flex-row text-lg font-extrabold flex-grow">
-                                {turn.slice(1).map((move, j) => {
-                                    if (!move) return null
+                {getTurns().map((turn, i) => (
+                    <li key={i} className="flex flex-row text-foregroundGrey items-center w-full">
+                        <span className="font-bold w-[33px]">{turn[0]}.</span>
+                        <div className="flex flex-row text-lg font-extrabold flex-grow">
+                            {turn.slice(1).map((move, j) => {
+                                if (!move) return <div key={`${i}-${j}`} className="w-1/2" />
 
-                                    const isWhite = j === 0
-                                    let adjustedMoveNumber = currentMoveNumber
-                                    if (!isWhite) adjustedMoveNumber++
+                                const currentMoveNumber = (i * 2) + j + (firstMoveBlack ? 0 : 1)
 
-                                    const isSelected = moveNumber === adjustedMoveNumber
+                                const isSelected = moveNumber === currentMoveNumber
 
-                                    const rating = moves[adjustedMoveNumber].moveRating
+                                const rating = moves[currentMoveNumber].moveRating
 
-                                    const prevRating = moves[adjustedMoveNumber - 1]?.moveRating
-                                    const nextRating = moves[adjustedMoveNumber + 1]?.moveRating
+                                const prevRating = moves[currentMoveNumber - 1]?.moveRating
+                                const nextRating = moves[currentMoveNumber + 1]?.moveRating
 
-                                    const shownRating = getRating(adjustedMoveNumber, rating, prevRating, nextRating, lastBookMove)
+                                const shownRating = getRating(currentMoveNumber, rating, prevRating, nextRating, lastBookMove)
 
-                                    const fgColorClass = shownRating ? shownRating.textClass : isSelected ? 'text-foregroundHighlighted' : ''
+                                const fgColorClass = shownRating ? shownRating.textClass : isSelected ? 'text-foregroundHighlighted' : ''
 
-                                    return (
-                                        <div key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
-                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className="w-[22px] outline-none">{shownRating ? <RatingSVG draggable rating={shownRating.rating} size={22} /> : null}</button>
-                                            <button type="button" onClick={() => handleMoveClick(adjustedMoveNumber)} className={`rounded-borderRoundness outline-none border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </li>
-                    )
-                })}
+                                return (
+                                    <div key={`${i}-${j}`} className="w-1/2 flex flex-row gap-1 items-center">
+                                        <button type="button" onClick={() => handleMoveClick(currentMoveNumber)} className="w-[22px] outline-none">{shownRating ? <RatingSVG draggable rating={shownRating.rating} size={22} /> : null}</button>
+                                        <button type="button" onClick={() => handleMoveClick(currentMoveNumber)} className={`rounded-borderRoundness outline-none border-b-2 text-left px-2 w-fit ${isSelected ? 'bg-backgroundBoxBox border-backgroundBoxBoxHover' : 'border-transparent'} ${fgColorClass}`}>{move}</button>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    </li>
+                ))}
             </ul>
             <div ref={gameChartRef}>
                 <GameChart container={container} moves={moves} moveNumber={moveNumber} setMoveNumber={setMoveNumber} setAnimation={setAnimation} setForward={setForward} />

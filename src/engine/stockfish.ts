@@ -792,7 +792,7 @@ export function parsePGN(stockfish: Worker, rawPgn: string, depth: number, openi
                     bestMoveSan,
                     color,
                     sacrifice,
-                    previousStaticEvals
+                    previousStaticEvals: newPreviousStaticEvals
                 })
 
                 previousStaticEvals = newPreviousStaticEvals

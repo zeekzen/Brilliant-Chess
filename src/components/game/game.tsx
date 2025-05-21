@@ -88,7 +88,7 @@ export default function Game() {
     const [moveNumber, setMoveNumber] = analyzeContext.moveNumber
     const [game, setGame] = analyzeContext.game
     const [data] = analyzeContext.data
-    const setPageState = analyzeContext.pageState[1]
+    const [pageState, setPageState] = analyzeContext.pageState
     const [forward, setForward] = analyzeContext.forward
     const [animation, setAnimation] = analyzeContext.animation
     const [white, setWhite] = analyzeContext.white
@@ -310,8 +310,10 @@ export default function Game() {
 
                     const tab = tabRef.current
 
-                    if (tab === 'summary') setTab('moves')
-                    else if (tab === 'moves') setTab('summary')
+                    if (pageState === "analyze") {
+                        if (tab === 'summary') setTab('moves')
+                        else if (tab === 'moves') setTab('summary')
+                    }
                     break
             }
         }
@@ -395,7 +397,19 @@ export default function Game() {
                 cleanArrows()
 
                 if (!fen) {
-                    setGame([])
+                    const chess = new Chess()
+                    const fen = chess.fen()
+                    const bestMove = chess.move({ from: "e2", to: "e4" })
+
+                    const move: move = {
+                        fen,
+                        color: chess.turn(),
+                        bestMove: [formatSquare(bestMove.from), formatSquare(bestMove.to)],
+                        bestMoveSan: bestMove.san,
+                        previousStaticEvals: [["cp", "-30"]]
+                    }
+
+                    setGame([move])
                     setPageState('default')
                     return
                 }
@@ -436,7 +450,7 @@ export default function Game() {
         }
 
         setGame([move])
-        setPageState('default')
+        setPageState('analyzeCustom')
     }
 
     useEffect(() => {
@@ -541,6 +555,8 @@ export default function Game() {
         setForward(true)
         setCustomLine(prev => ({ moveNumber: prev.moveNumber + 1, moves: [...prev.moves.slice(0, prev.moveNumber + 1), unanalyzedMove], arrows: sliceCustomArrows(prev.arrows, prev.moveNumber + 1) }))
         setAnalyzingMove(true)
+
+        if (data.format === "fen") setPageState("analyzeCustom")
 
         const move = await new Promise<move>(async (resolve, reject) => {
             const signal = analyzeController.signal

@@ -30,7 +30,7 @@ export interface CustomLine {
     arrows: AllGameArrows
 }
 
-type pageState = 'default' | 'loading' | 'analyze'
+type pageState = 'default' | 'loading' | 'analyze' | 'analyzeCustom'
 
 type tabs = 'analyze' | 'selectGame' | 'summary' | 'moves'
 
