@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html>
-      <body className={`flex flex-row items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
+      <body className={`flex navTop:flex-row flex-col items-center justify-start h-screen w-screen overflow-x-hidden ${roboto.className}`}>
         {children}
       </body>
     </html>

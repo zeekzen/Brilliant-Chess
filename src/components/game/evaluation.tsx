@@ -1,5 +1,5 @@
-export default function Evaluation(props: { height: number, white: boolean, advantage: string[], whiteMoving: boolean }) {
-    const { height, white, advantage, whiteMoving } = props
+export default function Evaluation(props: { size: number, white: boolean, advantage: string[], whiteMoving: boolean, navTop: boolean }) {
+    const { size, white, advantage, whiteMoving, navTop } = props
 
     const OLD_PERCENTS = [-400, 400]
     const NEW_PERCENTS = [5, 95]
@@ -30,11 +30,11 @@ export default function Evaluation(props: { height: number, white: boolean, adva
     }
 
     return (
-        <div style={{ height: height }} className={`vertical:w-9 w-7 bg-evaluationBarBlack overflow-hidden flex flex-col relative ${white ? "justify-end" : "justify-start"}`}>
-            <div style={{ height: `${percent}%`, transition: 'height 1.5s', willChange: 'height' }} className="w-full bg-evaluationBarWhite" />
-            <div className="absolute h-full flex flex-col justify-between w-full vertical:py-2 py-1 vertical:text-xs text-[9px] font-bold">
-                <div style={{ opacity: !winning ? 100 : 0 }} className={`text-center ${white ? "text-foreground" : "text-background"}`}>{displayAdvantage}</div>
-                <div style={{ opacity: winning ? 100 : 0 }} className={`text-center ${!white ? "text-foreground" : "text-background"}`}>{displayAdvantage}</div>
+        <div style={{ [navTop ? "width" : "height"]: size }} className={`vertical:w-9 navTop:w-7 h-7 bg-evaluationBarBlack overflow-hidden flex navTop:flex-col flex-row relative ${white ? "navTop:justify-end justify-start" : "navTop:justify-start justify-end"}`}>
+            <div style={{ [navTop ? "width" : "height"]: `${percent}%`, transition: 'height 1.5s', willChange: 'height' }} className="w-full bg-evaluationBarWhite" />
+            <div className="absolute h-full flex navTop:flex-col flex-row items-center justify-between w-full vertical:py-2 navTop:py-1 navTop:px-0 px-1 vertical:text-xs navTop:text-[9px] text-[11px] font-bold">
+                <div style={{ opacity: !winning ? 100 : 0 }} className={`${white ? "navTop:text-foreground text-background" : "navTop:text-background text-foreground"}`}>{displayAdvantage}</div>
+                <div style={{ opacity: winning ? 100 : 0 }} className={`${!white ? "navTop:text-foreground text-background" : "navTop:text-background text-foreground"}`}>{displayAdvantage}</div>
             </div>
         </div>
     )

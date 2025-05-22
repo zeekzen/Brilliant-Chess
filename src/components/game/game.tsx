@@ -12,7 +12,7 @@ import { Chess, PieceSymbol, WHITE } from "chess.js"
 import { getAproxMemory, wasmSupported, wasmThreadsSupported } from "@/engine/wasmChecks"
 import { pushPageWarning, pushPageError } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
-import { maxVertical } from "../../../tailwind.config"
+import { maxVertical, navTop } from "../../../tailwind.config"
 import { ConfigContext } from "@/context/config"
 
 // const NOT_SUPPORTED_WASM_THREADS_WARNING = ['WebAssembly threads not supported', 'The app may run slower. Try updating your browser for better performance.']
@@ -78,6 +78,7 @@ export default function Game() {
     const [gap, setGap] = useState(10)
     const [openings, setOpenings] = useState<openings>({ })
     const [drag, setDrag] = useState<drag>({is: false, id: ''})
+    const [isNavTop, setIsNavTop] = useState(false)
 
     const analyzeContext = useContext(AnalyzeContext)
     const errorsContext = useContext(ErrorsContext)
@@ -478,17 +479,40 @@ export default function Game() {
             const statusBarHeight = statusBar?.offsetHeight ?? 0
             const gapHeight = newGap
 
-            const navWidth = document.getElementsByTagName("nav")[0]?.offsetWidth ?? 0
+            const nav = document.getElementsByTagName("nav")[0]
+            const navWidth = nav?.offsetWidth ?? 0
+            const navHeight = nav?.offsetHeight ?? 0
             const evalWidth = 36
-            const menuWidth = 290
-            const rightAdWidth = 144
+            const menuWidth = 400
             const boardMenuWidth = 17
             const gapWidth = 8
             const paddingWidth = 16
 
+            const isNavTop = window.innerWidth < navTop
+            setIsNavTop(isNavTop)
+
+            if (isNavTop) {
+                const paddingWidth = 8
+
+                const boardHeight = window.innerHeight - (navHeight + paddingWidth + evalWidth + gapWidth + statusBarHeight + gapWidth + gapWidth + statusBarHeight + gapHeight + boardMenuWidth + paddingWidth)
+                const maxWidth = window.innerWidth - (paddingWidth + paddingWidth)
+
+                const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
+
+                setBoardSize(newBoardSize)
+                setGameHeight(newBoardSize)
+
+                return
+            }
+            
             if (window.innerWidth < maxVertical) {
                 const paddingWidth = 8
-                const newBoardSize = roundBoardSize(window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2)))
+                const evalWidth = 28
+
+                const boardHeight = window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2))
+                const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + gapHeight + gapWidth + boardMenuWidth + paddingWidth)
+
+                const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
 
                 setBoardSize(newBoardSize)
                 setGameHeight(newBoardSize + (statusBarHeight * 2) + (gapHeight * 2))
@@ -497,7 +521,7 @@ export default function Game() {
             }
 
             const boardHeight = componentHeight - ((statusBarHeight * 2) + (gapHeight * 2))
-            const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + gapHeight + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth + rightAdWidth + paddingWidth)
+            const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + gapHeight + gapWidth + boardMenuWidth + gapWidth + menuWidth + paddingWidth)
 
             const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
 
@@ -619,9 +643,9 @@ export default function Game() {
     }
 
     return (
-        <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex flex-row outline-none">
-            <div style={{ height: gameHeight }} className="flex items-center">
-                <Evaluation height={boardSize} white={white} advantage={analyzingMove ? previousMove?.previousStaticEvals?.[0] ?? ["cp", "0"] : move?.previousStaticEvals?.[0] ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
+        <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex navTop:flex-row flex-col outline-none">
+            <div style={{ [isNavTop ? "width" : "height"]: gameHeight }} className="flex navTop:flex-row flex-col">
+                <Evaluation size={boardSize} navTop={isNavTop} white={white} advantage={analyzingMove ? previousMove?.previousStaticEvals?.[0] ?? ["cp", "0"] : move?.previousStaticEvals?.[0] ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
             </div>
             <div ref={componentRef} style={{ gap: gap }} className="h-full flex flex-col justify-start">
                 <div style={{ width: boardSize }} className="flex flex-row justify-between">
