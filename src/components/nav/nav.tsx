@@ -40,7 +40,7 @@ export default function Nav() {
 
     const botLinks: BotLinks[] = [
         { label: "Source Code", href: "https://github.com/wdeloo/Brilliant-Chess", icon: (props: {className: string}) => <GitHub class={props.className} /> },
-        { label: "Licenses", href: "/licenses", icon: (props: {className: string}) => <Licenses class={props.className} /> },
+        { label: "Attributions", href: "/attributions", icon: (props: {className: string}) => <Licenses class={props.className} /> },
     ]
 
     function openSettings() {
