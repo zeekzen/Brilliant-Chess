@@ -84,6 +84,9 @@ export default {
       "reduceNav": "1280px",
       "notFullDate": "1468px",
       "reduceSummary": `${reduceSummary}px`,
+
+      "attributionsTwoColumns": "1000px",
+      "attributionsOneColumn": "700px",
     }
   },
   plugins: [],
