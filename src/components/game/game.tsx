@@ -14,6 +14,7 @@ import { pushPageWarning, pushPageError } from "@/components/errors/pageErrors"
 import { ErrorsContext } from "@/context/errors"
 import { maxVertical, navTop } from "../../../tailwind.config"
 import { ConfigContext } from "@/context/config"
+import GameButtons from "../menu/analysis/gameButtons"
 
 // const NOT_SUPPORTED_WASM_THREADS_WARNING = ['WebAssembly threads not supported', 'The app may run slower. Try updating your browser for better performance.']
 const NOT_SUPPORTED_WASM_WARNING = ['WebAssembly not supported', 'The app may run very slow. Try updating your browser for better performance.']
@@ -493,8 +494,9 @@ export default function Game() {
 
             if (isNavTop) {
                 const paddingWidth = 8
+                const gameButtonsHeight = 40
 
-                const boardHeight = window.innerHeight - (navHeight + paddingWidth + evalWidth + gapWidth + statusBarHeight + gapWidth + gapWidth + statusBarHeight + gapHeight + boardMenuWidth + paddingWidth)
+                const boardHeight = window.innerHeight - (navHeight + paddingWidth + evalWidth + gapWidth + statusBarHeight + gapWidth + gapWidth + statusBarHeight + gapHeight + gameButtonsHeight + gapHeight + boardMenuWidth + paddingWidth)
                 const maxWidth = window.innerWidth - (paddingWidth + paddingWidth)
 
                 const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
@@ -504,12 +506,15 @@ export default function Game() {
 
                 return
             }
+
+            const isVertical = window.innerWidth < maxVertical
             
-            if (window.innerWidth < maxVertical) {
+            if (isVertical) {
                 const paddingWidth = 8
                 const evalWidth = 28
+                const gameButtonsHeight = 69
 
-                const boardHeight = window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 2) + (paddingWidth * 2))
+                const boardHeight = window.innerHeight - ((statusBarHeight * 2) + (gapHeight * 3) + (paddingWidth * 2) + gameButtonsHeight)
                 const maxWidth = window.innerWidth - (navWidth + paddingWidth + evalWidth + gapHeight + gapWidth + boardMenuWidth + paddingWidth)
 
                 const newBoardSize = roundBoardSize(Math.min(boardHeight, maxWidth))
@@ -643,6 +648,7 @@ export default function Game() {
     }
 
     return (
+    <div className="flex flex-col gap-[6px]">
         <div ref={gameRef} tabIndex={0} style={{ gap: gap }} className="h-full flex navTop:flex-row flex-col outline-none">
             <div style={{ [isNavTop ? "width" : "height"]: gameHeight }} className="flex navTop:flex-row flex-col items-center">
                 <Evaluation size={boardSize} navTop={isNavTop} white={white} advantage={analyzingMove ? previousMove?.previousStaticEvals?.[0] ?? ["cp", "0"] : move?.previousStaticEvals?.[0] ?? ['cp', "0"]} whiteMoving={(analyzingMove ? previousMove?.color ?? WHITE : move?.color ?? WHITE) === WHITE} />
@@ -657,7 +663,6 @@ export default function Game() {
                     cleanArrows={cleanCurrentArrows}
                     arrows={getArrows(arrows, moveNumber, customLine)}
                     sacrifice={move?.sacrifice}
-                    controller={gameController}
                     forward={forward}
                     moveRating={move?.moveRating}
                     bestMove={move?.bestMove}
@@ -691,5 +696,11 @@ export default function Game() {
                 </div>
             </div>
         </div>
+        <div className="bg-backgroundBox flex-row justify-center rounded-borderRoundness vertical:hidden w-full navTop:flex hidden">
+            <div className="max-w-[500px] w-full flex flex-row justify-center">
+                <GameButtons />
+            </div>
+        </div>
+    </div>
     )
 }

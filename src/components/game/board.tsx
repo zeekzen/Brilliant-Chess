@@ -2,10 +2,8 @@ import { deformatSquare, formatSquare, moveRating, position, result, square } fr
 import { RefObject, useContext, useEffect, useRef, useState } from "react";
 import { BISHOP, BLACK, Chess, Color, KING, KNIGHT, PAWN, PieceSymbol, QUEEN, ROOK, Square, WHITE } from "chess.js";
 import { Howl } from "howler";
-import { Controller } from "@/context/analyze";
 import { ConfigContext } from "@/context/config";
 import { boardThemes } from "../nav/settings/themes";
-import { maxVertical } from "../../../tailwind.config";
 import { arrow } from "./game";
 import PieceSVG from "../svg/piece";
 import RatingSVG from "../svg/rating";
@@ -406,7 +404,7 @@ function Piece(props: { squareSize: number, pieceRef: RefObject<HTMLDivElement>,
     )
 }
 
-export default function Board(props: { cleanArrows: () => void, controller: Controller, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], bestMoveSan?: string, previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMoveSan?: string) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
+export default function Board(props: { cleanArrows: () => void, sacrifice?: boolean, previousStaticEvals?: string[][], boardSize: number, fen: string, nextFen: string, move?: square[], nextMove?: square[], bestMove?: square[], bestMoveSan?: string, previousBestMove?: square[], moveRating?: moveRating, forward: boolean, white: boolean, animation: boolean, gameEnded: boolean, capture?: PieceSymbol, nextCapture?: PieceSymbol, castle?: 'k' | 'q', nextCastle?: 'k' | 'q', setAnimation: (animation: boolean) => void, result: result, arrows: arrow[], pushArrow: (arrow: arrow) => void, analyzeMove: (previousFen: string, movement: { from: string, to: string, promotion?: PieceSymbol }, previousSacrifice: boolean, previousStaticEvals: string[][], animation: boolean, previousBestMoveSan?: string) => void, analyzingMove: boolean, setMaterialAdvantage: (materialAdvantage: number) => void, drag: drag, setDrag: (dragging: drag) => void, setPlaying: (playing: boolean) => void }) {
     const [hoverDrag, setHoverDrag] = useState('')
     const [coronation, setCoronation] = useState<coronation>({ choosing: false, movement: [] })
 
@@ -428,7 +426,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
 
     const currentArrowRef = useRef<square[]>([])
 
-    const { drag, bestMoveSan, setDrag, pushArrow, cleanArrows, setMaterialAdvantage, setPlaying, analyzingMove, arrows, controller, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
+    const { drag, bestMoveSan, setDrag, pushArrow, cleanArrows, setMaterialAdvantage, setPlaying, analyzingMove, arrows, previousStaticEvals, sacrifice, boardSize, bestMove, previousBestMove, moveRating, forward, white, animation, gameEnded, capture, nextCapture, castle, nextCastle, setAnimation, result, analyzeMove } = props
     const fen = props.fen
     const nextFen = props.nextFen
     const move = props.move ?? []
@@ -640,10 +638,6 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
         animation.oncancel = resetElements
     }
 
-    function isMobile() {
-        return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|Opera Mini|IEMobile/i.test(navigator.userAgent);
-    }
-
     function getLegalMoves() {
         if (!drag.id) return []
 
@@ -772,24 +766,7 @@ export default function Board(props: { cleanArrows: () => void, controller: Cont
                                     <div onMouseEnter={() => setHoverDrag(squareId)} onMouseLeave={() => setHoverDrag('')} onMouseDown={(e) => handleMovePiece(e, squareId)} onMouseUp={(e) => handleMovePiece(e, squareId)} style={{ opacity: showLegalMoves ? '' : 0 }} className="absolute w-full h-full z-[40] top-0 left-0 flex justify-center items-center pointer-events-auto"><div className="bg-black opacity-[15%] w-[30%] h-[30%] rounded-full" /></div>
                             ) : null
 
-                            const col = columnNumber
-                            function handleSquareClick() {
-                                if (!isMobile()) return
-
-                                setDrag({ is: false, id: "" })
-
-                                if (window.innerWidth < maxVertical) {
-                                    if (white) {
-                                        if (col < 4) controller.back()
-                                        else controller.forward()
-                                    } else {
-                                        if (col < 4) controller.forward()
-                                        else controller.back()
-                                    }
-                                }
-                            }
-
-                            squares.push(<div onClick={handleSquareClick} data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}{hoverDragSquare}{legalMove}</div>)
+                            squares.push(<div data-square={squareId} key={squareId} style={{ height: squareSize + 'px', width: squareSize + 'px', fontSize: guideSize, backgroundColor: bgColor }} className={`font-bold relative ${rounded}`}>{squareNumGuide}{squareLetterGuide}{piece}{highlighted}{resultIcon ? null : highlightedIcon}{resultIcon}{hoverDragSquare}{legalMove}</div>)
 
                             if (square) {
                                 if (square?.color === WHITE) {

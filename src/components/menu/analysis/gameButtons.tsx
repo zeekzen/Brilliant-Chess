@@ -1,3 +1,5 @@
+"use client"
+
 import { useContext, useEffect, useRef, useState } from "react";
 import NextMove from "../../svg/nextMove";
 import Play from "../../svg/play";
